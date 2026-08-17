@@ -1,0 +1,117 @@
+/* ==========================================================================
+   VARIABLES.CSS - Design Tokens (Single Source of Truth)
+   ==========================================================================
+   Purpose: DRY principle - Change any value here and it updates everywhere.
+   This file contains ONLY CSS custom properties, no actual styles.
+   Both dashboard and conferences pages import this file FIRST.
+   
+   Structure:
+   - Brand & Primary Colors
+   - Backgrounds (Light/Dark)
+   - Borders
+   - Text Colors
+   - Semantic Colors (Success, Danger, Warning)
+   - Avatars & Icons
+   - Spacing & Sizing
+   - Radius & Shadows
+   - Transitions & Fonts
+   ========================================================================== */
+
+:root {
+  /* --- Brand & Primary - Main blue used for buttons, links, active states --- */
+  --color-primary: #2563EB;
+  --color-primary-hover: #1D4ED8;
+  --color-primary-light: #EFF6FF; /* Light blue bg for active nav */
+  --color-primary-light-dark: rgba(30,58,138,0.3); /* Dark mode active nav */
+  --color-primary-text-light: #93C5FD; /* Light blue text in dark mode */
+
+  /* --- Page Backgrounds - Main page and card backgrounds --- */
+  --bg-page: #F8FAFC; /* Light gray page bg */
+  --bg-page-dark: #020617; /* Very dark blue for dark mode page */
+  --bg-card: #ffffff; /* White card bg */
+  --bg-card-dark: #1E293B; /* Dark slate card bg */
+  --bg-sidebar: #ffffff;
+  --bg-sidebar-dark: #0F172A;
+  --bg-header: rgba(248,250,252,0.8); /* Semi-transparent for blur effect */
+  --bg-header-dark: rgba(2,6,23,0.8);
+  --bg-user-card: #F8FAFC;
+  --bg-user-card-dark: #1E293B;
+  --bg-range-switch: #F8FAFC;
+  --bg-range-switch-dark: #0F172A;
+  --bg-track: #F1F5F9; /* Progress bar track */
+  --bg-track-dark: #0F172A;
+  --bg-hover: #F8FAFC;
+  --bg-hover-dark: #0F172A;
+  --bg-popover: #ffffff;
+  --bg-popover-dark: #1E293B;
+
+  /* --- Borders - All border colors --- */
+  --border-light: #E2E8F0; /* Light gray border */
+  --border-dark: #1E293B; /* Dark border for dark mode */
+  --border-strong: #334155; /* Stronger border */
+  --border-attention: #FDE68A; /* Yellow border for attention section */
+  --border-attention-dark: rgba(120,53,15,0.5);
+
+  /* --- Text Colors --- */
+  --text-primary: #0F172A; /* Main dark text */
+  --text-primary-dark: #F1F5F9; /* Light text in dark mode */
+  --text-secondary: #64748B; /* Secondary gray */
+  --text-muted: #94A3B8; /* Muted labels, timestamps */
+  --text-tertiary: #475569; /* Nav items */
+  --text-white: #ffffff;
+  --text-white-80: rgba(255,255,255,0.8);
+  --text-white-90: rgba(255,255,255,0.9);
+
+  /* --- Semantic Colors - Success, Error, Warning --- */
+  --color-success-bg: #DCFCE7; /* Green bg for up badge */
+  --color-success-text: #16A34A;
+  --color-success-bg-dark: #14532D;
+  --color-success-text-dark: #86EFAC;
+  --color-danger: #EF4444; /* Red for notifications */
+  --color-warning-bg: #FEF3C7;
+  --color-warning-light: #FFFBEB; /* Attention section bg */
+  --color-warning-light-dark: #1C0A00;
+  --color-warning-text: #92400E;
+  --color-warning-text-dark: #FBBF24;
+  --color-progress-green: #10B981;
+  --color-progress-purple: #8B5CF6;
+
+  /* --- Avatar & Icon Backgrounds --- */
+  --color-blue-icon-bg: #EFF6FF;
+  --color-green-icon-bg: #F0FDF4;
+  --color-yellow-icon-bg: #FEF3C7;
+  --color-purple-icon-bg: #F5F3FF;
+  --color-avatar-blue: #BFDBFE;
+  --color-avatar-purple: #DDD6FE;
+  --color-avatar-yellow: #FDE68A;
+  --color-avatar-light-blue: #DBEAFE;
+  --color-avatar-pink: #FCE7F3;
+  --color-avatar-indigo: #E0E7FF;
+
+  /* --- Layout Sizing --- */
+  --sidebar-width: 280px;
+  --header-height: 64px;
+  --content-padding: 32px;
+  --content-padding-mobile: 16px;
+  --card-padding: 20px;
+  --card-padding-lg: 24px;
+
+  /* --- Border Radius --- */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 999px;
+
+  /* --- Shadows --- */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 12px rgba(15,23,42,0.08);
+  --shadow-lg: 0 10px 30px rgba(15,23,42,0.08);
+  --shadow-lg-dark: 0 10px 30px rgba(0,0,0,0.35);
+  --shadow-popover: 0 20px 40px rgba(15,23,42,0.12);
+
+  /* --- Transitions & Fonts --- */
+  --transition-fast: 0.18s ease;
+  --transition-normal: 0.22s ease;
+  --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+}

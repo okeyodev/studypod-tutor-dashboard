@@ -1,0 +1,674 @@
+/* ==========================================================================
+   DASHBOARD.CSS - Dashboard Page Only (index.html)
+   ==========================================================================
+   Contains ONLY styles unique to dashboard, not used on conferences page.
+   Shared styles are in common.css, variables in variables.css
+   DRY: If you add something used on both pages, move it to common.css
+   ========================================================================== */
+
+/* ---------------- Hero / Welcome Section ---------------- */
+.hero {
+   display: flex;
+   flex-direction: column;
+   gap: 16px;
+}
+
+.hero h1 {
+   font-size: 32px;
+   font-weight: 700;
+   letter-spacing: -0.03em;
+   line-height: 1.1;
+}
+
+.hero p {
+   font-size: 15px;
+   color: var(--text-secondary);
+   margin-top: 4px;
+}
+
+body.dark .hero p {
+   color: var(--text-muted);
+}
+
+.hero-actions {
+   display: flex;
+   gap: 12px;
+}
+
+/* ---------------- Stats Grid - 4 metric cards ---------------- */
+.stats-grid {
+   display: grid;
+   grid-template-columns: repeat(4, 1fr);
+   gap: 16px;
+}
+
+.stat-top {
+   display: flex;
+   justify-content: space-between;
+}
+
+.stat-label {
+   font-size: 11px;
+   font-weight: 700;
+   letter-spacing: 0.08em;
+   color: var(--text-secondary);
+   text-transform: uppercase;
+}
+
+body.dark .stat-label {
+   color: var(--text-muted);
+}
+
+.stat-value {
+   font-size: 28px;
+   font-weight: 700;
+   margin-top: 4px;
+}
+
+.stat-sub {
+   margin-top: 4px;
+   display: flex;
+   align-items: center;
+   gap: 6px;
+   font-size: 12px;
+}
+
+.badge-up {
+   background: var(--color-success-bg);
+   color: var(--color-success-text);
+   padding: 2px 6px;
+   border-radius: var(--radius-sm);
+   font-weight: 500;
+   font-size: 11px;
+}
+
+body.dark .badge-up {
+   background: var(--color-success-bg-dark);
+   color: var(--color-success-text-dark);
+}
+
+.stat-muted {
+   color: var(--text-muted);
+}
+
+.icon-box {
+   width: 40px;
+   height: 40px;
+   border-radius: var(--radius-lg);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 18px;
+}
+
+.icon-box.blue {
+   background: var(--color-blue-icon-bg);
+}
+
+body.dark .icon-box.blue {
+   background: var(--color-primary-light-dark);
+}
+
+.icon-box.green {
+   background: var(--color-green-icon-bg);
+}
+
+body.dark .icon-box.green {
+   background: rgba(20, 83, 45, .3);
+}
+
+.icon-box.yellow {
+   background: var(--color-yellow-icon-bg);
+}
+
+body.dark .icon-box.yellow {
+   background: rgba(120, 53, 15, .3);
+}
+
+.mini-spark {
+   width: 100%;
+   height: 32px;
+   margin-top: 16px;
+}
+
+.mini-bars {
+   display: flex;
+   align-items: flex-end;
+   gap: 4px;
+   height: 32px;
+   margin-top: 16px;
+}
+
+.mini-bar {
+   width: 8px;
+   background: var(--border-light);
+   border-radius: var(--radius-full);
+}
+
+body.dark .mini-bar {
+   background: var(--border-strong);
+}
+
+.mini-bar.active {
+   background: var(--color-primary);
+}
+
+.ring-wrap {
+   position: relative;
+   width: 56px;
+   height: 56px;
+}
+
+.ring-center {
+   position: absolute;
+   inset: 0;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 12px;
+   font-weight: 700;
+}
+
+/* ---------------- Two Column Layouts ---------------- */
+.two-col {
+   display: grid;
+   grid-template-columns: 2fr 1fr;
+   gap: 16px;
+}
+
+.two-col-wide {
+   display: grid;
+   grid-template-columns: 1.6fr 1fr;
+   gap: 16px;
+}
+
+/* ---------------- Chart Section ---------------- */
+.card-subtitle {
+   font-size: 12px;
+   color: var(--color-progress-green);
+   font-weight: 500;
+   margin-top: 2px;
+}
+
+.range-switch {
+   display: flex;
+   background: var(--bg-range-switch);
+   border: 1px solid var(--border-light);
+   border-radius: var(--radius-full);
+   padding: 4px;
+   gap: 2px;
+}
+
+body.dark .range-switch {
+   background: var(--bg-range-switch-dark);
+   border-color: var(--border-strong);
+}
+
+.range-btn {
+   padding: 4px 12px;
+   font-size: 12px;
+   border-radius: var(--radius-full);
+   color: var(--text-secondary);
+   transition: var(--transition-fast);
+}
+
+.range-btn.active {
+   background: var(--bg-card);
+   box-shadow: var(--shadow-sm);
+   font-weight: 500;
+   color: var(--text-primary);
+}
+
+body.dark .range-btn.active {
+   background: var(--bg-card-dark);
+   color: var(--text-white);
+}
+
+.chart-svg {
+   width: 100%;
+   height: 180px;
+   display: block;
+}
+
+.chart-labels {
+   display: flex;
+   justify-content: space-between;
+   font-size: 11px;
+   color: var(--text-muted);
+   margin-top: 8px;
+   padding: 0 4px;
+}
+
+/* ---------------- Course Performance List ---------------- */
+.course-list {
+   display: flex;
+   flex-direction: column;
+   gap: 20px;
+}
+
+.course-row {
+   font-size: 13px;
+}
+
+.course-row-head {
+   display: flex;
+   justify-content: space-between;
+   margin-bottom: 6px;
+}
+
+.course-name {
+   font-weight: 500;
+}
+
+.course-pct {
+   color: var(--text-secondary);
+}
+
+.course-meta {
+   font-size: 11px;
+   color: var(--text-muted);
+   margin-bottom: 8px;
+}
+
+.track {
+   height: 6px;
+   background: var(--bg-track);
+   border-radius: var(--radius-full);
+   overflow: hidden;
+}
+
+body.dark .track {
+   background: var(--bg-track-dark);
+}
+
+.fill {
+   height: 6px;
+   border-radius: var(--radius-full);
+}
+
+.fill-blue {
+   background: var(--color-primary);
+}
+
+.fill-purple {
+   background: var(--color-progress-purple);
+}
+
+.fill-green {
+   background: var(--color-progress-green);
+}
+
+/* ---------------- Attention Section - Yellow Cards ---------------- */
+.attention {
+   background: var(--color-warning-light);
+   border: 1px solid var(--border-attention);
+   border-radius: var(--radius-xl);
+   padding: 20px;
+}
+
+body.dark .attention {
+   background: var(--color-warning-light-dark);
+   border-color: var(--border-attention-dark);
+}
+
+.attention-head {
+   display: flex;
+   align-items: center;
+   gap: 8px;
+   margin-bottom: 16px;
+}
+
+.attention-title {
+   font-size: 11px;
+   font-weight: 700;
+   letter-spacing: 0.1em;
+   text-transform: uppercase;
+   color: var(--color-warning-text);
+}
+
+body.dark .attention-title {
+   color: var(--color-warning-text-dark);
+}
+
+.attention-grid {
+   display: grid;
+   grid-template-columns: repeat(4, 1fr);
+   gap: 16px;
+}
+
+.att-box {
+   background: rgba(255, 255, 255, .8);
+   border: 1px solid rgba(253, 230, 138, .6);
+   border-radius: var(--radius-lg);
+   padding: 16px;
+   display: flex;
+   gap: 10px;
+}
+
+body.dark .att-box {
+   background: rgba(15, 23, 42, .8);
+   border-color: rgba(120, 53, 15, .3);
+}
+
+.att-icon {
+   width: 32px;
+   height: 32px;
+   border-radius: var(--radius-md);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   flex-shrink: 0;
+   font-size: 14px;
+}
+
+.att-text {
+   flex: 1;
+}
+
+.att-h {
+   font-size: 13px;
+   font-weight: 500;
+}
+
+.att-p {
+   font-size: 11px;
+   color: var(--text-secondary);
+   margin-top: 4px;
+}
+
+.att-action {
+   margin-top: 12px;
+   font-size: 12px;
+   font-weight: 500;
+   padding: 6px 12px;
+   border-radius: var(--radius-md);
+   display: inline-block;
+}
+
+/* ---------------- Activity Timeline ---------------- */
+.activity-wrap {
+   position: relative;
+}
+
+.activity-line {
+   position: absolute;
+   left: 12px;
+   top: 8px;
+   bottom: 8px;
+   width: 1px;
+   background: var(--border-light);
+}
+
+body.dark .activity-line {
+   background: var(--border-strong);
+}
+
+.act-list {
+   display: flex;
+   flex-direction: column;
+   gap: 20px;
+}
+
+.act-item {
+   display: flex;
+   gap: 12px;
+   position: relative;
+}
+
+.act-dot {
+   width: 24px;
+   height: 24px;
+   border-radius: 50%;
+   border: 2px solid var(--bg-card);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   z-index: 1;
+   flex-shrink: 0;
+   font-size: 8px;
+}
+
+body.dark .act-dot {
+   border-color: var(--bg-card-dark);
+}
+
+.act-dot.blue {
+   background: var(--color-blue-icon-bg);
+}
+
+body.dark .act-dot.blue {
+   background: var(--color-primary-light-dark);
+}
+
+.act-dot.green {
+   background: var(--color-green-icon-bg);
+}
+
+body.dark .act-dot.green {
+   background: rgba(20, 83, 45, .3);
+}
+
+.act-dot.yellow {
+   background: var(--color-yellow-icon-bg);
+}
+
+body.dark .act-dot.yellow {
+   background: rgba(120, 53, 15, .2);
+}
+
+.act-dot.purple {
+   background: var(--color-purple-icon-bg);
+}
+
+body.dark .act-dot.purple {
+   background: rgba(76, 29, 149, .2);
+}
+
+.act-text {
+   font-size: 13px;
+}
+
+.act-time {
+   font-size: 11px;
+   color: var(--text-muted);
+   margin-top: 4px;
+}
+
+.act-bold {
+   font-weight: 500;
+}
+
+.act-muted {
+   color: var(--text-secondary);
+}
+
+/* ---------------- Table - Top Performing Students ---------------- */
+.table-wrap {
+   overflow-x: auto;
+   margin: 0 -24px;
+   padding: 0 24px;
+}
+
+table {
+   width: 100%;
+   border-collapse: collapse;
+}
+
+thead th {
+   text-align: left;
+   font-size: 11px;
+   text-transform: uppercase;
+   letter-spacing: 0.08em;
+   color: var(--text-muted);
+   font-weight: 500;
+   padding-bottom: 12px;
+   border-bottom: 1px solid var(--border-light);
+}
+
+body.dark thead th {
+   border-color: var(--border-strong);
+}
+
+tbody td {
+   padding: 14px 0;
+   font-size: 13px;
+   border-bottom: 1px solid var(--bg-track);
+}
+
+body.dark tbody td {
+   border-color: rgba(15, 23, 42, .5);
+}
+
+tbody tr:last-child td {
+   border: none;
+}
+
+tbody tr {
+   cursor: pointer;
+   transition: var(--transition-fast);
+}
+
+tbody tr:hover {
+   background: var(--bg-hover);
+}
+
+body.dark tbody tr:hover {
+   background: var(--bg-hover-dark);
+}
+
+.student-cell {
+   display: flex;
+   align-items: center;
+   gap: 10px;
+}
+
+.student-av {
+   width: 32px;
+   height: 32px;
+   border-radius: 50%;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 12px;
+   font-weight: 500;
+   flex-shrink: 0;
+}
+
+.av-light-blue {
+   background: var(--color-avatar-light-blue);
+}
+
+.av-pink {
+   background: var(--color-avatar-pink);
+}
+
+.av-light-yellow {
+   background: var(--color-avatar-yellow);
+}
+
+.av-light-indigo {
+   background: var(--color-avatar-indigo);
+}
+
+.status-badge {
+   font-size: 11px;
+   padding: 4px 10px;
+   border-radius: var(--radius-full);
+   font-weight: 500;
+}
+
+.status-excellent {
+   background: var(--color-success-bg);
+   color: var(--color-success-text);
+}
+
+body.dark .status-excellent {
+   background: var(--color-success-bg-dark);
+   color: var(--color-success-text-dark);
+}
+
+.status-good {
+   background: var(--color-primary-light);
+   color: var(--color-primary);
+}
+
+body.dark .status-good {
+   background: var(--color-primary-light-dark);
+   color: var(--color-primary-text-light);
+}
+
+.status-progress {
+   background: var(--color-warning-bg);
+   color: #D97706;
+}
+
+body.dark .status-progress {
+   background: rgba(120, 53, 15, .3);
+   color: var(--color-warning-text-dark);
+}
+
+.text-right {
+   text-align: right;
+}
+
+.pl {
+   padding-left: 16px;
+}
+
+/* ---------------- Responsive for Dashboard Only ---------------- */
+@media(max-width:1024px) {
+   .hero {
+      flex-direction: column;
+   }
+
+   .hero-actions {
+      width: 100%;
+   }
+
+   .two-col,
+   .two-col-wide {
+      grid-template-columns: 1fr;
+   }
+
+   .attention-grid {
+      grid-template-columns: repeat(2, 1fr);
+   }
+
+   .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+   }
+
+   .hero h1 {
+      font-size: 28px;
+   }
+}
+
+@media(max-width:640px) {
+   .stats-grid {
+      grid-template-columns: 1fr;
+   }
+
+   .attention-grid {
+      grid-template-columns: 1fr;
+   }
+
+   .hero-actions {
+      flex-direction: column;
+   }
+
+   .btn-primary,
+   .btn-secondary {
+      width: 100%;
+      text-align: center;
+      justify-content: center;
+      display: flex;
+   }
+}
+
+@media(min-width:1024px) {
+   .hero {
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+   }
+}

@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!--
+    ==========================================================================
+    DASHBOARD.HTML - Main Dashboard Page
+    ==========================================================================
+    Purpose: Tutor's overview dashboard with stats, charts, students
+    Structure: This is the main landing page (index.html)
+    
+    Dependencies (import order matters):
+    1. css/variables.css - Design tokens (must be first)
+    2. css/common.css - Shared layout (sidebar, header, cards, etc)
+    3. css/dashboard.css - Dashboard-only styles
+    4. Inter font from Google Fonts
+    
+    JS Dependencies:
+    1. js/common.js - Shared logic (theme, popovers, drawer, toast)
+    2. js/dashboard.js - Dashboard-only logic (chart, counters)
+    
+    DRY Principle:
+    - Variables in variables.css (one place to change colors/spacing)
+    - Shared styles in common.css (used by both dashboard and conferences)
+    - Page-specific styles in dashboard.css (only this page)
+    - Same for JS: common.js + dashboard.js
+    
+    Collaboration Notes:
+    - Every section below has comments explaining purpose
+    - To add new section, follow existing card pattern
+    - To re-theme, edit :root in variables.css only
+    ==========================================================================
+  -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>eStudy - Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- CSS Imports - Order: variables -> common -> page-specific -->
+  <link rel="stylesheet" href="css/variables.css"> <!-- Must be first - contains all tokens -->
+  <link rel="stylesheet" href="css/common.css"> <!-- Shared layout and components -->
+  <link rel="stylesheet" href="css/dashboard.css"> <!-- Dashboard-only styles -->
+</head>
+
+<body>
+  <!--
+    APP WRAPPER
+    Flex container: Sidebar (280px) + Main (flex:1)
+    - Desktop: sidebar visible, main content beside it
+    - Mobile (<1024px): sidebar hidden, bottom nav visible
+  -->
+  <div class="app">
+
+    <!-- ==================== SIDEBAR - Shared Navigation ==================== -->
+    <!--
+      Left navigation panel - sticky, full height
+      Shared across both pages - active state set via setActiveNav() in common.js
+      Contains: Logo, Nav Groups, User Card
+      Hidden on mobile via media query in common.css
+    -->
+    <aside class="sidebar">
+      <!-- Sidebar Brand / Logo Area - Top of sidebar -->
+      <div class="sidebar-brand">
+        <div class="logo-box"><img src="image/studyPod_logo_pra.png" alt="studyPod_logo"></div> <!-- Simple logo with initials -->
+        <span class="brand-name">studyPod</span> <!-- App name -->
+        <span class="dot"></span> <!-- Green online indicator dot -->
+      </div>
+
+      <!-- Sidebar Navigation Menu - Main nav links grouped by category -->
+      <nav class="sidebar-nav">
+        <!-- Dashboard Link - Active on this page (index.html) -->
+        <!-- Uses <a> for proper navigation to separate file (conferences.html) -->
+        <a href="index.html" id="nav-dash" class="nav-btn active">◉ Dashboard</a>
+
+        <!-- Nav Group: Teaching Section -->
+        <div class="nav-group-title">Teaching</div>
+        <button class="nav-btn">▣ Courses</button> <!-- Placeholder - shows toast -->
+        <button class="nav-btn">◎ Students</button>
+        <button class="nav-btn">✓ Assignments</button>
+        <!-- Conferences Link - Navigates to separate HTML file (not switchView) -->
+        <a href="conferences.html" id="nav-conf" class="nav-btn">🎤 Conferences <span class="nav-badge">NEW</span></a>
+
+        <!-- Nav Group: Communication -->
+        <div class="nav-group-title">Communication</div>
+        <button class="nav-btn">◇ Messages <span class="nav-badge red">5</span></button> <!-- 5 unread badge -->
+
+        <!-- Nav Group: Insights -->
+        <div class="nav-group-title">Insights</div>
+        <button class="nav-btn">◫ Analytics</button>
+
+        <!-- Sidebar Bottom - Settings & Help - Separated by border-top -->
+        <div class="sidebar-bottom">
+          <button class="nav-btn">⚙ Settings</button>
+          <button class="nav-btn">? Help & Support</button>
+        </div>
+      </nav>
+
+      <!-- User Card - Bottom of sidebar - Tutor profile -->
+      <div>
+        <div class="user-card">
+          <div class="user-avatar">SD</div> <!-- Avatar with initials Sarah Davis -->
+          <div class="user-info">
+            <div class="user-name">Sarah Davis</div>
+            <div class="user-role">Tutor</div> <!-- Role label -->
+          </div>
+          <!-- Theme toggle button - switches dark/light mode -->
+          <button onclick="toggleTheme()" class="icon-btn"><span id="ico-side">🌙</span></button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ==================== MAIN CONTENT AREA ==================== -->
+    <!-- Right side: Header + Dashboard Content -->
+    <main class="main">
+
+      <!-- ---------------- Header - Sticky Top Bar (Shared) ---------------- -->
+      <!--
+        Sticky header with:
+        - Mobile logo (visible only when sidebar hidden)
+        - Breadcrumb (Dashboard > Overview)
+        - Actions: Theme toggle, Notifications, Profile avatar
+        - Popovers: Notifications dropdown and Profile menu (hidden by default)
+      -->
+      <header class="header">
+        <!-- Mobile-only logo - shown when sidebar hidden on <1024px -->
+        <div class="header-left-mobile">
+          <div class="logo-box">eS</div>
+          <span style="font-weight:700">eStudy</span>
+        </div>
+
+        <!-- Breadcrumb navigation - Shows current location -->
+        <div class="breadcrumb"><span>Dashboard</span><span>›</span><span id="crumb" class="active">Overview</span>
+        </div>
+
+        <!-- Header Actions - Right side icons -->
+        <div class="header-actions">
+          <button onclick="toggleTheme()" class="header-btn"><span id="ico-top">🌙</span></button>
+          <!-- Dark/light toggle -->
+          <button onclick="toggleNotif()" class="header-btn">🔔<span class="notif-dot"></span></button>
+          <!-- Notifications bell with red dot -->
+          <div onclick="toggleProfile()" class="avatar-btn">SD</div> <!-- Profile avatar triggers dropdown -->
+        </div>
+
+        <!-- Notification Popover - Hidden by default, shown via toggleNotif() in common.js -->
+        <div id="notif" class="popover">
+          <div class="popover-title">Notifications</div>
+          <div class="popover-item">
+            <div class="popover-dot blue"></div>
+            <div>
+              <div style="font-weight:500">New assignment submission</div>
+              <div class="popover-meta">Ava Kim — UX Design #4</div>
+            </div>
+          </div>
+          <div class="popover-item">
+            <div class="popover-dot green"></div>
+            <div>
+              <div style="font-weight:500">Conference reminder</div>
+              <div class="popover-meta">React Masterclass tomorrow 4PM</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Popover - User menu dropdown -->
+        <div id="prof" class="popover small">
+          <div style="padding:12px">
+            <div style="font-weight:600;font-size:14px">Sarah Davis</div>
+            <div style="font-size:12px;color:#64748B">sarah@estudy.com • Tutor</div>
+          </div>
+          <div class="popover-divider">
+            <button class="popover-link">View Profile</button>
+            <button class="popover-link">Account Settings</button>
+            <button class="popover-link danger">Log out</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- ==================== DASHBOARD CONTENT ==================== -->
+      <!-- Main dashboard sections - each with fade-up animation and delay -->
+
+      <div id="view-dash" class="content">
+
+        <!-- Hero Section - Welcome message + Call to actions -->
+        <!-- Top of dashboard, greeting + 2 buttons -->
+        <div class="hero fade-up" style="animation-delay:0ms">
+          <div>
+            <h1>Good morning, Sarah 👋</h1> <!-- Personalized greeting -->
+            <p>Here's what's happening across your courses, students and upcoming events today.</p> <!-- Subtitle -->
+          </div>
+          <div class="hero-actions"> <!-- CTA buttons -->
+            <button onclick="toast('Create Course')" class="btn-primary">+ Create Course</button>
+            <!-- Primary blue button -->
+            <a href="conferences.html" class="btn-secondary" style="display:inline-flex;align-items:center;">🎤 Create
+              Conference</a> <!-- Secondary goes to conferences page -->
+          </div>
+        </div>
+
+        <!-- Stats Grid - 4 Key Metrics Cards -->
+        <!-- Grid of 4 cards: Total Students, Active Courses, Completion Rate, Earnings -->
+        <div class="stats-grid">
+          <!-- Card 1: Total Students with sparkline mini chart -->
+          <div class="card card-pad fade-up" style="animation-delay:80ms">
+            <div class="stat-top"> <!-- Top row: label + icon -->
+              <div>
+                <div class="stat-label">Total Students</div>
+                <div class="stat-value" data-count="1248">0</div>
+                <!-- Animated number via data-count in dashboard.js -->
+                <div class="stat-sub"><span class="badge-up">↑ 12%</span><span class="stat-muted">vs last month</span>
+                </div> <!-- Growth badge -->
+              </div>
+              <div class="icon-box blue">👥</div> <!-- Icon with blue bg -->
+            </div>
+            <!-- Mini sparkline SVG - static path -->
+            <svg viewBox="0 0 100 24" class="mini-spark">
+              <path d="M0 20 Q20 18 30 12 T60 10 T100 4" fill="none" stroke="#2563EB" stroke-width="2"
+                stroke-linecap="round" opacity=".6" />
+            </svg>
+          </div>
+
+          <!-- Card 2: Active Courses with progress bar -->
+          <div class="card card-pad fade-up" style="animation-delay:160ms">
+            <div class="stat-top">
+              <div>
+                <div class="stat-label">Active Courses</div>
+                <div class="stat-value" data-count="34">0</div>
+                <div class="stat-sub"><span class="badge-up">↑ 3</span><span class="stat-muted">vs last month</span>
+                </div>
+              </div>
+              <div class="icon-box green">📚</div>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill green"></div>
+            </div> <!-- Green progress bar 75% -->
+          </div>
+
+          <!-- Card 3: Completion Rate with circular progress -->
+          <div class="card card-pad fade-up" style="animation-delay:240ms">
+            <div class="stat-top">
+              <div>
+                <div class="stat-label">Completion Rate</div>
+                <div class="stat-value" style="display:flex;gap:2px"><span data-count="78">0</span><span
+                    style="font-size:16px">%</span></div>
+                <div class="stat-sub"><span class="badge-up">↑ 5%</span><span class="stat-muted">vs last month</span>
+                </div>
+              </div>
+              <!-- Circular progress ring - SVG with draw animation -->
+              <div class="ring-wrap">
+                <svg viewBox="0 0 52 52" style="transform:rotate(-90deg);width:56px;height:56px">
+                  <circle cx="26" cy="26" r="22" fill="none" stroke="#E2E8F0" stroke-width="5" />
+                  <circle cx="26" cy="26" r="22" fill="none" stroke="#2563EB" stroke-width="5" stroke-linecap="round"
+                    stroke-dasharray="138" stroke-dashoffset="30" class="draw" />
+                </svg>
+                <div class="ring-center">78</div> <!-- Center number -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Total Earnings with mini bar chart -->
+          <div class="card card-pad fade-up" style="animation-delay:320ms">
+            <div class="stat-top">
+              <div>
+                <div class="stat-label">Total Earnings</div>
+                <div class="stat-value">$24.6k</div>
+                <div class="stat-sub"><span class="badge-up">↑ 8%</span><span class="stat-muted">vs last month</span>
+                </div>
+              </div>
+              <div class="icon-box yellow">💰</div>
+            </div>
+            <!-- Mini bar chart - 5 bars -->
+            <div class="mini-bars">
+              <div class="mini-bar" style="height:12px"></div>
+              <div class="mini-bar" style="height:20px"></div>
+              <div class="mini-bar active" style="height:32px"></div> <!-- Active blue bar -->
+              <div class="mini-bar" style="height:24px"></div>
+              <div class="mini-bar" style="height:16px"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Two Column Section: Engagement Chart + Course Performance -->
+        <div class="two-col">
+          <!-- Chart Card - Student engagement over time with range switcher -->
+          <div class="card card-pad-lg fade-up" style="animation-delay:400ms">
+            <div class="card-head"> <!-- Header: title + range buttons -->
+              <div>
+                <div class="card-title">Student Engagement</div>
+                <div class="card-subtitle">+184 new students this month</div>
+              </div>
+              <!-- Range Switcher - 7D,30D,3M,1Y - updates chart via setRange() in dashboard.js -->
+              <div class="range-switch">
+                <button onclick="setRange('7D')" id="r-7D" class="range-btn">7D</button>
+                <button onclick="setRange('30D')" id="r-30D" class="range-btn active">30D</button>
+                <button onclick="setRange('3M')" id="r-3M" class="range-btn">3M</button>
+                <button onclick="setRange('1Y')" id="r-1Y" class="range-btn">1Y</button>
+              </div>
+            </div>
+            <!-- SVG Chart - Drawn dynamically by drawChart() in dashboard.js -->
+            <svg id="chart" viewBox="0 0 600 180" class="chart-svg"></svg>
+            <div class="chart-labels">
+              <span>SEP</span><span>OCT</span><span>NOV</span><span>DEC</span><span>JAN</span><span>FEB</span></div>
+          </div>
+
+          <!-- Course Performance - List with progress bars -->
+          <div class="card card-pad-lg fade-up" style="animation-delay:480ms">
+            <div class="card-head" style="margin-bottom:20px">
+              <div class="card-title">Course Performance</div>
+              <a href="conferences.html" style="font-size:12px;color:#2563EB;font-weight:500">View all →</a>
+            </div>
+            <div class="course-list">
+              <!-- Course Row 1 -->
+              <div class="course-row">
+                <div class="course-row-head"><span class="course-name">Python for Data Science</span><span
+                    class="course-pct">68%</span></div>
+                <div class="course-meta">1,024 students</div>
+                <div class="track">
+                  <div class="fill fill-blue progress" style="--w:68%"></div>
+                </div> <!-- --w triggers width animation -->
+              </div>
+              <!-- Course Row 2 -->
+              <div class="course-row">
+                <div class="course-row-head"><span class="course-name">UX Design Fundamentals</span><span
+                    class="course-pct">54%</span></div>
+                <div class="course-meta">876 students</div>
+                <div class="track">
+                  <div class="fill fill-purple progress" style="--w:54%"></div>
+                </div>
+              </div>
+              <!-- Course Row 3 -->
+              <div class="course-row">
+                <div class="course-row-head"><span class="course-name">Digital Marketing</span><span
+                    class="course-pct">82%</span></div>
+                <div class="course-meta">634 students</div>
+                <div class="track">
+                  <div class="fill fill-green progress" style="--w:82%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Attention Section - Yellow background, 4 actionable cards -->
+        <div class="attention card fade-up" style="animation-delay:560ms">
+          <div class="attention-head"><span>⚡</span><span class="attention-title">Needs Your Attention</span></div>
+          <div class="attention-grid">
+            <!-- Attention Item 1: Assignments waiting -->
+            <div class="att-box">
+              <div class="att-icon" style="background:#FEF3C7">⚠</div>
+              <div class="att-text">
+                <div class="att-h">12 assignments waiting</div>
+                <div class="att-p">UX Design — Week 4</div>
+                <button onclick="toast('Review Students')" class="att-action btn-dark">Review</button>
+              </div>
+            </div>
+            <!-- Attention Item 2: Conference starts tomorrow - Highlighted -->
+            <div class="att-box" style="box-shadow:0 0 0 1px rgba(37,99,235,.1)">
+              <div class="att-icon" style="background:#EFF6FF">🎤</div>
+              <div class="att-text">
+                <div class="att-h">Conference starts tomorrow</div>
+                <div class="att-p">React Masterclass • 86 registered</div>
+                <a href="conferences.html" class="att-action btn-primary"
+                  style="padding:6px 12px;text-decoration:none;display:inline-block;">Manage</a>
+              </div>
+            </div>
+            <!-- Attention Item 3: Unread messages -->
+            <div class="att-box">
+              <div class="att-icon" style="background:#F0FDF4">💬</div>
+              <div class="att-text">
+                <div class="att-h">5 unread messages</div>
+                <div class="att-p">Students waiting</div>
+                <button onclick="toast('Open Messages')" class="att-action btn-light">Open</button>
+              </div>
+            </div>
+            <!-- Attention Item 4: Draft incomplete -->
+            <div class="att-box">
+              <div class="att-icon" style="background:#F5F3FF">📚</div>
+              <div class="att-text">
+                <div class="att-h">1 draft incomplete</div>
+                <div class="att-p">Digital Marketing</div>
+                <button onclick="toast('Continue Editing')" class="att-action btn-light">Continue</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Two Column Wide: Upcoming Conference + Recent Activity -->
+        <div class="two-col-wide">
+          <!-- Upcoming Conference Card - Gradient header -->
+          <div class="card fade-up" style="animation-delay:640ms;overflow:hidden">
+            <div class="conf-hero"> <!-- Gradient background -->
+              <div class="conf-tag-top"><span class="conf-dot"></span> UPCOMING CONFERENCE</div>
+              <div class="conf-pill">Registration Open</div>
+              <div class="conf-hero-title">React State Management Masterclass</div>
+              <div class="conf-hero-sub">Tomorrow • 4:00 PM – 6:00 PM • Live on eStudy</div>
+            </div>
+            <div class="conf-body">
+              <div class="conf-stats">
+                <div class="conf-left">
+                  <div>👥 <span style="font-weight:500">86 registered</span></div>
+                  <div class="avatars">
+                    <div class="av-blue"></div>
+                    <div class="av-purple"></div>
+                    <div class="av-more">+84</div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:8px">
+                  <a href="conferences.html" class="btn-dark" style="text-decoration:none;">Manage Conference</a>
+                  <button class="btn-light">Share</button>
+                </div>
+              </div>
+              <div class="progress-track" style="margin-top:16px">
+                <div class="progress-fill blue" style="width:86%"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:#94A3B8;margin-top:8px">
+                <span>86 / 100 seats filled</span><span>86%</span></div>
+            </div>
+          </div>
+
+          <!-- Recent Activity Timeline - Vertical line with dots -->
+          <div class="card card-pad-lg fade-up" style="animation-delay:720ms">
+            <div class="card-head" style="margin-bottom:20px">
+              <div class="card-title">Recent Activity</div>
+              <button style="font-size:12px;color:#2563EB;font-weight:500">View all →</button>
+            </div>
+            <div class="activity-wrap">
+              <div class="activity-line"></div> <!-- Vertical line connecting dots -->
+              <div class="act-list">
+                <div class="act-item">
+                  <div class="act-dot blue">●</div>
+                  <div class="act-text"><span class="act-bold">Michael Johnson</span> completed <span
+                      class="act-muted">Python — Module 8</span>
+                    <div class="act-time">12 min ago</div>
+                  </div>
+                </div>
+                <div class="act-item">
+                  <div class="act-dot green">●</div>
+                  <div class="act-text"><span class="act-bold">Ava Kim</span> submitted <span class="act-muted">UX
+                      Design Assignment #4</span>
+                    <div class="act-time">34 min ago</div>
+                  </div>
+                </div>
+                <div class="act-item">
+                  <div class="act-dot yellow">●</div>
+                  <div class="act-text"><span class="act-bold">Ryan Lee</span> enrolled in <span
+                      class="act-muted">Digital Marketing Strategy</span>
+                    <div class="act-time">1 hr ago</div>
+                  </div>
+                </div>
+                <div class="act-item">
+                  <div class="act-dot purple">●</div>
+                  <div class="act-text"><span class="act-bold">Emma Patel</span> sent you a message<div
+                      class="act-time">2 hrs ago</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Performing Students Table - Clickable rows open drawer -->
+        <div class="card card-pad-lg fade-up" style="animation-delay:800ms">
+          <div class="card-head" style="margin-bottom:20px">
+            <div class="card-title">Top Performing Students</div>
+            <button style="font-size:12px;color:#2563EB;font-weight:500">View all students →</button>
+          </div>
+          <div class="table-wrap"> <!-- Horizontal scroll on mobile -->
+            <table>
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Course</th>
+                  <th style="text-align:right">Progress</th>
+                  <th style="text-align:right">Score</th>
+                  <th class="pl">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Each row opens student drawer via openStudent() from common.js -->
+                <tr onclick="openStudent('Michael Johnson','MJ')">
+                  <td>
+                    <div class="student-cell">
+                      <div class="student-av av-light-blue">MJ</div><span style="font-weight:500">Michael Johnson</span>
+                    </div>
+                  </td>
+                  <td style="color:#64748B">Python</td>
+                  <td class="text-right">92%</td>
+                  <td class="text-right" style="font-weight:500">95</td>
+                  <td class="pl"><span class="status-badge status-excellent">Excellent</span></td>
+                </tr>
+                <tr onclick="openStudent('Ava Kim','AK')">
+                  <td>
+                    <div class="student-cell">
+                      <div class="student-av av-pink">AK</div><span style="font-weight:500">Ava Kim</span>
+                    </div>
+                  </td>
+                  <td style="color:#64748B">UX Design</td>
+                  <td class="text-right">86%</td>
+                  <td class="text-right" style="font-weight:500">88</td>
+                  <td class="pl"><span class="status-badge status-excellent">Excellent</span></td>
+                </tr>
+                <tr onclick="openStudent('Ryan Lee','RL')">
+                  <td>
+                    <div class="student-cell">
+                      <div class="student-av av-light-yellow">RL</div><span style="font-weight:500">Ryan Lee</span>
+                    </div>
+                  </td>
+                  <td style="color:#64748B">Marketing</td>
+                  <td class="text-right">76%</td>
+                  <td class="text-right" style="font-weight:500">79</td>
+                  <td class="pl"><span class="status-badge status-good">Good</span></td>
+                </tr>
+                <tr onclick="openStudent('Emma Patel','EP')">
+                  <td>
+                    <div class="student-cell">
+                      <div class="student-av av-light-indigo">EP</div><span style="font-weight:500">Emma Patel</span>
+                    </div>
+                  </td>
+                  <td style="color:#64748B">Python</td>
+                  <td class="text-right">64%</td>
+                  <td class="text-right" style="font-weight:500">72</td>
+                  <td class="pl"><span class="status-badge status-progress">In Progress</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== MOBILE BOTTOM NAVIGATION ==================== -->
+      <!-- Fixed bottom bar, visible only on <1024px - Shared across pages -->
+      <nav class="mobile-nav">
+        <a href="index.html" id="m-dash" class="mob-btn active"><span>◉</span><span>Home</span></a>
+        <button class="mob-btn"><span>▣</span><span>Courses</span></button>
+        <button class="mob-btn"><span>◎</span><span>Students</span></button>
+        <a href="conferences.html" id="m-conf" class="mob-btn"><span>🎤</span><span>Conf</span></a>
+        <button class="mob-btn"><span>◇</span><span>Messages</span><span class="mob-dot"></span></button>
+      </nav>
+      <div style="height:72px" class="mobile-spacer"></div> <!-- Spacer so content not hidden behind nav -->
+
+      <!-- ==================== STUDENT DRAWER - Shared Slide-in Panel ==================== -->
+      <!-- Right-side drawer showing student details - Shared across pages -->
+      <div id="drawer" class="drawer">
+        <div class="drawer-backdrop" onclick="closeStudent()"></div> <!-- Click outside to close -->
+        <div class="drawer-panel">
+          <div class="drawer-head">
+            <div class="drawer-user">
+              <div id="d-av" class="drawer-av">MJ</div>
+              <div>
+                <div id="d-name" class="drawer-name">Michael Johnson</div>
+                <div class="drawer-meta">Student • Joined Sep 2024</div>
+              </div>
+            </div>
+            <button onclick="closeStudent()" class="drawer-close">✕</button>
+          </div>
+          <div class="drawer-section">
+            <div class="drawer-label">Overall Progress</div>
+            <div class="drawer-progress-title">92% completed</div>
+            <div class="track" style="margin-top:8px;height:8px">
+              <div class="fill fill-blue" style="width:92%;height:8px"></div>
+            </div>
+          </div>
+          <div class="drawer-section">
+            <div class="drawer-box">
+              <div class="drawer-course-icon">📚</div>
+              <div>
+                <div style="font-size:13px;font-weight:500">Python for Data Science</div>
+                <div style="font-size:11px;color:#94A3B8">8 modules • 24 lessons</div>
+              </div>
+            </div>
+          </div>
+          <button class="drawer-btn">Send Message</button>
+        </div>
+      </div>
+
+      <!-- ==================== TOAST NOTIFICATION - Shared ==================== -->
+      <!-- Small pill at bottom center - used for "coming soon" messages - Shared -->
+      <div id="toast" class="toast"><span class="toast-dot"></span><span id="toast-msg">Action</span></div>
+
+    </main>
+  </div>
+
+  <!-- ==================== JS IMPORTS - Order matters: common first, then page-specific ==================== -->
+  <script src="js/common.js"></script> <!-- Shared logic: theme, popovers, drawer, toast -->
+  <script src="js/dashboard.js"></script> <!-- Dashboard-only: chart, counters -->
+</body>
+
+</html>

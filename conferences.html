@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!--
+    ==========================================================================
+    CONFERENCES.HTML - Conferences Page (Separated from Dashboard)
+    ==========================================================================
+    Purpose: Manage live learning events, masterclasses, workshops
+    This file was separated from dashboard to follow single-responsibility
+    and to allow different CSS/JS per page while keeping DRY via shared files.
+
+    Dependencies:
+    1. css/variables.css - Design tokens (must be first)
+    2. css/common.css - Shared layout (sidebar, header, cards)
+    3. css/conferences.css - Conferences-only styles
+
+    JS:
+    1. js/common.js - Shared logic (theme, popovers, toast)
+    2. js/conferences.js - Conferences-only logic
+
+    Navigation:
+    - Sidebar and mobile nav link between index.html and conferences.html via <a href>
+    - No more switchView() needed - each page is standalone
+
+    DRY:
+    - Variables in variables.css (single source)
+    - Shared styles in common.css
+    - Page-specific in conferences.css
+    ==========================================================================
+  -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>eStudy - Conferences</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- CSS Imports -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/conferences.css"> <!-- Conferences-only -->
+</head>
+
+<body>
+  <!-- APP WRAPPER: Sidebar + Main -->
+  <div class="app">
+
+    <!-- ==================== SIDEBAR - Shared ==================== -->
+    <!-- Same sidebar as dashboard, but active state on Conferences -->
+    <aside class="sidebar">
+      <!-- Sidebar Brand -->
+      <div class="sidebar-brand">
+        <div class="logo-box"><img src="image/studyPod_logo_pra.png" alt="studyPod_logo"></div>
+        <span class="brand-name">eStudy</span>
+        <span class="dot"></span>
+      </div>
+
+      <!-- Sidebar Navigation - Conferences active -->
+      <nav class="sidebar-nav">
+        <a href="index.html" id="nav-dash" class="nav-btn">◉ Dashboard</a>
+        <div class="nav-group-title">Teaching</div>
+        <button class="nav-btn">▣ Courses</button>
+        <button class="nav-btn">◎ Students</button>
+        <button class="nav-btn">✓ Assignments</button>
+        <!-- Active on this page -->
+        <a href="conferences.html" id="nav-conf" class="nav-btn active">🎤 Conferences <span
+            class="nav-badge">NEW</span></a>
+        <div class="nav-group-title">Communication</div>
+        <button class="nav-btn">◇ Messages <span class="nav-badge red">5</span></button>
+        <div class="nav-group-title">Insights</div>
+        <button class="nav-btn">◫ Analytics</button>
+        <div class="sidebar-bottom">
+          <button class="nav-btn">⚙ Settings</button>
+          <button class="nav-btn">? Help & Support</button>
+        </div>
+      </nav>
+
+      <!-- User Card -->
+      <div>
+        <div class="user-card">
+          <div class="user-avatar">SD</div>
+          <div class="user-info">
+            <div class="user-name">Sarah Davis</div>
+            <div class="user-role">Tutor</div>
+          </div>
+          <button onclick="toggleTheme()" class="icon-btn"><span id="ico-side">🌙</span></button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main class="main">
+      <!-- Header - Same as dashboard but breadcrumb shows Conferences -->
+      <header class="header">
+        <div class="header-left-mobile">
+          <div class="logo-box">eS</div>
+          <span style="font-weight:700">eStudy</span>
+        </div>
+        <div class="breadcrumb"><span>Dashboard</span><span>›</span><span id="crumb" class="active">Conferences</span>
+        </div>
+        <div class="header-actions">
+          <button onclick="toggleTheme()" class="header-btn"><span id="ico-top">🌙</span></button>
+          <button onclick="toggleNotif()" class="header-btn">🔔<span class="notif-dot"></span></button>
+          <div onclick="toggleProfile()" class="avatar-btn">SD</div>
+        </div>
+        <!-- Notification Popover -->
+        <div id="notif" class="popover">
+          <div class="popover-title">Notifications</div>
+          <div class="popover-item">
+            <div class="popover-dot blue"></div>
+            <div>
+              <div style="font-weight:500">New assignment submission</div>
+              <div class="popover-meta">Ava Kim — UX Design #4</div>
+            </div>
+          </div>
+          <div class="popover-item">
+            <div class="popover-dot green"></div>
+            <div>
+              <div style="font-weight:500">Conference reminder</div>
+              <div class="popover-meta">React Masterclass tomorrow 4PM</div>
+            </div>
+          </div>
+        </div>
+        <!-- Profile Popover -->
+        <div id="prof" class="popover small">
+          <div style="padding:12px">
+            <div style="font-weight:600;font-size:14px">Sarah Davis</div>
+            <div style="font-size:12px;color:#64748B">sarah@estudy.com • Tutor</div>
+          </div>
+          <div class="popover-divider">
+            <button class="popover-link">View Profile</button>
+            <button class="popover-link">Account Settings</button>
+            <button class="popover-link danger">Log out</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- ==================== CONFERENCES CONTENT - Separated Page ==================== -->
+      <!-- This was previously hidden div #view-conf inside index.html, now its own page -->
+
+      <div class="content conf-page">
+
+        <!-- Page Header with Flow Breadcrumb -->
+        <!-- Shows lifecycle: Create -> Schedule -> Register -> Reminders -> Live -> Analytics -->
+        <div class="conf-page-head">
+          <div>
+            <h1>Conferences</h1> <!-- Page title -->
+            <p>Manage your live learning events, masterclasses and workshops.</p> <!-- Description -->
+            <!-- Flow breadcrumb showing conference lifecycle -->
+            <div class="breadcrumb-flow"><span style="display:flex;align-items:center;gap:6px"><span
+                  style="width:8px;height:8px;background:#2563EB;border-radius:50%"></span>Create</span><span>→</span><span>Schedule</span><span>→</span><span>Register</span><span>→</span><span>Reminders</span><span>→</span><span
+                class="active">Live</span><span>→</span><span>Analytics</span></div>
+          </div>
+          <button onclick="toast('Create Conference')" class="btn-primary">+ Create Conference</button>
+          <!-- Primary CTA -->
+        </div>
+
+        <!-- Conference Stats Grid - 3 metric cards at top -->
+        <div class="conf-stats-grid">
+          <!-- Stat 1: Upcoming count -->
+          <div class="conf-card">
+            <div class="conf-card-label">Upcoming</div>
+            <div class="conf-card-value">3</div>
+            <div class="conf-card-sub">+1 this week</div>
+          </div>
+          <!-- Stat 2: Total attendees -->
+          <div class="conf-card">
+            <div class="conf-card-label">Attendees</div>
+            <div class="conf-card-value">842</div>
+            <div class="conf-card-sub">+124 vs last month</div>
+          </div>
+          <!-- Stat 3: Attendance rate -->
+          <div class="conf-card">
+            <div class="conf-card-label">Attendance Rate</div>
+            <div class="conf-card-value">87%</div>
+            <div class="conf-card-sub">+3% vs avg</div>
+          </div>
+        </div>
+
+        <!-- Upcoming Conferences Grid - Cards with gradient headers -->
+        <div class="conf-list-card">
+          <div class="card-title" style="margin-bottom:16px">Upcoming Conferences</div>
+          <div class="conf-grid">
+            <!-- Conference Card 1: React Masterclass -->
+            <div class="conf-item">
+              <div class="conf-item-hero grad1"> <!-- Gradient 1: blue->purple -->
+                <div class="conf-item-top"><span class="conf-pill-light">Aug 24 • 4PM-6PM</span><span
+                    class="conf-pill-green">Registration Open</span></div>
+                <div class="conf-item-title">React State Management Masterclass</div>
+              </div>
+              <div class="conf-item-foot">
+                <div>👥 86 registered • 100 seats</div>
+                <div style="display:flex;gap:8px"><button onclick="handleConferenceAction('manage','React Masterclass')"
+                    class="btn-dark" style="padding:6px 12px;font-size:12px">Manage</button><button class="btn-light"
+                    style="padding:6px 12px;font-size:12px">Share</button></div>
+              </div>
+            </div>
+
+            <!-- Conference Card 2: UX Workshop -->
+            <div class="conf-item">
+              <div class="conf-item-hero grad2"> <!-- Gradient 2: green->teal -->
+                <div class="conf-item-top"><span class="conf-pill-light">Aug 28 • 2PM-4PM</span><span
+                    class="conf-pill-amber">Almost Full</span></div>
+                <div class="conf-item-title">UX Research Deep Dive Workshop</div>
+              </div>
+              <div class="conf-item-foot">
+                <div>👥 142 registered • 150 seats</div>
+                <div style="display:flex;gap:8px"><button onclick="handleConferenceAction('manage','UX Workshop')"
+                    class="btn-dark" style="padding:6px 12px;font-size:12px">Manage</button><button class="btn-light"
+                    style="padding:6px 12px;font-size:12px">Share</button></div>
+              </div>
+            </div>
+
+            <!-- Conference Card 3: Draft -->
+            <div class="conf-item">
+              <div class="conf-item-hero grad3"> <!-- Gradient 3: pink->orange -->
+                <div class="conf-item-top"><span class="conf-pill-light">Sep 02 • 10AM-12PM</span><span
+                    class="conf-pill-light">Draft</span></div>
+                <div class="conf-item-title">Digital Marketing Live Q&A</div>
+              </div>
+              <div class="conf-item-foot">
+                <div>👥 0 registered • 200 seats</div>
+                <div style="display:flex;gap:8px"><button class="btn-light"
+                    style="padding:6px 12px;font-size:12px">Continue Editing</button></div>
+              </div>
+            </div>
+
+            <!-- Create New Placeholder - Dashed border card -->
+            <div class="conf-create">
+              <div class="conf-create-icon">🎤</div> <!-- Icon -->
+              <div class="conf-create-title">Create live learning experiences</div>
+              <div class="conf-create-sub">Organize workshops, masterclasses, webinars and live sessions.</div>
+              <button onclick="toast('Create Conference')" class="conf-create-btn">+ Create Conference</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Past Conferences List - Simple list with analytics button -->
+        <div class="conf-list-card">
+          <div class="card-title" style="margin-bottom:16px">Past Conferences</div>
+          <div class="past-list">
+            <!-- Past Item 1 -->
+            <div class="past-item">
+              <div>
+                <div class="past-title">React Fundamentals Workshop</div>
+                <div class="past-sub">Aug 10 • 142 attendees • 91% attendance • Recording available</div>
+              </div><button onclick="handleConferenceAction('analytics','React Fundamentals')"
+                style="font-size:12px;color:#2563EB;font-weight:500;border:1px solid #E2E8F0;padding:6px 12px;border-radius:8px">View
+                Analytics</button>
+            </div>
+            <!-- Past Item 2 -->
+            <div class="past-item">
+              <div>
+                <div class="past-title">Intro to UX Design — Live Session</div>
+                <div class="past-sub">Jul 28 • 98 attendees • 84% attendance</div>
+              </div><button onclick="handleConferenceAction('analytics','UX Design Live')"
+                style="font-size:12px;color:#2563EB;font-weight:500;border:1px solid #E2E8F0;padding:6px 12px;border-radius:8px">View
+                Analytics</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== MOBILE NAV - Shared ==================== -->
+      <nav class="mobile-nav">
+        <a href="index.html" id="m-dash" class="mob-btn"><span>◉</span><span>Home</span></a>
+        <button class="mob-btn"><span>▣</span><span>Courses</span></button>
+        <button class="mob-btn"><span>◎</span><span>Students</span></button>
+        <a href="conferences.html" id="m-conf" class="mob-btn active"><span>🎤</span><span>Conf</span></a>
+        <button class="mob-btn"><span>◇</span><span>Messages</span><span class="mob-dot"></span></button>
+      </nav>
+      <div style="height:72px" class="mobile-spacer"></div>
+
+      <!-- ==================== TOAST - Shared ==================== -->
+      <div id="toast" class="toast"><span class="toast-dot"></span><span id="toast-msg">Action</span></div>
+
+    </main>
+  </div>
+
+  <!-- JS Imports: common -> page-specific -->
+  <script src="js/common.js"></script> <!-- Shared: theme, popovers, toast -->
+  <script src="js/conferences.js"></script> <!-- Conferences-only -->
+</body>
+
+</html>
