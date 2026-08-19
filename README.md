@@ -2,7 +2,7 @@
 
 ## Structure - Why this is DRY and easy to collaborate
 
-studypod-tutor-dashboard.0.2/
+studypod-tutor-dashboard/
 ├── index.html (Dashboard - fully commented)
 ├── conferences.html (Conferences - separate file)
 ├── css/

@@ -442,6 +442,49 @@ body.dark .notif-dot {
    cursor: pointer;
 }
 
+
+.wave-emoji {
+   display: inline-block;
+   transform-origin: 70% 70%;
+   /* Keeps the wrist pivot point natural */
+   animation: waveOnce 0.6s ease-in-out 1;
+   /* Runs exactly 1 time */
+}
+
+@keyframes waveOnce {
+   0% {
+      transform: rotate(0.0deg);
+   }
+
+   25% {
+      transform: rotate(18.0deg);
+   }
+
+   /* Tilt back */
+   50% {
+      transform: rotate(-10.0deg);
+   }
+
+   /* Wave forward */
+   75% {
+      transform: rotate(14.0deg);
+   }
+
+   /* Small tilt back */
+   100% {
+      transform: rotate(0.0deg);
+   }
+
+   /* Return to rest */
+}
+
+/* Change the first selector to this */
+.wave-emoji:hover {
+   display: inline-block;
+   transform-origin: 70% 70%;
+   animation: waveOnce 0.6s ease-in-out 1;
+}
+
 /* Popovers (Notifications & Profile) - Shared */
 .popover {
    position: absolute;
@@ -1027,9 +1070,10 @@ body.dark .toast {
 
 
 /* ==========================================================================
-   - Modern Collapsible Aside (Icons-Only Mode)
+   SIDEBAR-COLLAPSIBLE.CSS - Modern Collapsible Aside (Icons-Only Mode)
    ==========================================================================
    Purpose: Add-on that makes .sidebar collapsible to icons-only (72px)
+   Usage: Link AFTER common.css, no changes to existing CSS needed.
    How it works: JS toggles .is-collapsed on .sidebar
    Design: Modern, smooth, tooltip support, respects dark mode & mobile
    ========================================================================== */
@@ -1293,33 +1337,7 @@ body.dark .sidebar-tooltip {
    transition: all 0.32s ease;
 }
 
-/* ====== Desktop-only collapse - preserve mobile behavior ====== */
-@media (max-width: 1024px) {
-   .sidebar-collapse-btn {
-      display: none !important;
-   }
 
-   .sidebar.is-collapsed {
-      width: var(--sidebar-width) !important;
-   }
-
-   .sidebar.is-collapsed .brand-name,
-   .sidebar.is-collapsed .nav-group-title,
-   .sidebar.is-collapsed .nav-btn>span,
-   .sidebar.is-collapsed .nav-badge,
-   .sidebar.is-collapsed .sidebar-bottom,
-   .sidebar.is-collapsed .user-card>div {
-      opacity: 1;
-      width: auto;
-      height: auto;
-      transform: none;
-      display: flex;
-   }
-
-   .sidebar-tooltip {
-      display: none !important;
-   }
-}
 
 /* ====== Focus & accessibility ====== */
 .sidebar-collapse-btn:focus-visible {
@@ -1334,6 +1352,358 @@ body.dark .sidebar-tooltip {
 
 .sidebar.is-collapsed .sidebar-nav::-webkit-scrollbar {
    display: none;
+}
+
+
+
+/* ==========================================================================
+   MODERN ANIMATED UI ICONS - Added for SVG upgrade
+   ========================================================================== */
+:root {
+   --icon-anim-fast: 0.28s;
+   --icon-anim-mid: 0.45s;
+}
+
+/* Base modern icon style */
+.nav-icon,
+.metric-icon {
+   stroke-width: 1.8;
+   transition: transform var(--icon-anim-fast) cubic-bezier(.34, 1.56, .64, 1),
+      stroke-width var(--icon-anim-fast) ease,
+      opacity var(--icon-anim-fast) ease;
+   transform-origin: center;
+}
+
+/* Hover lift for nav */
+.nav-btn:hover .nav-icon,
+.mob-btn:hover .nav-icon {
+   transform: scale(1.12) translateY(-1px);
+}
+
+.nav-btn.active .nav-icon {
+   transform: scale(1.08);
+}
+
+/* Metric cards hover */
+.card:hover .metric-icon {
+   transform: scale(1.1) rotate(-2deg);
+}
+
+/* --- Keyframes --- */
+@keyframes float-subtle {
+
+   0%,
+   100% {
+      transform: translateY(0)
+   }
+
+   50% {
+      transform: translateY(-1.5px)
+   }
+}
+
+@keyframes pulse-dot {
+
+   0%,
+   100% {
+      transform: scale(1);
+      opacity: 1
+   }
+
+   50% {
+      transform: scale(1.6);
+      opacity: .6
+   }
+}
+
+@keyframes live-pulse {
+   0% {
+      box-shadow: 0 0 0 0 currentColor;
+      opacity: 1
+   }
+
+   70% {
+      box-shadow: 0 0 0 6px transparent;
+      opacity: .9
+   }
+
+   100% {
+      box-shadow: 0 0 0 0 transparent;
+      opacity: 1
+   }
+}
+
+@keyframes draw-check {
+   from {
+      stroke-dashoffset: 24
+   }
+
+   to {
+      stroke-dashoffset: 0
+   }
+}
+
+@keyframes bar-grow {
+   from {
+      transform: scaleY(.3);
+   }
+
+   to {
+      transform: scaleY(1);
+   }
+}
+
+@keyframes spin-slow-hover {
+   from {
+      transform: rotate(0deg)
+   }
+
+   to {
+      transform: rotate(90deg)
+   }
+}
+
+@keyframes gear-spin {
+   from {
+      transform: rotate(0deg)
+   }
+
+   to {
+      transform: rotate(60deg)
+   }
+}
+
+@keyframes wiggle {
+
+   0%,
+   100% {
+      transform: rotate(0deg)
+   }
+
+   25% {
+      transform: rotate(-6deg)
+   }
+
+   75% {
+      transform: rotate(6deg)
+   }
+}
+
+@keyframes coin-float {
+
+   0%,
+   100% {
+      transform: translateY(0)
+   }
+
+   50% {
+      transform: translateY(-2px)
+   }
+}
+
+@keyframes msg-bounce {
+
+   0%,
+   80%,
+   100% {
+      transform: translateY(0);
+      opacity: .6
+   }
+
+   40% {
+      transform: translateY(-3px);
+      opacity: 1
+   }
+}
+
+/* --- Applied animations --- */
+.anim-live-dot {
+   animation: pulse-dot 1.8s infinite;
+   transform-origin: center;
+}
+
+.anim-msg-1 {
+   animation: msg-bounce 1.4s infinite 0s;
+}
+
+.anim-msg-2 {
+   animation: msg-bounce 1.4s infinite .2s;
+}
+
+.anim-msg-3 {
+   animation: msg-bounce 1.4s infinite .4s;
+}
+
+.anim-check {
+   stroke-dasharray: 24;
+   stroke-dashoffset: 24;
+   animation: draw-check .6s .2s ease forwards;
+}
+
+.nav-btn:hover .anim-check,
+.card:hover .anim-check {
+   animation: draw-check .5s ease forwards;
+}
+
+.anim-bar-1 {
+   transform-origin: bottom;
+   animation: bar-grow .6s .1s both;
+}
+
+.anim-bar-2 {
+   transform-origin: bottom;
+   animation: bar-grow .6s .25s both;
+}
+
+.anim-bar-3 {
+   transform-origin: bottom;
+   animation: bar-grow .6s .4s both;
+}
+
+.anim-gear {
+   transform-origin: center;
+}
+
+.nav-btn:hover .anim-gear {
+   animation: gear-spin .7s cubic-bezier(.34, 1.56, .64, 1) forwards;
+}
+
+.anim-play {
+   transform-origin: 11px 11.8px;
+   transition: transform .3s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.card:hover .anim-play,
+.nav-btn:hover .anim-play {
+   transform: scale(1.15);
+}
+
+.anim-home {
+   transition: transform .3s ease;
+}
+
+.nav-btn:hover .anim-home {
+   transform: translateY(-1px);
+}
+
+.anim-video {
+   transition: transform .3s ease;
+}
+
+.nav-btn:hover .anim-video {
+   transform: translateX(1.5px);
+}
+
+.anim-course {
+   transition: transform .3s ease;
+}
+
+.nav-btn:hover .anim-course {
+   transform: translateY(-1px);
+}
+
+.anim-help-q {
+   stroke-dasharray: 28;
+   stroke-dashoffset: 0;
+   transition: stroke-dashoffset .5s ease;
+}
+
+.nav-btn:hover .anim-help-q {
+   animation: wiggle .5s ease;
+}
+
+.anim-help-ring {
+   transition: transform .3s ease;
+}
+
+.nav-btn:hover .anim-help-ring {
+   transform: scale(1.05);
+}
+
+.anim-ring {
+   stroke-dasharray: 53;
+   stroke-dashoffset: 0;
+   transition: all .6s ease;
+}
+
+.card:hover .anim-ring {
+   transform: rotate(-8deg);
+   transform-origin: center;
+}
+
+.anim-coin-bg {
+   animation: coin-float 2.2s ease-in-out infinite;
+}
+
+.anim-coin {
+   animation: coin-float 2.2s ease-in-out infinite .15s;
+}
+
+.anim-dash-1,
+.anim-dash-2,
+.anim-dash-3,
+.anim-dash-4 {
+   transition: transform .3s cubic-bezier(.34, 1.56, .64, 1);
+   transform-origin: center;
+}
+
+.nav-btn:hover .anim-dash-1 {
+   transform: translate(-1px, -1px)
+}
+
+.nav-btn:hover .anim-dash-2 {
+   transform: translate(1px, -1px)
+}
+
+.nav-btn:hover .anim-dash-3 {
+   transform: translate(1px, 1px)
+}
+
+.nav-btn:hover .anim-dash-4 {
+   transform: translate(-1px, 1px)
+}
+
+.anim-cap {
+   transition: transform .3s ease;
+}
+
+.nav-btn:hover .anim-cap {
+   transform: translateY(-1px);
+}
+
+.anim-tassel {
+   transform-origin: top;
+}
+
+.nav-btn:hover .anim-tassel {
+   animation: wiggle .6s ease;
+}
+
+.anim-dot {
+   animation: pulse-dot 2s infinite;
+}
+
+/* Icon box modern refinement */
+.icon-box {
+   position: relative;
+   overflow: hidden;
+}
+
+.icon-box::after {
+   content: '';
+   position: absolute;
+   inset: 0;
+   background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, .35), transparent 55%);
+   opacity: 0;
+   transition: opacity .3s ease;
+}
+
+.card:hover .icon-box::after {
+   opacity: 1;
+}
+
+.metric-icon {
+   filter: drop-shadow(0 1px 0 rgba(0, 0, 0, .04));
 }
 
 /* ---------------- Responsive Base (Shared) ---------------- */
@@ -1367,174 +1737,31 @@ body.dark .sidebar-tooltip {
    }
 }
 
-/* ==========================================================================
-   MODERN ANIMATED UI ICONS - Added for SVG upgrade
-   ========================================================================== */
-:root {
-  --icon-anim-fast: 0.28s;
-  --icon-anim-mid: 0.45s;
-}
 
-/* Base modern icon style */
-.nav-icon, .metric-icon {
-  stroke-width: 1.8;
-  transition: transform var(--icon-anim-fast) cubic-bezier(.34,1.56,.64,1), 
-              stroke-width var(--icon-anim-fast) ease,
-              opacity var(--icon-anim-fast) ease;
-  transform-origin: center;
-}
+/* ====== Desktop-only collapse - preserve mobile behavior ====== */
+@media (max-width: 1024px) {
+   .sidebar-collapse-btn {
+      display: none !important;
+   }
 
-/* Hover lift for nav */
-.nav-btn:hover .nav-icon,
-.mob-btn:hover .nav-icon {
-  transform: scale(1.12) translateY(-1px);
-}
-.nav-btn.active .nav-icon {
-  transform: scale(1.08);
-}
+   .sidebar.is-collapsed {
+      width: var(--sidebar-width) !important;
+   }
 
-/* Metric cards hover */
-.card:hover .metric-icon {
-  transform: scale(1.1) rotate(-2deg);
-}
+   .sidebar.is-collapsed .brand-name,
+   .sidebar.is-collapsed .nav-group-title,
+   .sidebar.is-collapsed .nav-btn>span,
+   .sidebar.is-collapsed .nav-badge,
+   .sidebar.is-collapsed .sidebar-bottom,
+   .sidebar.is-collapsed .user-card>div {
+      opacity: 1;
+      width: auto;
+      height: auto;
+      transform: none;
+      display: flex;
+   }
 
-/* --- Keyframes --- */
-@keyframes float-subtle {
-  0%,100% { transform: translateY(0) }
-  50% { transform: translateY(-1.5px) }
+   .sidebar-tooltip {
+      display: none !important;
+   }
 }
-@keyframes pulse-dot {
-  0%,100% { transform: scale(1); opacity: 1 }
-  50% { transform: scale(1.6); opacity: .6 }
-}
-@keyframes live-pulse {
-  0% { box-shadow: 0 0 0 0 currentColor; opacity:1 }
-  70% { box-shadow: 0 0 0 6px transparent; opacity:.9 }
-  100% { box-shadow: 0 0 0 0 transparent; opacity:1 }
-}
-@keyframes draw-check {
-  from { stroke-dashoffset: 24 }
-  to { stroke-dashoffset: 0 }
-}
-@keyframes bar-grow {
-  from { transform: scaleY(.3); }
-  to { transform: scaleY(1); }
-}
-@keyframes spin-slow-hover {
-  from { transform: rotate(0deg) }
-  to { transform: rotate(90deg) }
-}
-@keyframes gear-spin {
-  from { transform: rotate(0deg) }
-  to { transform: rotate(60deg) }
-}
-@keyframes wiggle {
-  0%,100% { transform: rotate(0deg) }
-  25% { transform: rotate(-6deg) }
-  75% { transform: rotate(6deg) }
-}
-@keyframes coin-float {
-  0%,100% { transform: translateY(0) }
-  50% { transform: translateY(-2px) }
-}
-@keyframes msg-bounce {
-  0%,80%,100% { transform: translateY(0); opacity:.6 }
-  40% { transform: translateY(-3px); opacity:1 }
-}
-
-/* --- Applied animations --- */
-.anim-live-dot {
-  animation: pulse-dot 1.8s infinite;
-  transform-origin: center;
-}
-.anim-msg-1 { animation: msg-bounce 1.4s infinite 0s; }
-.anim-msg-2 { animation: msg-bounce 1.4s infinite .2s; }
-.anim-msg-3 { animation: msg-bounce 1.4s infinite .4s; }
-
-.anim-check {
-  stroke-dasharray: 24;
-  stroke-dashoffset: 24;
-  animation: draw-check .6s .2s ease forwards;
-}
-.nav-btn:hover .anim-check,
-.card:hover .anim-check {
-  animation: draw-check .5s ease forwards;
-}
-
-.anim-bar-1 { transform-origin: bottom; animation: bar-grow .6s .1s both; }
-.anim-bar-2 { transform-origin: bottom; animation: bar-grow .6s .25s both; }
-.anim-bar-3 { transform-origin: bottom; animation: bar-grow .6s .4s both; }
-
-.anim-gear {
-  transform-origin: center;
-}
-.nav-btn:hover .anim-gear {
-  animation: gear-spin .7s cubic-bezier(.34,1.56,.64,1) forwards;
-}
-
-.anim-play {
-  transform-origin: 11px 11.8px;
-  transition: transform .3s cubic-bezier(.34,1.56,.64,1);
-}
-.card:hover .anim-play, .nav-btn:hover .anim-play {
-  transform: scale(1.15);
-}
-
-.anim-home { transition: transform .3s ease; }
-.nav-btn:hover .anim-home { transform: translateY(-1px); }
-
-.anim-video { transition: transform .3s ease; }
-.nav-btn:hover .anim-video { transform: translateX(1.5px); }
-
-.anim-course { transition: transform .3s ease; }
-.nav-btn:hover .anim-course { transform: translateY(-1px); }
-
-.anim-help-q {
-  stroke-dasharray: 28;
-  stroke-dashoffset: 0;
-  transition: stroke-dashoffset .5s ease;
-}
-.nav-btn:hover .anim-help-q { animation: wiggle .5s ease; }
-
-.anim-help-ring { transition: transform .3s ease; }
-.nav-btn:hover .anim-help-ring { transform: scale(1.05); }
-
-.anim-ring { stroke-dasharray: 53; stroke-dashoffset: 0; transition: all .6s ease; }
-.card:hover .anim-ring { transform: rotate(-8deg); transform-origin: center; }
-
-.anim-coin-bg { animation: coin-float 2.2s ease-in-out infinite; }
-.anim-coin { animation: coin-float 2.2s ease-in-out infinite .15s; }
-
-.anim-dash-1, .anim-dash-2, .anim-dash-3, .anim-dash-4 {
-  transition: transform .3s cubic-bezier(.34,1.56,.64,1);
-  transform-origin: center;
-}
-.nav-btn:hover .anim-dash-1 { transform: translate(-1px,-1px) }
-.nav-btn:hover .anim-dash-2 { transform: translate(1px,-1px) }
-.nav-btn:hover .anim-dash-3 { transform: translate(1px,1px) }
-.nav-btn:hover .anim-dash-4 { transform: translate(-1px,1px) }
-
-.anim-cap { transition: transform .3s ease; }
-.nav-btn:hover .anim-cap { transform: translateY(-1px); }
-.anim-tassel { transform-origin: top; }
-.nav-btn:hover .anim-tassel { animation: wiggle .6s ease; }
-
-.anim-dot { animation: pulse-dot 2s infinite; }
-
-/* Icon box modern refinement */
-.icon-box {
-  position: relative;
-  overflow: hidden;
-}
-.icon-box::after {
-  content:'';
-  position:absolute;
-  inset:0;
-  background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.35), transparent 55%);
-  opacity:0;
-  transition: opacity .3s ease;
-}
-.card:hover .icon-box::after { opacity:1; }
-
-.metric-icon { filter: drop-shadow(0 1px 0 rgba(0,0,0,.04)); }
-

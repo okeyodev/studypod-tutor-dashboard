@@ -231,6 +231,13 @@ setTimeout(() => {
  * - Toggles .is-collapsed class
  * - Shows tooltips on hover when collapsed
  * - Persists state in localStorage
+ * - Works on both dashboard (index.html) and conferences.html
+ *
+ * Integration: Include AFTER common.js, no edits to common.js needed
+ *   <link rel="stylesheet" href="css/sidebar-collapsible.css">
+ *   <script src="js/sidebar-collapsible.js"></script>
+ *
+ * Original code untouched - this is additive only
  * ==========================================================================
  */
 
