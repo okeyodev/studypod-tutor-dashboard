@@ -600,6 +600,7 @@ body.dark .status-good {
 .status-progress {
    background: var(--color-warning-bg);
    color: #D97706;
+   text-wrap: nowrap;
 }
 
 body.dark .status-progress {
