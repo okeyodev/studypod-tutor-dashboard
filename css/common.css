@@ -1,17 +1,14 @@
 /* ==========================================================================
-   COMMON.CSS - Shared Styles for Both Dashboard & Conferences
+   COMMON.CSS - Shared Styles - Optimized DRY, No Overrides, Light & Fast
    ==========================================================================
-   This file contains styles used on BOTH pages to avoid duplication (DRY).
    - Reset & Base
-   - Layout (App, Sidebar, Main)
-   - Header, Popovers, Buttons, Cards, Mobile Nav, Drawer, Toast
-   - Shared Conference Preview (upcoming conference card)
-   - Utilities & Responsive base
-
-   Import order in HTML: variables.css -> common.css -> page-specific.css
+   - Layout, Sidebar (with collapsible), Header, Popovers, Buttons, Cards
+   - Mobile Nav, Drawer, Toast
+   - Animations consolidated
+   - Single responsive breakpoint
    ========================================================================== */
 
-/* ---------------- Reset & Base ---------------- */
+/* Reset & Base */
 * {
    margin: 0;
    padding: 0;
@@ -48,7 +45,7 @@ a {
    text-decoration: none;
 }
 
-/* Scrollbar styling */
+/* Scrollbar */
 ::-webkit-scrollbar {
    width: 6px;
    height: 6px;
@@ -63,7 +60,7 @@ body.dark ::-webkit-scrollbar-thumb {
    background: var(--border-strong);
 }
 
-/* Animations used across pages */
+/* Animations - consolidated */
 @keyframes fadeUp {
    from {
       opacity: 0;
@@ -122,15 +119,162 @@ body.dark ::-webkit-scrollbar-thumb {
    width: var(--w);
 }
 
-/* --w set inline, triggers animation when .on added */
+@keyframes waveOnce {
+   0% {
+      transform: rotate(0deg)
+   }
 
-/* ---------------- Layout: App Wrapper ---------------- */
+   25% {
+      transform: rotate(18deg)
+   }
+
+   50% {
+      transform: rotate(-10deg)
+   }
+
+   75% {
+      transform: rotate(14deg)
+   }
+
+   100% {
+      transform: rotate(0deg)
+   }
+}
+
+.wave-emoji {
+   display: inline-block;
+   transform-origin: 70% 70%;
+   animation: waveOnce 0.6s ease-in-out 1;
+}
+
+.wave-emoji:hover {
+   animation: waveOnce 0.6s ease-in-out 1;
+}
+
+@keyframes float-subtle {
+
+   0%,
+   100% {
+      transform: translateY(0)
+   }
+
+   50% {
+      transform: translateY(-1.5px)
+   }
+}
+
+@keyframes pulse-dot {
+
+   0%,
+   100% {
+      transform: scale(1);
+      opacity: 1
+   }
+
+   50% {
+      transform: scale(1.6);
+      opacity: .6
+   }
+}
+
+@keyframes live-pulse {
+   0% {
+      box-shadow: 0 0 0 0 currentColor;
+      opacity: 1
+   }
+
+   70% {
+      box-shadow: 0 0 0 6px transparent;
+      opacity: .9
+   }
+
+   100% {
+      box-shadow: 0 0 0 0 transparent;
+      opacity: 1
+   }
+}
+
+@keyframes draw-check {
+   from {
+      stroke-dashoffset: 24
+   }
+
+   to {
+      stroke-dashoffset: 0
+   }
+}
+
+@keyframes bar-grow {
+   from {
+      transform: scaleY(.3)
+   }
+
+   to {
+      transform: scaleY(1)
+   }
+}
+
+@keyframes gear-spin {
+   from {
+      transform: rotate(0deg)
+   }
+
+   to {
+      transform: rotate(60deg)
+   }
+}
+
+@keyframes wiggle {
+
+   0%,
+   100% {
+      transform: rotate(0deg)
+   }
+
+   25% {
+      transform: rotate(-6deg)
+   }
+
+   75% {
+      transform: rotate(6deg)
+   }
+}
+
+@keyframes coin-float {
+
+   0%,
+   100% {
+      transform: translateY(0)
+   }
+
+   50% {
+      transform: translateY(-2px)
+   }
+}
+
+@keyframes msg-bounce {
+
+   0%,
+   80%,
+   100% {
+      transform: translateY(0);
+      opacity: .6
+   }
+
+   40% {
+      transform: translateY(-3px);
+      opacity: 1
+   }
+}
+
+/* Layout */
 .app {
    display: flex;
    min-height: 100vh;
+   transition: all var(--transition-sidebar);
 }
 
-/* ---------------- Sidebar - Shared Left Navigation ---------------- */
+/* Sidebar - single definition, no duplicate */
 .sidebar {
    width: var(--sidebar-width);
    background: var(--bg-sidebar);
@@ -141,6 +285,9 @@ body.dark ::-webkit-scrollbar-thumb {
    top: 0;
    height: 100vh;
    flex-shrink: 0;
+   z-index: 30;
+   overflow: visible;
+   transition: width var(--transition-sidebar);
 }
 
 body.dark .sidebar {
@@ -153,39 +300,36 @@ body.dark .sidebar {
    display: flex;
    align-items: center;
    gap: 10px;
+   position: relative;
+   white-space: nowrap;
+   overflow: hidden;
+   transition: padding var(--transition-sidebar);
 }
 
 .logo-box img {
    width: 32px;
    height: 32px;
-   /* background: var(--color-primary); */
    border-radius: 10px;
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   color: var(--text-white);
-   font-weight: 800;
-   font-size: 13px;
+   object-fit: cover;
 }
 
 .brand-name {
    font-weight: 700;
    font-size: 18px;
    letter-spacing: -0.02em;
+   transition: opacity var(--transition-fast), transform var(--transition-fast);
 }
-
-/* .dot {
-   width: 8px;
-   height: 8px;
-   background: var(--color-progress-green);
-   border-radius: 50%;
-   margin-left: 4px;
-} */
 
 .sidebar-nav {
    flex: 1;
    padding: 0 12px;
    overflow-y: auto;
+   transition: padding var(--transition-sidebar);
+   scrollbar-width: none;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+   display: none;
 }
 
 .nav-group-title {
@@ -195,6 +339,9 @@ body.dark .sidebar {
    letter-spacing: 0.14em;
    color: var(--text-muted);
    text-transform: uppercase;
+   transition: opacity 0.2s ease, height 0.32s ease, padding 0.32s ease;
+   overflow: hidden;
+   white-space: nowrap;
 }
 
 .nav-btn {
@@ -208,6 +355,9 @@ body.dark .sidebar {
    color: var(--text-tertiary);
    text-align: left;
    transition: all var(--transition-fast);
+   position: relative;
+   white-space: nowrap;
+   overflow: hidden;
 }
 
 body.dark .nav-btn {
@@ -254,6 +404,7 @@ body.dark .nav-btn.active {
    border-top: 1px solid var(--border-light);
    margin-top: 24px;
    padding-top: 16px;
+   transition: opacity 0.22s ease;
 }
 
 body.dark .sidebar-bottom {
@@ -269,6 +420,9 @@ body.dark .sidebar-bottom {
    display: flex;
    align-items: center;
    gap: 12px;
+   transition: all var(--transition-sidebar);
+   overflow: hidden;
+   white-space: nowrap;
 }
 
 body.dark .user-card {
@@ -330,7 +484,193 @@ body.dark .icon-btn {
    border-color: var(--border-strong);
 }
 
-/* ---------------- Main Content Wrapper ---------------- */
+/* Collapsible - clean, no !important, no duplicate */
+.sidebar.is-collapsed {
+   width: var(--sidebar-collapsed-width);
+}
+
+.sidebar.is-collapsed .sidebar-brand {
+   padding: 20px 12px;
+   justify-content: center;
+   gap: 0;
+}
+
+.sidebar.is-collapsed .brand-name {
+   opacity: 0;
+   transform: translateX(-10px);
+   width: 0;
+   pointer-events: none;
+}
+
+.sidebar.is-collapsed .sidebar-nav {
+   padding: 0 8px;
+}
+
+.sidebar.is-collapsed .nav-btn {
+   justify-content: center;
+   padding: 10px 8px;
+   gap: 0;
+}
+
+.sidebar.is-collapsed .nav-btn>span:not(.nav-icon):not(.nav-badge),
+.sidebar.is-collapsed .nav-btn span:not(.nav-badge) {
+   opacity: 0;
+   width: 0;
+   transform: translateX(-8px);
+   pointer-events: none;
+   overflow: hidden;
+}
+
+.sidebar .nav-icon {
+   flex-shrink: 0;
+   transition: transform var(--transition-fast);
+}
+
+.sidebar.is-collapsed .nav-icon {
+   margin: 0;
+}
+
+.sidebar.is-collapsed .nav-group-title {
+   opacity: 0;
+   height: 0;
+   padding: 0;
+   margin: 0;
+   pointer-events: none;
+}
+
+.sidebar.is-collapsed .nav-badge {
+   opacity: 0;
+   width: 0;
+   pointer-events: none;
+   position: absolute;
+   right: 8px;
+   top: 6px;
+}
+
+.sidebar.is-collapsed .nav-btn:has(.nav-badge.red) .nav-badge.red {
+   opacity: 1;
+   width: 8px;
+   height: 8px;
+   padding: 0;
+   font-size: 0;
+   border-radius: 50%;
+   right: 10px;
+   top: 8px;
+}
+
+.sidebar.is-collapsed .sidebar-bottom {
+   opacity: 0;
+   height: 0;
+   padding: 0;
+   margin: 0;
+   border: none;
+   pointer-events: none;
+}
+
+.sidebar.is-collapsed .user-card {
+   margin: 12px 8px;
+   padding: 8px;
+   justify-content: center;
+   background: transparent;
+   border-color: transparent;
+}
+
+.sidebar.is-collapsed .user-card>div:not(.user-avatar),
+.sidebar.is-collapsed .user-card span,
+.sidebar.is-collapsed .user-card .user-info {
+   opacity: 0;
+   width: 0;
+   pointer-events: none;
+   display: none;
+}
+
+.sidebar-collapse-btn {
+   position: absolute;
+   top: 22px;
+   right: -12px;
+   width: 26px;
+   height: 26px;
+   border-radius: 999px;
+   background: var(--bg-card);
+   border: 1px solid var(--border-light);
+   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.06);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   cursor: pointer;
+   z-index: 31;
+   transition: all 0.22s ease;
+   color: var(--text-secondary);
+}
+
+.sidebar-collapse-btn:hover {
+   background: var(--bg-hover);
+   color: var(--color-primary);
+   transform: scale(1.05);
+   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+}
+
+body.dark .sidebar-collapse-btn {
+   background: var(--bg-sidebar-dark);
+   border-color: var(--border-dark);
+   color: var(--text-muted);
+}
+
+.sidebar-collapse-btn svg {
+   width: 14px;
+   height: 14px;
+   transition: transform var(--transition-sidebar);
+}
+
+.sidebar.is-collapsed .sidebar-collapse-btn svg {
+   transform: rotate(180deg);
+}
+
+.sidebar-collapse-btn:focus-visible {
+   outline: 2px solid var(--color-primary);
+   outline-offset: 2px;
+}
+
+.sidebar-tooltip {
+   position: fixed;
+   left: calc(var(--sidebar-collapsed-width) + 12px);
+   background: var(--text-primary);
+   color: var(--text-white);
+   padding: 8px 12px;
+   border-radius: 8px;
+   font-size: 13px;
+   font-weight: 500;
+   white-space: nowrap;
+   pointer-events: none;
+   opacity: 0;
+   transform: translateX(-8px);
+   transition: opacity 0.18s ease, transform 0.18s ease;
+   z-index: 100;
+   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+body.dark .sidebar-tooltip {
+   background: var(--bg-card);
+   color: var(--text-primary);
+}
+
+.sidebar-tooltip.show {
+   opacity: 1;
+   transform: translateX(0);
+}
+
+.sidebar-tooltip::before {
+   content: '';
+   position: absolute;
+   left: -4px;
+   top: 50%;
+   transform: translateY(-50%) rotate(45deg);
+   width: 8px;
+   height: 8px;
+   background: inherit;
+}
+
+/* Main */
 .main {
    flex: 1;
    min-width: 0;
@@ -338,7 +678,7 @@ body.dark .icon-btn {
    flex-direction: column;
 }
 
-/* ---------------- Header - Sticky Top Bar (Shared) ---------------- */
+/* Header */
 .header {
    position: sticky;
    top: 0;
@@ -442,50 +782,7 @@ body.dark .notif-dot {
    cursor: pointer;
 }
 
-
-.wave-emoji {
-   display: inline-block;
-   transform-origin: 70% 70%;
-   /* Keeps the wrist pivot point natural */
-   animation: waveOnce 0.6s ease-in-out 1;
-   /* Runs exactly 1 time */
-}
-
-@keyframes waveOnce {
-   0% {
-      transform: rotate(0.0deg);
-   }
-
-   25% {
-      transform: rotate(18.0deg);
-   }
-
-   /* Tilt back */
-   50% {
-      transform: rotate(-10.0deg);
-   }
-
-   /* Wave forward */
-   75% {
-      transform: rotate(14.0deg);
-   }
-
-   /* Small tilt back */
-   100% {
-      transform: rotate(0.0deg);
-   }
-
-   /* Return to rest */
-}
-
-/* Change the first selector to this */
-.wave-emoji:hover {
-   display: inline-block;
-   transform-origin: 70% 70%;
-   animation: waveOnce 0.6s ease-in-out 1;
-}
-
-/* Popovers (Notifications & Profile) - Shared */
+/* Popovers */
 .popover {
    position: absolute;
    right: 32px;
@@ -579,7 +876,7 @@ body.dark .popover-link:hover {
    color: var(--color-danger);
 }
 
-/* ---------------- Content Wrapper & Buttons (Shared) ---------------- */
+/* Content & Buttons */
 .content {
    padding: 24px var(--content-padding) 32px;
    display: flex;
@@ -654,7 +951,7 @@ body.dark .btn-light {
    color: var(--text-white);
 }
 
-/* ---------------- Cards (Shared) ---------------- */
+/* Cards */
 .card {
    background: var(--bg-card);
    border: 1px solid var(--border-light);
@@ -697,7 +994,7 @@ body.dark .card:hover {
    font-size: 15px;
 }
 
-/* ---------------- Shared Conference Preview Card (Used on Dashboard) ---------------- */
+/* Conference Preview */
 .conf-hero {
    height: 128px;
    background: linear-gradient(135deg, var(--color-primary), #7C3AED, #DB2777);
@@ -707,7 +1004,6 @@ body.dark .card:hover {
    flex-direction: column;
    justify-content: flex-end;
    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-   gap: -150px;
 }
 
 .conf-tag-top {
@@ -832,7 +1128,7 @@ body.dark .progress-track {
    background: var(--color-primary);
 }
 
-/* ---------------- Mobile Nav, Drawer, Toast (Shared) ---------------- */
+/* Mobile Nav, Drawer, Toast */
 .mobile-nav {
    display: none;
    position: fixed;
@@ -845,7 +1141,6 @@ body.dark .progress-track {
    padding: 8px;
    justify-content: space-around;
    z-index: 20;
-   font-size: 1rem;
 }
 
 body.dark .mobile-nav {
@@ -874,10 +1169,6 @@ body.dark .mobile-nav {
 body.dark .mob-btn.active {
    background: var(--color-primary-light-dark);
 }
-
-/* .mob-btn span:last-child {
-   font-size: 10px;
-} */
 
 .mob-dot {
    position: absolute;
@@ -1065,316 +1356,17 @@ body.dark .toast {
 }
 
 .hidden {
-   display: none !important;
-}
-
-
-/* ==========================================================================
-   SIDEBAR-COLLAPSIBLE.CSS - Modern Collapsible Aside (Icons-Only Mode)
-   ==========================================================================
-   Purpose: Add-on that makes .sidebar collapsible to icons-only (72px)
-   Usage: Link AFTER common.css, no changes to existing CSS needed.
-   How it works: JS toggles .is-collapsed on .sidebar
-   Design: Modern, smooth, tooltip support, respects dark mode & mobile
-   ========================================================================== */
-
-:root {
-   --sidebar-collapsed-width: 72px;
-}
-
-/* Base sidebar transitions - enhance existing without overriding layout */
-.sidebar {
-   transition: width 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
-   position: sticky;
-   overflow: visible;
-   /* for toggle button */
-   z-index: 30;
-}
-
-/* Collapsed state */
-.sidebar.is-collapsed {
-   width: var(--sidebar-collapsed-width) !important;
-}
-
-/* ====== Brand area ====== */
-.sidebar-brand {
-   position: relative;
-   transition: padding 0.32s ease;
-   white-space: nowrap;
-   overflow: hidden;
-}
-
-.sidebar.is-collapsed .sidebar-brand {
-   padding: 20px 12px;
-   justify-content: center;
-   gap: 0;
-}
-
-.sidebar .brand-name,
-.sidebar .dot,
-.sidebar .sidebar-brand .brand-name {
-   transition: opacity 0.22s ease, transform 0.22s ease, width 0.22s ease;
-   white-space: nowrap;
-}
-
-.sidebar.is-collapsed .brand-name,
-.sidebar.is-collapsed .dot {
-   opacity: 0;
-   transform: translateX(-10px);
-   width: 0;
-   pointer-events: none;
-}
-
-/* ====== Toggle Button - Modern Floating ====== */
-.sidebar-collapse-btn {
-   position: absolute;
-   top: 22px;
-   right: -12px;
-   bottom: 100px;
-   width: 26px;
-   height: 26px;
-   border-radius: 999px;
-   background: var(--bg-card, #fff);
-   border: 1px solid var(--border-light, #E2E8F0);
-   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.06);
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   cursor: pointer;
-   z-index: 31;
-   transition: all 0.22s ease;
-   color: var(--text-secondary, #64748B);
-}
-
-.sidebar-collapse-btn:hover {
-   background: var(--bg-hover, #F8FAFC);
-   color: var(--color-primary, #2563EB);
-   transform: scale(1.05);
-   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
-}
-
-body.dark .sidebar-collapse-btn {
-   background: var(--bg-sidebar-dark, #0F172A);
-   border-color: var(--border-dark, #1E293B);
-   color: var(--text-muted, #94A3B8);
-}
-
-.sidebar-collapse-btn svg {
-   width: 14px;
-   height: 14px;
-   transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.sidebar.is-collapsed .sidebar-collapse-btn svg {
-   transform: rotate(180deg);
-}
-
-/* ====== Navigation - Icon-only mode ====== */
-.sidebar-nav {
-   transition: padding 0.32s ease;
-}
-
-.sidebar.is-collapsed .sidebar-nav {
-   padding: 0 8px;
-}
-
-.nav-btn {
-   position: relative;
-   white-space: nowrap;
-   overflow: hidden;
-   transition: all 0.22s ease;
-}
-
-.sidebar.is-collapsed .nav-btn {
-   justify-content: center;
-   padding: 10px 8px;
-   gap: 0;
-}
-
-/* Hide text spans, keep icons */
-.sidebar.is-collapsed .nav-btn>span:not(.nav-icon):not(.nav-badge),
-.sidebar.is-collapsed .nav-btn span:not(.nav-badge) {
-   opacity: 0;
-   width: 0;
-   transform: translateX(-8px);
-   pointer-events: none;
-   display: inline-block;
-   overflow: hidden;
-}
-
-/* Keep icon visible and centered */
-.sidebar .nav-icon {
-   flex-shrink: 0;
-   transition: transform 0.22s ease;
-}
-
-.sidebar.is-collapsed .nav-icon {
-   margin: 0;
-}
-
-/* Nav group titles - fade out */
-.nav-group-title {
-   transition: opacity 0.2s ease, height 0.32s ease, padding 0.32s ease, margin 0.32s ease;
-   overflow: hidden;
-   white-space: nowrap;
-}
-
-.sidebar.is-collapsed .nav-group-title {
-   opacity: 0;
-   height: 0;
-   padding: 0;
-   margin: 0;
-   pointer-events: none;
-}
-
-/* Badges - hide or turn into dot */
-.sidebar.is-collapsed .nav-badge {
-   opacity: 0;
-   width: 0;
-   pointer-events: none;
-   position: absolute;
-   right: 8px;
-   top: 6px;
-}
-
-/* Optional: show small dot for badge when collapsed */
-.sidebar.is-collapsed .nav-btn:has(.nav-badge.red) .nav-badge.red {
-   opacity: 1;
-   width: 8px;
-   height: 8px;
-   padding: 0;
-   font-size: 0;
-   border-radius: 50%;
-   right: 10px;
-   top: 8px;
-}
-
-/* Sidebar bottom */
-.sidebar-bottom {
-   transition: opacity 0.22s ease, padding 0.32s ease, margin 0.32s ease;
-   overflow: hidden;
-}
-
-.sidebar.is-collapsed .sidebar-bottom {
-   opacity: 0;
-   height: 0;
-   padding: 0;
-   margin: 0;
-   border: none;
-   pointer-events: none;
-}
-
-/* ====== User Card - Avatar only when collapsed ====== */
-.user-card {
-   transition: all 0.32s ease;
-   overflow: hidden;
-   white-space: nowrap;
-}
-
-.sidebar.is-collapsed .user-card {
-   margin: 12px 8px;
-   padding: 8px;
-   justify-content: center;
-   background: transparent;
-   border-color: transparent;
-}
-
-.sidebar.is-collapsed .user-card>div:not(.user-avatar),
-.sidebar.is-collapsed .user-card span,
-.sidebar.is-collapsed .user-card .user-info {
-   opacity: 0;
-   width: 0;
-   pointer-events: none;
    display: none;
 }
 
-.sidebar.is-collapsed .user-avatar {
-   margin: 0;
-}
-
-/* ====== Tooltip for collapsed mode ====== */
-.sidebar-tooltip {
-   position: fixed;
-   left: calc(var(--sidebar-collapsed-width) + 12px);
-   background: var(--text-primary, #0F172A);
-   color: var(--text-white, #fff);
-   padding: 8px 12px;
-   border-radius: 8px;
-   font-size: 13px;
-   font-weight: 500;
-   white-space: nowrap;
-   pointer-events: none;
-   opacity: 0;
-   transform: translateX(-8px);
-   transition: opacity 0.18s ease, transform 0.18s ease;
-   z-index: 100;
-   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-}
-
-body.dark .sidebar-tooltip {
-   background: var(--bg-card, #fff);
-   color: var(--text-primary, #0F172A);
-}
-
-.sidebar-tooltip.show {
-   opacity: 1;
-   transform: translateX(0);
-}
-
-.sidebar-tooltip::before {
-   content: '';
-   position: absolute;
-   left: -4px;
-   top: 50%;
-   transform: translateY(-50%) rotate(45deg);
-   width: 8px;
-   height: 8px;
-   background: inherit;
-}
-
-/* ====== Main content adjusts smoothly ====== */
-.app {
-   transition: all 0.32s ease;
-}
-
-
-
-/* ====== Focus & accessibility ====== */
-.sidebar-collapse-btn:focus-visible {
-   outline: 2px solid var(--color-primary, #2563EB);
-   outline-offset: 2px;
-}
-
-/* Smooth hide for any extra text nodes */
-.sidebar.is-collapsed .sidebar-nav * {
-   scrollbar-width: none;
-}
-
-.sidebar.is-collapsed .sidebar-nav::-webkit-scrollbar {
-   display: none;
-}
-
-
-
-/* ==========================================================================
-   MODERN ANIMATED UI ICONS - Added for SVG upgrade
-   ========================================================================== */
-:root {
-   --icon-anim-fast: 0.28s;
-   --icon-anim-mid: 0.45s;
-}
-
-/* Base modern icon style */
+/* Icons - DRY */
 .nav-icon,
 .metric-icon {
    stroke-width: 1.8;
-   transition: transform var(--icon-anim-fast) cubic-bezier(.34, 1.56, .64, 1),
-      stroke-width var(--icon-anim-fast) ease,
-      opacity var(--icon-anim-fast) ease;
+   transition: transform var(--icon-anim-fast) cubic-bezier(.34, 1.56, .64, 1), opacity var(--icon-anim-fast) ease;
    transform-origin: center;
 }
 
-/* Hover lift for nav */
 .nav-btn:hover .nav-icon,
 .mob-btn:hover .nav-icon {
    transform: scale(1.12) translateY(-1px);
@@ -1384,139 +1376,10 @@ body.dark .sidebar-tooltip {
    transform: scale(1.08);
 }
 
-/* Metric cards hover */
 .card:hover .metric-icon {
    transform: scale(1.1) rotate(-2deg);
 }
 
-/* --- Keyframes --- */
-@keyframes float-subtle {
-
-   0%,
-   100% {
-      transform: translateY(0)
-   }
-
-   50% {
-      transform: translateY(-1.5px)
-   }
-}
-
-@keyframes pulse-dot {
-
-   0%,
-   100% {
-      transform: scale(1);
-      opacity: 1
-   }
-
-   50% {
-      transform: scale(1.6);
-      opacity: .6
-   }
-}
-
-@keyframes live-pulse {
-   0% {
-      box-shadow: 0 0 0 0 currentColor;
-      opacity: 1
-   }
-
-   70% {
-      box-shadow: 0 0 0 6px transparent;
-      opacity: .9
-   }
-
-   100% {
-      box-shadow: 0 0 0 0 transparent;
-      opacity: 1
-   }
-}
-
-@keyframes draw-check {
-   from {
-      stroke-dashoffset: 24
-   }
-
-   to {
-      stroke-dashoffset: 0
-   }
-}
-
-@keyframes bar-grow {
-   from {
-      transform: scaleY(.3);
-   }
-
-   to {
-      transform: scaleY(1);
-   }
-}
-
-@keyframes spin-slow-hover {
-   from {
-      transform: rotate(0deg)
-   }
-
-   to {
-      transform: rotate(90deg)
-   }
-}
-
-@keyframes gear-spin {
-   from {
-      transform: rotate(0deg)
-   }
-
-   to {
-      transform: rotate(60deg)
-   }
-}
-
-@keyframes wiggle {
-
-   0%,
-   100% {
-      transform: rotate(0deg)
-   }
-
-   25% {
-      transform: rotate(-6deg)
-   }
-
-   75% {
-      transform: rotate(6deg)
-   }
-}
-
-@keyframes coin-float {
-
-   0%,
-   100% {
-      transform: translateY(0)
-   }
-
-   50% {
-      transform: translateY(-2px)
-   }
-}
-
-@keyframes msg-bounce {
-
-   0%,
-   80%,
-   100% {
-      transform: translateY(0);
-      opacity: .6
-   }
-
-   40% {
-      transform: translateY(-3px);
-      opacity: 1
-   }
-}
-
-/* --- Applied animations --- */
 .anim-live-dot {
    animation: pulse-dot 1.8s infinite;
    transform-origin: center;
@@ -1568,77 +1431,6 @@ body.dark .sidebar-tooltip {
    animation: gear-spin .7s cubic-bezier(.34, 1.56, .64, 1) forwards;
 }
 
-.anim-play {
-   transform-origin: 11px 11.8px;
-   transition: transform .3s cubic-bezier(.34, 1.56, .64, 1);
-}
-
-.card:hover .anim-play,
-.nav-btn:hover .anim-play {
-   transform: scale(1.15);
-}
-
-.anim-home {
-   transition: transform .3s ease;
-}
-
-.nav-btn:hover .anim-home {
-   transform: translateY(-1px);
-}
-
-.anim-video {
-   transition: transform .3s ease;
-}
-
-.nav-btn:hover .anim-video {
-   transform: translateX(1.5px);
-}
-
-.anim-course {
-   transition: transform .3s ease;
-}
-
-.nav-btn:hover .anim-course {
-   transform: translateY(-1px);
-}
-
-.anim-help-q {
-   stroke-dasharray: 28;
-   stroke-dashoffset: 0;
-   transition: stroke-dashoffset .5s ease;
-}
-
-.nav-btn:hover .anim-help-q {
-   animation: wiggle .5s ease;
-}
-
-.anim-help-ring {
-   transition: transform .3s ease;
-}
-
-.nav-btn:hover .anim-help-ring {
-   transform: scale(1.05);
-}
-
-.anim-ring {
-   stroke-dasharray: 53;
-   stroke-dashoffset: 0;
-   transition: all .6s ease;
-}
-
-.card:hover .anim-ring {
-   transform: rotate(-8deg);
-   transform-origin: center;
-}
-
-.anim-coin-bg {
-   animation: coin-float 2.2s ease-in-out infinite;
-}
-
-.anim-coin {
-   animation: coin-float 2.2s ease-in-out infinite .15s;
-}
-
 .anim-dash-1,
 .anim-dash-2,
 .anim-dash-3,
@@ -1663,12 +1455,19 @@ body.dark .sidebar-tooltip {
    transform: translate(-1px, 1px)
 }
 
-.anim-cap {
+.anim-cap,
+.anim-course,
+.anim-video {
    transition: transform .3s ease;
 }
 
-.nav-btn:hover .anim-cap {
+.nav-btn:hover .anim-cap,
+.nav-btn:hover .anim-course {
    transform: translateY(-1px);
+}
+
+.nav-btn:hover .anim-video {
+   transform: translateX(1.5px);
 }
 
 .anim-tassel {
@@ -1683,33 +1482,22 @@ body.dark .sidebar-tooltip {
    animation: pulse-dot 2s infinite;
 }
 
-/* Icon box modern refinement */
-.icon-box {
-   position: relative;
-   overflow: hidden;
-}
-
-.icon-box::after {
-   content: '';
-   position: absolute;
-   inset: 0;
-   background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, .35), transparent 55%);
-   opacity: 0;
-   transition: opacity .3s ease;
-}
-
-.card:hover .icon-box::after {
-   opacity: 1;
-}
-
-.metric-icon {
-   filter: drop-shadow(0 1px 0 rgba(0, 0, 0, .04));
-}
-
-/* ---------------- Responsive Base (Shared) ---------------- */
+/* Responsive - SINGLE breakpoint, no duplicate */
 @media(max-width:1024px) {
    .sidebar {
       display: none;
+   }
+
+   .sidebar-collapse-btn {
+      display: none;
+   }
+
+   .sidebar-tooltip {
+      display: none;
+   }
+
+   .sidebar.is-collapsed {
+      width: var(--sidebar-width);
    }
 
    .header {
@@ -1737,31 +1525,148 @@ body.dark .sidebar-tooltip {
    }
 }
 
+/* ==========================================================================
+   LAYOUT.CSS MERGED INTO COMMON.CSS - Reusable Placeholders
+   (Previously separate file, now consolidated per user request)
+   ========================================================================== */
 
-/* ====== Desktop-only collapse - preserve mobile behavior ====== */
+/* ---------------- Reusable Layout Placeholders - for template system ---------------- */
+#layout-sidebar {
+   display: contents;
+}
+
+#layout-header {
+   display: contents;
+}
+
+#layout-mobile-nav {
+   display: contents;
+}
+
+#layout-overlays {
+   display: contents;
+}
+
+/* Ensure main content wrapper handles layout injection */
+.layout-ready .sidebar {
+   animation: fadeUp .3s ease;
+}
+
+/* Early theme FOUC prevention helper */
+html.dark {
+   background: var(--bg-page-dark);
+}
+
+html.dark body {
+   background: var(--bg-page-dark);
+}
+
+
+/* Additional collapsible polish from layout.css (non-duplicate) */
+
+.sidebar.is-collapsed~.main {
+   transition: margin-left var(--transition-sidebar);
+}
+
+/* Match the student dashboard's icon-only collapsed navigation. */
+.sidebar {
+   min-width: var(--sidebar-width);
+   transition: width var(--transition-sidebar), min-width var(--transition-sidebar);
+}
+
+.sidebar.is-collapsed {
+   width: var(--sidebar-collapsed-width) !important;
+   min-width: var(--sidebar-collapsed-width) !important;
+}
+
+.sidebar.is-collapsed .sidebar-brand {
+   padding: 20px 12px;
+   justify-content: center;
+}
+
+.sidebar.is-collapsed .brand-name,
+.sidebar.is-collapsed .dot,
+.sidebar.is-collapsed .nav-group-title {
+   display: none !important;
+}
+
+.sidebar.is-collapsed .logo-box {
+   margin: 0 auto;
+}
+
+.sidebar.is-collapsed .sidebar-nav {
+   padding: 0 8px;
+}
+
+.sidebar.is-collapsed .nav-btn {
+   justify-content: center;
+   padding: 12px 8px;
+   gap: 0;
+   position: relative;
+}
+
+.sidebar.is-collapsed .nav-btn span:not(.nav-icon):not(.nav-badge),
+.sidebar.is-collapsed .nav-btn > span {
+   display: none !important;
+}
+
+.sidebar.is-collapsed .nav-btn .nav-badge {
+   display: none !important;
+}
+
+.sidebar.is-collapsed .nav-btn .nav-icon {
+   width: 22px;
+   height: 22px;
+   margin: 0;
+}
+
+.sidebar.is-collapsed .user-card {
+   padding: 8px;
+   justify-content: center;
+   margin: 12px 8px;
+   background: transparent;
+   border-color: transparent;
+}
+
+.sidebar.is-collapsed .user-card > div:not(.user-avatar),
+.sidebar.is-collapsed .user-card span,
+.sidebar.is-collapsed .user-card .user-info {
+   display: none;
+}
+
+.sidebar.is-collapsed .nav-btn:hover {
+   background: var(--bg-hover);
+   transform: translateX(1px);
+}
+
+body.dark .sidebar.is-collapsed .nav-btn:hover {
+   background: var(--bg-hover-dark);
+}
+
+.sidebar.is-collapsed .nav-btn.active {
+   background: var(--color-primary-light);
+   position: relative;
+}
+
+.sidebar.is-collapsed .nav-btn.active::before {
+   content: '';
+   position: absolute;
+   left: -8px;
+   top: 50%;
+   transform: translateY(-50%);
+   width: 3px;
+   height: 20px;
+   background: var(--color-primary);
+   border-radius: 0 3px 3px 0;
+}
+
+body.dark .sidebar.is-collapsed .nav-btn.active {
+   background: var(--color-primary-light-dark);
+}
+
 @media (max-width: 1024px) {
-   .sidebar-collapse-btn {
-      display: none !important;
-   }
-
    .sidebar.is-collapsed {
       width: var(--sidebar-width) !important;
-   }
-
-   .sidebar.is-collapsed .brand-name,
-   .sidebar.is-collapsed .nav-group-title,
-   .sidebar.is-collapsed .nav-btn>span,
-   .sidebar.is-collapsed .nav-badge,
-   .sidebar.is-collapsed .sidebar-bottom,
-   .sidebar.is-collapsed .user-card>div {
-      opacity: 1;
-      width: auto;
-      height: auto;
-      transform: none;
-      display: flex;
-   }
-
-   .sidebar-tooltip {
-      display: none !important;
+      min-width: var(--sidebar-width) !important;
    }
 }

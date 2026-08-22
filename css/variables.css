@@ -21,24 +21,33 @@
   /* --- Brand & Primary - Main blue used for buttons, links, active states --- */
   --color-primary: #2563EB;
   --color-primary-hover: #1D4ED8;
-  --color-primary-light: #EFF6FF; /* Light blue bg for active nav */
-  --color-primary-light-dark: rgba(30,58,138,0.3); /* Dark mode active nav */
-  --color-primary-text-light: #93C5FD; /* Light blue text in dark mode */
+  --color-primary-light: #EFF6FF;
+  /* Light blue bg for active nav */
+  --color-primary-light-dark: rgba(30, 58, 138, 0.3);
+  /* Dark mode active nav */
+  --color-primary-text-light: #93C5FD;
+  /* Light blue text in dark mode */
 
   /* --- Page Backgrounds - Main page and card backgrounds --- */
-  --bg-page: #F8FAFC; /* Light gray page bg */
-  --bg-page-dark: #020617; /* Very dark blue for dark mode page */
-  --bg-card: #ffffff; /* White card bg */
-  --bg-card-dark: #1E293B; /* Dark slate card bg */
+  --bg-page: #F8FAFC;
+  /* Light gray page bg */
+  --bg-page-dark: #020617;
+  /* Very dark blue for dark mode page */
+  --bg-card: #ffffff;
+  /* White card bg */
+  --bg-card-dark: #1E293B;
+  /* Dark slate card bg */
   --bg-sidebar: #ffffff;
   --bg-sidebar-dark: #0F172A;
-  --bg-header: rgba(248,250,252,0.8); /* Semi-transparent for blur effect */
-  --bg-header-dark: rgba(2,6,23,0.8);
+  --bg-header: rgba(248, 250, 252, 0.8);
+  /* Semi-transparent for blur effect */
+  --bg-header-dark: rgba(2, 6, 23, 0.8);
   --bg-user-card: #F8FAFC;
   --bg-user-card-dark: #1E293B;
   --bg-range-switch: #F8FAFC;
   --bg-range-switch-dark: #0F172A;
-  --bg-track: #F1F5F9; /* Progress bar track */
+  --bg-track: #F1F5F9;
+  /* Progress bar track */
   --bg-track-dark: #0F172A;
   --bg-hover: #F8FAFC;
   --bg-hover-dark: #0F172A;
@@ -46,30 +55,42 @@
   --bg-popover-dark: #1E293B;
 
   /* --- Borders - All border colors --- */
-  --border-light: #E2E8F0; /* Light gray border */
-  --border-dark: #1E293B; /* Dark border for dark mode */
-  --border-strong: #334155; /* Stronger border */
-  --border-attention: #FDE68A; /* Yellow border for attention section */
-  --border-attention-dark: rgba(120,53,15,0.5);
+  --border-light: #E2E8F0;
+  /* Light gray border */
+  --border-dark: #1E293B;
+  /* Dark border for dark mode */
+  --border-strong: #334155;
+  /* Stronger border */
+  --border-attention: #FDE68A;
+  /* Yellow border for attention section */
+  --border-attention-dark: rgba(120, 53, 15, 0.5);
 
   /* --- Text Colors --- */
-  --text-primary: #0F172A; /* Main dark text */
-  --text-primary-dark: #F1F5F9; /* Light text in dark mode */
-  --text-secondary: #64748B; /* Secondary gray */
-  --text-muted: #94A3B8; /* Muted labels, timestamps */
-  --text-tertiary: #475569; /* Nav items */
+  --text-primary: #0F172A;
+  /* Main dark text */
+  --text-primary-dark: #F1F5F9;
+  /* Light text in dark mode */
+  --text-secondary: #64748B;
+  /* Secondary gray */
+  --text-muted: #94A3B8;
+  /* Muted labels, timestamps */
+  --text-tertiary: #475569;
+  /* Nav items */
   --text-white: #ffffff;
-  --text-white-80: rgba(255,255,255,0.8);
-  --text-white-90: rgba(255,255,255,0.9);
+  --text-white-80: rgba(255, 255, 255, 0.8);
+  --text-white-90: rgba(255, 255, 255, 0.9);
 
   /* --- Semantic Colors - Success, Error, Warning --- */
-  --color-success-bg: #DCFCE7; /* Green bg for up badge */
+  --color-success-bg: #DCFCE7;
+  /* Green bg for up badge */
   --color-success-text: #16A34A;
   --color-success-bg-dark: #14532D;
   --color-success-text-dark: #86EFAC;
-  --color-danger: #EF4444; /* Red for notifications */
+  --color-danger: #EF4444;
+  /* Red for notifications */
   --color-warning-bg: #FEF3C7;
-  --color-warning-light: #FFFBEB; /* Attention section bg */
+  --color-warning-light: #FFFBEB;
+  /* Attention section bg */
   --color-warning-light-dark: #1C0A00;
   --color-warning-text: #92400E;
   --color-warning-text-dark: #FBBF24;
@@ -90,6 +111,7 @@
 
   /* --- Layout Sizing --- */
   --sidebar-width: 280px;
+  --sidebar-collapsed-width: 72px;
   --header-height: 64px;
   --content-padding: 32px;
   --content-padding-mobile: 16px;
@@ -104,14 +126,15 @@
   --radius-full: 999px;
 
   /* --- Shadows --- */
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-md: 0 4px 12px rgba(15,23,42,0.08);
-  --shadow-lg: 0 10px 30px rgba(15,23,42,0.08);
-  --shadow-lg-dark: 0 10px 30px rgba(0,0,0,0.35);
-  --shadow-popover: 0 20px 40px rgba(15,23,42,0.12);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 10px 30px rgba(15, 23, 42, 0.08);
+  --shadow-lg-dark: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --shadow-popover: 0 20px 40px rgba(15, 23, 42, 0.12);
 
   /* --- Transitions & Fonts --- */
   --transition-fast: 0.18s ease;
   --transition-normal: 0.22s ease;
+  --transition-sidebar: 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
   --font-main: 'Inter', system-ui, -apple-system, sans-serif;
 }

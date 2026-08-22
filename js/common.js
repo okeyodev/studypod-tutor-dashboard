@@ -2,85 +2,150 @@
  * ==========================================================================
  * COMMON.JS - Shared Logic for Both Dashboard & Conferences Pages
  * ==========================================================================
- * Purpose: DRY - All functions used on BOTH pages live here.
+ * REFACTORED: Now with persistent theme across pages + reusable layout support
+ *
+ * Purpose: DRY - All functions used on ALL pages live here.
  * This prevents duplication and makes collaboration easier.
  *
  * Contains:
- * - Theme Management (toggleTheme)
+ * - Theme Management (persistent via localStorage)
  * - Popovers (Notifications & Profile)
  * - Student Drawer (openStudent, closeStudent)
  * - Toast System (toast)
- * - Navigation helper (setActiveNav)
+ * - Navigation helper (setActiveNav) - now generic for future pages
  * - Global event listeners (click outside to close popovers)
  *
- * Import: This file is loaded BEFORE page-specific JS files.
- * Dashboard page: common.js -> dashboard.js
- * Conferences page: common.js -> conferences.js
+ * Theme Persistence:
+ * - Uses localStorage key 'studypod_theme' = 'dark' | 'light'
+ * - Early inline script in <head> prevents FOUC
+ * - toggleTheme() updates localStorage, so all pages share same theme
+ * - Storage event listener syncs theme across tabs/pages
+ *
+ * Import: This file is loaded BEFORE page-specific JS files AND layout.js
  * ==========================================================================
  */
 
+const THEME_KEY = "studypod_theme";
+const SIDEBAR_COLLAPSED_KEY = "studypod_sidebar_collapsed";
+
 /**
  * isDark - Global state for dark mode
- * false = light mode, true = dark mode
- * Shared across all pages, persisted only in memory (resets on page reload)
+ * Now initialized from localStorage, not just memory
  */
-let isDark = false;
+let isDark = (() => {
+  try {
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved === "dark") return true;
+    if (saved === "light") return false;
+    // No saved preference -> use system preference
+    if (
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    ) {
+      return true;
+    }
+    return false;
+  } catch (e) {
+    return false;
+  }
+})();
+
+/**
+ * getSavedTheme() - returns 'dark' or 'light' from storage or system
+ */
+function getSavedTheme() {
+  try {
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved === "dark" || saved === "light") return saved;
+  } catch (e) {}
+  return isDark ? "dark" : "light";
+}
+
+/**
+ * applyTheme(theme, options)
+ * Central function to apply theme to DOM
+ * @param {string} theme - 'dark' or 'light'
+ * @param {object} options - {save: boolean, redrawChart: boolean}
+ */
+function applyTheme(theme, options = {}) {
+  const { save = true, redrawChart = true } = options;
+  const dark = theme === "dark";
+  isDark = dark;
+
+  // Apply to html and body
+  document.documentElement.classList.toggle("dark", dark);
+  document.body.classList.toggle("dark", dark);
+
+  // Update icons
+  const topIcon = document.getElementById("ico-top");
+  const sideIcon = document.getElementById("ico-side");
+  if (topIcon) topIcon.textContent = dark ? "☀️" : "🌙";
+  if (sideIcon) sideIcon.textContent = dark ? "☀️" : "🌙";
+
+  // Persist
+  if (save) {
+    try {
+      localStorage.setItem(THEME_KEY, theme);
+    } catch (e) {}
+  }
+
+  // Update meta theme-color for mobile browsers
+  let metaTheme = document.querySelector('meta[name="theme-color"]');
+  if (!metaTheme) {
+    metaTheme = document.createElement("meta");
+    metaTheme.name = "theme-color";
+    document.head.appendChild(metaTheme);
+  }
+  metaTheme.content = dark ? "#0F172A" : "#F8FAFC";
+
+  // Redraw chart if exists and allowed
+  if (redrawChart && typeof drawChart === "function") {
+    try {
+      drawChart();
+    } catch (e) {
+      console.warn("drawChart failed on theme change", e);
+    }
+  }
+
+  // Dispatch custom event so other components can react
+  window.dispatchEvent(
+    new CustomEvent("themechange", { detail: { theme, isDark: dark } }),
+  );
+}
+
+/**
+ * initTheme()
+ * Call on page load to ensure theme is applied (also handled by inline head script for FOUC prevention)
+ */
+function initTheme() {
+  const theme = getSavedTheme();
+  applyTheme(theme, { save: false, redrawChart: false });
+}
 
 /**
  * toggleTheme()
- * ----------------
- * Switches between light and dark mode.
- *
- * Steps:
- * 1. Flips isDark boolean
- * 2. Toggles 'dark' class on <html> and <body> (CSS uses body.dark selectors)
- * 3. Updates icons: moon (🌙) for light, sun (☀️) for dark in both header and sidebar
- * 4. If dashboard chart exists, redraws it with dark-mode colors
- *
- * Usage in HTML: onclick="toggleTheme()"
+ * Switches between light and dark mode and persists across all pages
  */
 function toggleTheme() {
-  // Step 1: Flip the boolean state
-  isDark = !isDark;
-
-  // Step 2: Toggle 'dark' class on html and body for CSS theming
-  document.documentElement.classList.toggle("dark", isDark);
-  document.body.classList.toggle("dark", isDark);
-
-  // Step 3: Update icons in header and sidebar
-  const topIcon = document.getElementById("ico-top");
-  const sideIcon = document.getElementById("ico-side");
-  if (topIcon) topIcon.textContent = isDark ? "☀️" : "🌙";
-  if (sideIcon) sideIcon.textContent = isDark ? "☀️" : "🌙";
-
-  // Step 4: If drawChart exists (dashboard page), redraw with new colors
-  if (typeof drawChart === "function") {
-    drawChart();
-  }
+  const newTheme = isDark ? "light" : "dark";
+  applyTheme(newTheme, { save: true, redrawChart: true });
 }
 
 /**
  * toggleNotif()
- * ---------------
  * Shows/hides notification popover.
- * Hides profile popover to avoid overlap.
- * Triggered by bell icon in header.
  */
 function toggleNotif() {
-  const notifEl = document.getElementById("notif"); // Notification dropdown
+  const notifEl = document.getElementById("notif");
   if (!notifEl) return;
-  notifEl.classList.toggle("show"); // Toggle visibility via .show class
-  // Hide other popover
+  notifEl.classList.toggle("show");
   const profEl = document.getElementById("prof");
   if (profEl) profEl.classList.remove("show");
 }
 
 /**
  * toggleProfile()
- * ----------------
  * Shows/hides profile menu dropdown.
- * Hides notification popover.
- * Triggered by avatar in header.
  */
 function toggleProfile() {
   const profEl = document.getElementById("prof");
@@ -92,32 +157,18 @@ function toggleProfile() {
 
 /**
  * openStudent(name, init)
- * -------------------------
- * Opens right-side drawer with student details.
- * @param {string} name - Full name, e.g. "Michael Johnson"
- * @param {string} init - Initials for avatar circle, e.g. "MJ"
- *
- * Usage: onclick="openStudent('Michael Johnson','MJ')" on table rows
  */
 function openStudent(name, init) {
-  // Set name in drawer header
   const nameEl = document.getElementById("d-name");
   if (nameEl) nameEl.textContent = name;
-
-  // Set initials in avatar circle
   const avEl = document.getElementById("d-av");
   if (avEl) avEl.textContent = init;
-
-  // Show drawer (CSS: display:block)
   const drawerEl = document.getElementById("drawer");
   if (drawerEl) drawerEl.classList.add("show");
 }
 
 /**
  * closeStudent()
- * ----------------
- * Closes student drawer.
- * Called by X button and backdrop click.
  */
 function closeStudent() {
   const drawerEl = document.getElementById("drawer");
@@ -126,25 +177,13 @@ function closeStudent() {
 
 /**
  * toast(msg)
- * ----------
- * Shows small toast notification at bottom center.
- * @param {string} msg - Message to show, e.g. "Create Course"
- *
- * Adds " — coming soon" suffix, auto-hides after 2.5s
- * Used for features not yet implemented.
  */
 function toast(msg) {
-  const toastEl = document.getElementById("toast"); // Toast container
-  const msgEl = document.getElementById("toast-msg"); // Text inside toast
+  const toastEl = document.getElementById("toast");
+  const msgEl = document.getElementById("toast-msg");
   if (!toastEl || !msgEl) return;
-
-  // Set message with suffix
   msgEl.textContent = msg + " — coming soon";
-
-  // Show toast (opacity 1, translate 0)
   toastEl.classList.add("show");
-
-  // Auto-hide after 2500ms
   setTimeout(() => {
     toastEl.classList.remove("show");
   }, 2500);
@@ -152,136 +191,186 @@ function toast(msg) {
 
 /**
  * setActiveNav(page)
- * -------------------
- * Sets active state for sidebar and mobile nav based on current page.
- * @param {string} page - 'dashboard' or 'conferences'
+ * Now generic: supports any page id, not just dashboard/conferences
+ * @param {string} page - page id e.g. 'dashboard', 'conferences', 'courses', etc.
  *
- * Adds 'active' class to current page buttons, removes from others.
- * Called on page load to highlight correct nav item.
+ * Looks for:
+ * - Sidebar: #nav-{id} or [data-nav-id="{id}"]
+ * - Mobile: #m-{id} or [data-mob-id="{id}"]
+ * Falls back to matching href if id not found
  */
 function setActiveNav(page) {
+  if (!page) return;
+  const normalized = page.toLowerCase().trim();
+
+  // Helper to set active class on a collection
+  function updateActiveState(containerSelector, activeSelector) {
+    const container = document.querySelector(containerSelector);
+    if (!container) return;
+    const allBtns = container.querySelectorAll(".nav-btn, .mob-btn");
+    allBtns.forEach((btn) => {
+      btn.classList.remove("active");
+    });
+  }
+
+  // Sidebar nav
+  const sidebar =
+    document.querySelector(".sidebar-nav") ||
+    document.getElementById("layout-sidebar");
+  if (sidebar) {
+    const allSidebarBtns = sidebar.querySelectorAll(".nav-btn");
+    allSidebarBtns.forEach((btn) => {
+      btn.classList.remove("active");
+      // Check data attribute or id
+      const btnId = btn.dataset.navId || btn.id.replace("nav-", "");
+      if (btnId === normalized) {
+        btn.classList.add("active");
+      } else if (
+        btn.getAttribute("href") &&
+        btn.getAttribute("href").includes(normalized)
+      ) {
+        // Fallback: match href like conferences.html contains conferences
+        if (
+          normalized === "dashboard" &&
+          btn.getAttribute("href").includes("index.html")
+        ) {
+          btn.classList.add("active");
+        } else if (btn.getAttribute("href").includes(`${normalized}.html`)) {
+          btn.classList.add("active");
+        }
+      }
+    });
+  }
+
+  // Mobile nav
+  const mobileNav =
+    document.querySelector(".mobile-nav") ||
+    document.getElementById("layout-mobile-nav");
+  if (mobileNav) {
+    const allMobBtns = mobileNav.querySelectorAll(".mob-btn");
+    allMobBtns.forEach((btn) => {
+      btn.classList.remove("active");
+      const btnId = btn.dataset.mobId || btn.id.replace("m-", "");
+      if (btnId === normalized) {
+        btn.classList.add("active");
+      } else if (
+        btn.getAttribute("href") &&
+        btn.getAttribute("href").includes(normalized)
+      ) {
+        if (
+          normalized === "dashboard" &&
+          btn.getAttribute("href").includes("index.html")
+        ) {
+          btn.classList.add("active");
+        } else if (btn.getAttribute("href").includes(`${normalized}.html`)) {
+          btn.classList.add("active");
+        }
+      }
+    });
+  }
+
+  // Update breadcrumb if element exists and not manually set
+  const crumb = document.getElementById("crumb");
+  if (crumb && !crumb.dataset.manual) {
+    crumb.textContent =
+      normalized.charAt(0).toUpperCase() + normalized.slice(1);
+  }
+
+  // Legacy support for old hardcoded ids
   const dashBtn = document.getElementById("nav-dash");
   const confBtn = document.getElementById("nav-conf");
   const mdash = document.getElementById("m-dash");
   const mconf = document.getElementById("m-conf");
 
-  if (page === "dashboard") {
-    if (dashBtn) dashBtn.className = "nav-btn active";
-    if (confBtn) confBtn.className = "nav-btn";
-    if (mdash) mdash.className = "mob-btn active";
-    if (mconf) mconf.className = "mob-btn";
-  } else if (page === "conferences") {
-    if (confBtn) confBtn.className = "nav-btn active";
-    if (dashBtn) dashBtn.className = "nav-btn";
-    if (mconf) mconf.className = "mob-btn active";
-    if (mdash) mdash.className = "mob-btn";
+  if (normalized === "dashboard") {
+    if (dashBtn) dashBtn.classList.add("active");
+    if (mdash) mdash.classList.add("active");
+  } else if (normalized === "conferences") {
+    if (confBtn) confBtn.classList.add("active");
+    if (mconf) mconf.classList.add("active");
   }
 }
 
 /* ==========================================================================
-   GLOBAL EVENT LISTENERS - Click outside to close popovers (Shared)
+   GLOBAL EVENT LISTENERS
    ========================================================================== */
 
-/**
- * Click outside handler:
- * - If click is outside #notif and not on bell button, hide notifications
- * - If click is outside #prof and not on avatar, hide profile
- * Gives natural dropdown behavior.
- */
 document.addEventListener("click", (e) => {
-  // Close notifications if clicked outside
   const notifEl = document.getElementById("notif");
-  const notifTrigger = e.target.closest('[onclick="toggleNotif()"]');
+  const notifTrigger =
+    e.target.closest('[onclick="toggleNotif()"]') ||
+    e.target.closest('[data-action="notif"]');
   if (notifEl && !e.target.closest("#notif") && !notifTrigger) {
     notifEl.classList.remove("show");
   }
 
-  // Close profile if clicked outside
   const profEl = document.getElementById("prof");
   const profTrigger =
     e.target.closest('[onclick="toggleProfile()"]') ||
-    e.target.closest(".avatar-btn");
+    e.target.closest(".avatar-btn") ||
+    e.target.closest('[data-action="profile"]');
   if (profEl && !e.target.closest("#prof") && !profTrigger) {
     profEl.classList.remove("show");
   }
 });
 
-/**
- * Auto-enable dark mode if system prefers dark
- * Runs after short delay to avoid flash
- */
-setTimeout(() => {
-  if (
-    window.matchMedia &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches
-  ) {
-    toggleTheme();
+// Sync theme across tabs/pages when localStorage changes
+window.addEventListener("storage", (e) => {
+  if (e.key === THEME_KEY && e.newValue) {
+    if (e.newValue !== getSavedTheme() || (e.newValue === "dark") !== isDark) {
+      applyTheme(e.newValue, { save: false, redrawChart: true });
+    }
   }
-}, 100);
+});
 
+// Initialize theme as soon as possible
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+    // Small delay to let layout.js inject first if needed
+    setTimeout(() => initTheme(), 10);
+  });
+} else {
+  setTimeout(() => initTheme(), 10);
+}
 
+// Also apply immediately if DOM already has body (for FOUC prevention fallback)
+try {
+  initTheme();
+} catch (e) {}
 
-
-/**
- * ==========================================================================
- *  - Modern Collapsible Aside Logic
- * ==========================================================================
- * Purpose: Adds modern icon-only collapse without touching existing code.
- * - Adds toggle button to sidebar
- * - Toggles .is-collapsed class
- * - Shows tooltips on hover when collapsed
- * - Persists state in localStorage
- * - Works on both dashboard (index.html) and conferences.html
- *
- * Integration: Include AFTER common.js, no edits to common.js needed
- *   <link rel="stylesheet" href="css/sidebar-collapsible.css">
- *   <script src="js/sidebar-collapsible.js"></script>
- *
- * Original code untouched - this is additive only
- * ==========================================================================
- */
-
+/* ==========================================================================
+   Modern Collapsible Sidebar Logic - Persists across pages
+   ========================================================================== */
 (function () {
-  const STORAGE_KEY = 'studypod_sidebar_collapsed';
-  const COLLAPSED_CLASS = 'is-collapsed';
-  const TOOLTIP_ID = 'sidebar-tooltip';
+  const STORAGE_KEY = SIDEBAR_COLLAPSED_KEY;
+  const COLLAPSED_CLASS = "is-collapsed";
+  const TOOLTIP_ID = "sidebar-tooltip";
 
   let tooltipEl = null;
   let isCollapsed = false;
 
-  /**
-   * Create modern tooltip element (singleton)
-   */
   function getTooltip() {
     if (tooltipEl) return tooltipEl;
-    tooltipEl = document.createElement('div');
+    tooltipEl = document.createElement("div");
     tooltipEl.id = TOOLTIP_ID;
-    tooltipEl.className = 'sidebar-tooltip';
+    tooltipEl.className = "sidebar-tooltip";
     document.body.appendChild(tooltipEl);
     return tooltipEl;
   }
 
-  /**
-   * Get label text from nav button
-   */
   function getNavLabel(btn) {
-    // Try to find span that is not badge
-    const spans = btn.querySelectorAll('span');
+    const spans = btn.querySelectorAll("span");
     for (const s of spans) {
-      if (s.classList.contains('nav-badge')) continue;
+      if (s.classList.contains("nav-badge")) continue;
       const txt = s.textContent.trim();
       if (txt) return txt;
     }
-    // Fallback: textContent without badge
     const clone = btn.cloneNode(true);
-    const badge = clone.querySelector('.nav-badge');
+    const badge = clone.querySelector(".nav-badge");
     if (badge) badge.remove();
     return clone.textContent.trim();
   }
 
-  /**
-   * Show tooltip
-   */
   function showTooltip(btn) {
     if (!isCollapsed) return;
     const label = getNavLabel(btn);
@@ -290,128 +379,509 @@ setTimeout(() => {
     tip.textContent = label;
     const rect = btn.getBoundingClientRect();
     tip.style.top = `${rect.top + rect.height / 2 - tip.offsetHeight / 2}px`;
-    // left is handled by CSS, but ensure visible
-    tip.classList.add('show');
+    tip.classList.add("show");
   }
 
   function hideTooltip() {
-    if (tooltipEl) tooltipEl.classList.remove('show');
+    if (tooltipEl) tooltipEl.classList.remove("show");
   }
 
-  /**
-   * Toggle sidebar collapsed state
-   */
   function toggleSidebar() {
-    const sidebar = document.querySelector('.sidebar');
+    const sidebar = document.querySelector(".sidebar");
     if (!sidebar) return;
     isCollapsed = !isCollapsed;
     sidebar.classList.toggle(COLLAPSED_CLASS, isCollapsed);
-    // Persist
     try {
-      localStorage.setItem(STORAGE_KEY, isCollapsed ? '1' : '0');
+      localStorage.setItem(STORAGE_KEY, isCollapsed ? "1" : "0");
     } catch (e) {}
-    // Accessibility
-    const btn = document.getElementById('sidebar-collapse-btn');
+    const btn = document.getElementById("sidebar-collapse-btn");
     if (btn) {
-      btn.setAttribute('aria-expanded', (!isCollapsed).toString());
-      btn.setAttribute('aria-label', isCollapsed ? 'Expand sidebar' : 'Collapse sidebar');
+      btn.setAttribute("aria-expanded", (!isCollapsed).toString());
+      btn.setAttribute(
+        "aria-label",
+        isCollapsed ? "Expand sidebar" : "Collapse sidebar",
+      );
     }
     hideTooltip();
   }
 
-  /**
-   * Initialize collapse button and listeners
-   */
   function initCollapsibleSidebar() {
-    const sidebar = document.querySelector('.sidebar');
-    const brand = document.querySelector('.sidebar-brand');
+    const sidebar = document.querySelector(".sidebar");
+    const brand = document.querySelector(".sidebar-brand");
     if (!sidebar || !brand) return;
 
-    // Restore state
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      isCollapsed = saved === '1';
+      isCollapsed = saved === "1";
     } catch (e) {
       isCollapsed = false;
     }
 
-    // Avoid duplicate button
-    if (document.getElementById('sidebar-collapse-btn')) return;
+    if (document.getElementById("sidebar-collapse-btn")) return;
 
-    // Create toggle button - modern chevron in circle
-    const btn = document.createElement('button');
-    btn.id = 'sidebar-collapse-btn';
-    btn.className = 'sidebar-collapse-btn';
-    btn.type = 'button';
-    btn.setAttribute('aria-label', isCollapsed ? 'Expand sidebar' : 'Collapse sidebar');
-    btn.setAttribute('aria-expanded', (!isCollapsed).toString());
+    const btn = document.createElement("button");
+    btn.id = "sidebar-collapse-btn";
+    btn.className = "sidebar-collapse-btn";
+    btn.type = "button";
+    btn.setAttribute(
+      "aria-label",
+      isCollapsed ? "Expand sidebar" : "Collapse sidebar",
+    );
+    btn.setAttribute("aria-expanded", (!isCollapsed).toString());
     btn.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="m15 18-6-6 6-6"/>
       </svg>
     `;
 
-    // Make brand relatively positioned if not already (CSS already does)
-    brand.style.position = 'relative';
+    brand.style.position = "relative";
     brand.appendChild(btn);
 
-    // Apply initial collapsed state
     if (isCollapsed) {
       sidebar.classList.add(COLLAPSED_CLASS);
     }
 
-    // Click handler
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener("click", (e) => {
       e.stopPropagation();
       toggleSidebar();
     });
 
-    // Keyboard shortcut: [ to toggle (common in modern apps like Slack/Linear)
-    document.addEventListener('keydown', (e) => {
-      // Only if not typing in input
+    document.addEventListener("keydown", (e) => {
       const tag = document.activeElement?.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement?.isContentEditable) return;
-      if (e.key === '[' && (e.metaKey || e.ctrlKey)) {
+      if (
+        tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        document.activeElement?.isContentEditable
+      )
+        return;
+      if (e.key === "[" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         toggleSidebar();
       }
     });
 
-    // Tooltip listeners for nav buttons - only when collapsed
-    const navBtns = sidebar.querySelectorAll('.nav-btn');
+    const navBtns = sidebar.querySelectorAll(".nav-btn");
     navBtns.forEach((navBtn) => {
-      navBtn.addEventListener('mouseenter', () => {
+      navBtn.addEventListener("mouseenter", () => {
         if (window.innerWidth <= 1024) return;
         if (isCollapsed) showTooltip(navBtn);
       });
-      navBtn.addEventListener('mouseleave', hideTooltip);
-      navBtn.addEventListener('focus', () => {
+      navBtn.addEventListener("mouseleave", hideTooltip);
+      navBtn.addEventListener("focus", () => {
         if (window.innerWidth <= 1024) return;
         if (isCollapsed) showTooltip(navBtn);
       });
-      navBtn.addEventListener('blur', hideTooltip);
+      navBtn.addEventListener("blur", hideTooltip);
     });
 
-    // Hide tooltip on scroll or resize
-    window.addEventListener('scroll', hideTooltip, true);
-    window.addEventListener('resize', hideTooltip);
+    window.addEventListener("scroll", hideTooltip, true);
+    window.addEventListener("resize", hideTooltip);
 
-    // Optional: Double-click sidebar to toggle (modern UX)
-    sidebar.addEventListener('dblclick', (e) => {
-      // Only toggle if double-clicking brand area or empty space, not buttons
-      if (e.target.closest('.sidebar-brand') || e.target === sidebar || e.target.classList.contains('sidebar-nav')) {
+    sidebar.addEventListener("dblclick", (e) => {
+      if (
+        e.target.closest(".sidebar-brand") ||
+        e.target === sidebar ||
+        e.target.classList.contains("sidebar-nav")
+      ) {
         toggleSidebar();
       }
     });
   }
 
-  // Init when DOM ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initCollapsibleSidebar);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initCollapsibleSidebar);
   } else {
     initCollapsibleSidebar();
   }
 
-  // Expose global for debugging (does not interfere)
+  // Also re-init when layout is injected (for new reusable system)
+  window.addEventListener("layout:ready", initCollapsibleSidebar);
+  window.addEventListener("layout:sidebarRendered", initCollapsibleSidebar);
+
   window.toggleSidebarCollapse = toggleSidebar;
+})();
+
+/* ==========================================================================
+   LAYOUT.JS MERGED INTO COMMON.JS - Reusable Header/Sidebar/Bottom Nav
+   (Previously separate file, now consolidated per user request)
+   ========================================================================== */
+
+/**
+ * ==========================================================================
+ * LAYOUT.JS - Reusable Layout System for studyPod
+ * ==========================================================================
+ * Purpose: Eliminate duplication of header, sidebar, and bottom navigation.
+ * Any future page just needs to include this file + call initLayout().
+ *
+ * Features:
+ * - Single source of truth for sidebar, header, mobile nav, overlays
+ * - Active state auto-detected from URL or passed explicitly
+ * - Theme toggle consistent (uses common.js persistent theme)
+ * - Shared navigation markup follows the student dashboard structure
+ *
+ * Usage for any page (including future pages):
+ *
+ * 1. In HTML, add placeholders:
+ *    <div id="layout-sidebar"></div>
+ *    <div id="layout-header"></div>
+ *    <div id="layout-mobile-nav"></div>
+ *    <div id="layout-overlays"></div>
+ *
+ * 2. At bottom, after common.js:
+ *    <script src="js/layout.js"></script>
+ *    <script>
+ *      Layout.initLayout({
+ *        active: 'dashboard', // or 'conferences', 'courses', etc.
+ *        breadcrumb: { parent: 'Dashboard', current: 'Overview' },
+ *        pageTitle: 'Dashboard'
+ *      });
+ *    </script>
+ *
+ * 3. That's it - header, sidebar, bottom nav auto-injected
+ *
+ * To add a new page:
+ * - Add new navigation links directly in renderSidebar/renderMobileNav
+ *
+ * ==========================================================================
+ */
+
+(function () {
+  "use strict";
+
+  const appRoot = () =>
+    window.location.pathname.toLowerCase().includes("/pages/") ? "../" : "./";
+  const sitePath = (file) => `${appRoot()}${file}`;
+  const pagePath = (file) =>
+    appRoot() === "../" ? file : `pages/${file}`;
+
+  // ==================== ICONS - Single source ====================
+  const ICONS = {
+    dashboard: `
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="nav-icon">
+        <rect x="3" y="3" width="7" height="7" rx="2.2" class="anim-dash-1"></rect>
+        <rect x="14" y="3" width="7" height="7" rx="2.2" class="anim-dash-2"></rect>
+        <rect x="14" y="14" width="7" height="7" rx="2.2" class="anim-dash-3"></rect>
+        <rect x="3" y="14" width="7" height="7" rx="2.2" class="anim-dash-4"></rect>
+      </svg>`,
+    home: `
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="nav-icon">
+        <path d="M3.5 9.5L12 3l8.5 6.5V20a1.5 1.5 0 0 1-1.5 1.5H10V14a1.5 1.5 0 0 0-1.5-1.5h-1A1.5 1.5 0 0 0 6 14v7.5H4.5A1.5 1.5 0 0 1 3 20V9.5Z" class="anim-home"></path>
+        <path d="M9 21.5V14" opacity=".6"></path>
+      </svg>`,
+    courses: `
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="nav-icon">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" class="anim-course"></path>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"></path>
+        <path d="M8 7h8" opacity=".5"></path>
+        <path d="M8 11h5" opacity=".3"></path>
+      </svg>`,
+    students: `
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="nav-icon">
+        <path d="M12 3L2.5 8 12 13l9.5-5L12 3Z" class="anim-cap"></path>
+        <path d="M6 12.2v2.6c2.4 1.9 9.6 1.9 12 0v-2.6"></path>
+        <path d="M12 13v4" class="anim-tassel"></path>
+        <circle cx="12" cy="18.8" r="0.9" fill="currentColor" class="anim-dot"></circle>
+      </svg>`,
+    assignments: `
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="nav-icon">
+        <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"></path>
+        <rect x="9" y="2" width="6" height="4" rx="1.3"></rect>
+        <path d="m9 14 1.8 1.8L15 11.5" class="anim-check"></path>
+      </svg>`,
+    conferences: `
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="nav-icon">
+        <rect x="1.5" y="5.5" width="13.5" height="13" rx="2.5"></rect>
+        <path d="M15.5 9.5 22 7v10l-6.5-2.5v-5Z" class="anim-video"></path>
+        <circle cx="5.5" cy="9" r="1" fill="currentColor" class="anim-live-dot"></circle>
+      </svg>`,
+    messages: `
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="nav-icon">
+        <path d="M7.5 20.5A9 9 0 0 1 3.2 16L2 22l6-2.1A9 9 0 0 0 17.2 9.2 9 9 0 0 0 7.5 20.5Z"></path>
+        <circle cx="8" cy="12.5" r="1" fill="currentColor" class="anim-msg-1"></circle>
+        <circle cx="12" cy="12.5" r="1" fill="currentColor" class="anim-msg-2"></circle>
+        <circle cx="16" cy="12.5" r="1" fill="currentColor" class="anim-msg-3"></circle>
+      </svg>`,
+    analytics: `
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="nav-icon">
+        <rect x="3" y="12" width="4" height="9" rx="1.2" class="anim-bar-1"></rect>
+        <rect x="10" y="7" width="4" height="14" rx="1.2" class="anim-bar-2"></rect>
+        <rect x="17" y="3" width="4" height="18" rx="1.2" class="anim-bar-3"></rect>
+      </svg>`,
+    settings: `
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="nav-icon">
+        <circle cx="12" cy="12" r="3.2" class="anim-gear-center"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H1.5a2 2 0 0 1 0-4H3A1.65 1.65 0 0 0 4.68 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V1.5a2 2 0 0 1 4 0V3a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.32 9a1.65 1.65 0 0 0 1.51 1H22a2 2 0 0 1 0 4h-1.5a1.65 1.65 0 0 0-1.1.32Z" class="anim-gear"></path>
+      </svg>`,
+    help: `
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="nav-icon">
+        <circle cx="12" cy="12" r="9" class="anim-help-ring"></circle>
+        <path d="M9.2 9.2a3.8 3.8 0 0 1 5.4 5.4c-.6.6-1 1-1.5 1.7-.3.6-.5 1.1-.5 1.9" class="anim-help-q"></path>
+        <circle cx="12" cy="17.8" r="1" fill="currentColor" class="anim-help-dot"></circle>
+      </svg>`,
+  };
+
+  // ==================== RENDER FUNCTIONS ====================
+
+  function renderSidebar(activeId) {
+    const brandHTML = `
+      <div class="sidebar-brand">
+        <div class="logo-box"><img src="${sitePath("image/studyPod_logo_pra.png")}" alt="studyPod_logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+        </div>
+        <span class="brand-name">studyPod</span>
+        <span class="dot"></span>
+      </div>`;
+
+    const navHTML = `
+      <nav class="sidebar-nav">
+        <a href="${sitePath("index.html")}" id="nav-dash" class="nav-btn">${ICONS.dashboard}<span>Dashboard</span></a>
+        <div class="nav-group-title">Teaching</div>
+        <button class="nav-btn" onclick="toast('Courses')">${ICONS.courses}<span>Courses</span></button>
+        <button class="nav-btn" onclick="toast('Students')">${ICONS.students}<span>Students</span></button>
+        <button class="nav-btn" onclick="toast('Assignments')">${ICONS.assignments}<span>Assignments</span></button>
+        <a href="${pagePath("conferences.html")}" id="nav-conf" class="nav-btn">${ICONS.conferences}<span>Conferences</span><span class="nav-badge">NEW</span></a>
+        <div class="nav-group-title">Communication</div>
+        <a class="nav-btn" onclick="toast('Messages')">${ICONS.messages}<span>Messages</span><span class="nav-badge red">5</span></a>
+        <div class="nav-group-title">Insights</div>
+        <a class="nav-btn" onclick="toast('Analytics')">${ICONS.analytics}<span>Analytics</span></a>
+        <a class="nav-btn" onclick="toast('Settings')">${ICONS.settings}<span>Settings</span></a>
+        <a class="nav-btn" onclick="toast('Help &amp; Support')">${ICONS.help}<span>Help &amp; Support</span></a>
+      </nav>`;
+
+    const userCardHTML = `
+      <div>
+        <div class="user-card">
+          <div class="user-avatar">SD</div>
+          <div class="user-info">
+            <div class="user-name">Sarah Davis</div>
+            <div class="user-role">Tutor</div>
+          </div>
+        </div>
+      </div>`;
+
+    return `
+      <aside class="sidebar">
+        ${brandHTML}
+        ${navHTML}
+        ${userCardHTML}
+      </aside>
+    `;
+  }
+
+  function renderHeader(
+    breadcrumb = { parent: "Dashboard", current: "Overview" },
+  ) {
+    return `
+      <header class="header">
+        <div class="header-left-mobile">
+          <div class="logo-box"><img src="${sitePath("image/studyPod_logo_pra.png")}" alt="StudyPod Logo" onerror="this.style.display='none'">
+          </div>
+          <span style="font-weight:700">studyPod</span>
+        </div>
+
+        <div class="breadcrumb"><span>${breadcrumb.parent}</span><span>›</span><span id="crumb" class="active" data-manual="${breadcrumb.manual ? "true" : "false"}">${breadcrumb.current}</span></div>
+
+        <div class="header-actions">
+          <button onclick="toggleTheme()" class="header-btn" aria-label="Toggle theme"><span id="ico-top">🌙</span></button>
+          <button onclick="toggleNotif()" class="header-btn" aria-label="Notifications" data-action="notif">🔔<span class="notif-dot"></span></button>
+          <div onclick="toggleProfile()" class="avatar-btn" data-action="profile">SD</div>
+        </div>
+
+        <div id="notif" class="popover">
+          <div class="popover-title">Notifications</div>
+          <div class="popover-item">
+            <div class="popover-dot blue"></div>
+            <div>
+              <div style="font-weight:500">New assignment submission</div>
+              <div class="popover-meta">Ava Kim — UX Design #4</div>
+            </div>
+          </div>
+          <div class="popover-item">
+            <div class="popover-dot green"></div>
+            <div>
+              <div style="font-weight:500">Conference reminder</div>
+              <div class="popover-meta">React Masterclass tomorrow 4PM</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="prof" class="popover small">
+          <div style="padding:12px">
+            <div style="font-weight:600;font-size:14px">Sarah Davis</div>
+            <div style="font-size:12px;color:#64748B">sarah@estudy.com • Tutor</div>
+          </div>
+          <div class="popover-divider">
+            <button class="popover-link">View Profile</button>
+            <button class="popover-link">Account Settings</button>
+            <button class="popover-link danger">Log out</button>
+          </div>
+        </div>
+      </header>
+    `;
+  }
+
+  function renderMobileNav(activeId) {
+    return `
+      <nav class="mobile-nav">
+        <a href="${sitePath("index.html")}" id="m-dash" class="mob-btn">${ICONS.home}<span>Home</span></a>
+        <button class="mob-btn" onclick="toast('Courses')">${ICONS.courses}<span>Courses</span></button>
+        <button class="mob-btn" onclick="toast('Students')">${ICONS.students}<span>Students</span></button>
+        <a href="${pagePath("conferences.html")}" id="m-conf" class="mob-btn">${ICONS.conferences}<span>Conf</span></a>
+        <button class="mob-btn" onclick="toast('Messages')">${ICONS.messages}<span>Messages</span><span class="mob-dot"></span></button>
+      </nav><div style="height:72px" class="mobile-spacer"></div>`;
+  }
+
+  function renderOverlays() {
+    return `
+      <div id="drawer" class="drawer">
+        <div class="drawer-backdrop" onclick="closeStudent()"></div>
+        <div class="drawer-panel">
+          <div class="drawer-head">
+            <div class="drawer-user">
+              <div id="d-av" class="drawer-av">MJ</div>
+              <div>
+                <div id="d-name" class="drawer-name">Michael Johnson</div>
+                <div class="drawer-meta">Student • Joined Sep 2024</div>
+              </div>
+            </div>
+            <button onclick="closeStudent()" class="drawer-close">✕</button>
+          </div>
+          <div class="drawer-section">
+            <div class="drawer-label">Overall Progress</div>
+            <div class="drawer-progress-title">92% completed</div>
+            <div class="track" style="margin-top:8px;height:8px">
+              <div class="fill fill-blue" style="width:92%;height:8px"></div>
+            </div>
+          </div>
+          <div class="drawer-section">
+            <div class="drawer-box">
+              <div class="drawer-course-icon">📚</div>
+              <div>
+                <div style="font-size:13px;font-weight:500">Python for Data Science</div>
+                <div style="font-size:11px;color:#94A3B8">8 modules • 24 lessons</div>
+              </div>
+            </div>
+          </div>
+          <button class="drawer-btn">Send Message</button>
+        </div>
+      </div>
+
+      <div id="toast" class="toast"><span class="toast-dot"></span><span id="toast-msg">Action</span></div>
+    `;
+  }
+
+  // Auto-detect active page from URL
+  function detectActiveFromURL() {
+    const path = window.location.pathname.toLowerCase();
+    const file = path.split("/").pop() || "index.html";
+
+    if (file.includes("conference")) return "conferences";
+    if (file.includes("index") || file === "" || file === "dashboard")
+      return "dashboard";
+    if (file.includes("course")) return "courses";
+    if (file.includes("student")) return "students";
+    if (file.includes("assignment")) return "assignments";
+    if (file.includes("message")) return "messages";
+    if (file.includes("analytic")) return "analytics";
+    if (file.includes("setting")) return "settings";
+
+    // Try to extract name without extension
+    const name = file.replace(".html", "");
+    if (name) return name;
+    return "dashboard";
+  }
+
+  function initLayout(config = {}) {
+    const activeId = config.active || detectActiveFromURL();
+    const breadcrumb = config.breadcrumb || {
+      parent: activeId === "conferences" ? "Teaching" : "Dashboard",
+      current: activeId.charAt(0).toUpperCase() + activeId.slice(1),
+      manual: false,
+    };
+
+    // Support legacy breadcrumb object with parent/current
+    if (typeof config.breadcrumb === "string") {
+      breadcrumb.current = config.breadcrumb;
+    }
+
+    const sidebarEl = document.getElementById("layout-sidebar");
+    const headerEl = document.getElementById("layout-header");
+    const mobileEl = document.getElementById("layout-mobile-nav");
+    const overlaysEl = document.getElementById("layout-overlays");
+
+    // New reusable system (placeholders exist)
+    if (sidebarEl) {
+      sidebarEl.innerHTML = renderSidebar(activeId);
+      window.dispatchEvent(new CustomEvent("layout:sidebarRendered"));
+    }
+    if (headerEl) {
+      headerEl.innerHTML = renderHeader(breadcrumb);
+    }
+    if (mobileEl) {
+      mobileEl.innerHTML = renderMobileNav(activeId);
+    }
+    if (overlaysEl) {
+      overlaysEl.innerHTML = renderOverlays();
+    }
+
+    // If no placeholders, we're on legacy page - do nothing, let existing HTML stay
+    // But still ensure active states are correct
+    if (!sidebarEl && !headerEl) {
+      setActiveNav(activeId);
+    }
+
+    // If placeholders exist, ensure body has .app structure
+    // (already in template)
+
+    window.dispatchEvent(
+      new CustomEvent("layout:ready", { detail: { activeId, breadcrumb } }),
+    );
+
+    // Also init theme icons after layout rendered
+    setTimeout(() => {
+      if (typeof initTheme === "function") {
+        initTheme();
+      } else if (typeof applyTheme === "function") {
+        const saved =
+          localStorage.getItem("studypod_theme") ||
+          (window.matchMedia &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light");
+        applyTheme(saved, { save: false, redrawChart: false });
+      }
+    }, 0);
+
+    console.log(`[Layout] Initialized - active: ${activeId}`, config);
+  }
+
+  // Expose globally
+  window.Layout = {
+    initLayout,
+    renderSidebar,
+    renderHeader,
+    renderMobileNav,
+    renderOverlays,
+    detectActiveFromURL,
+    ICONS,
+  };
+
+  // Auto-init if data-auto attribute is present
+  document.addEventListener("DOMContentLoaded", () => {
+    const autoEl = document.querySelector("[data-layout-auto]");
+    if (autoEl) {
+      const active =
+        autoEl.getAttribute("data-layout-auto") || detectActiveFromURL();
+      initLayout({ active });
+      return;
+    }
+
+    const active = detectActiveFromURL();
+    initLayout({
+      active,
+      breadcrumb:
+        active === "conferences"
+          ? { parent: "Teaching", current: "Conferences" }
+          : { parent: "Dashboard", current: "Overview" },
+    });
+  });
 })();
