@@ -1568,6 +1568,52 @@ html.dark body {
    transition: margin-left var(--transition-sidebar);
 }
 
+@media (max-width: 640px) {
+   .conf-hero {
+      height: 164px;
+      padding: 16px;
+   }
+
+   .conf-tag-top {
+      left: 16px;
+      top: 10px;
+   }
+
+   .conf-pill {
+      left: 16px;
+      right: auto;
+      top: 34px;
+   }
+
+   .conf-hero-title {
+      font-size: 16px;
+      line-height: 1.25;
+   }
+
+   .conf-hero-sub {
+      font-size: 12px;
+      line-height: 1.35;
+   }
+}
+
+@media (max-width: 380px) {
+   .mobile-nav {
+      padding: 8px 4px;
+   }
+
+   .mob-btn {
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 4px 2px;
+      font-size: 12px;
+   }
+
+   .mob-btn .nav-icon {
+      width: 22px;
+      height: 22px;
+   }
+}
+
 /* Match the student dashboard's icon-only collapsed navigation. */
 .sidebar {
    min-width: var(--sidebar-width);
