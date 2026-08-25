@@ -1,0 +1,157 @@
+<!-- ==========================================================================
+     ANALYTICS.HTML - StudyPod v2.1
+     Purpose: Analytics page with CRUD functionality
+     Features: Animated SVG icons, image upload, responsive, dark mode
+     Dependencies: variables.css, common.css, animated-icons.css
+     ========================================================================== -->
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Analytics | studyPod</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/animated-icons.css">
+  <link rel="stylesheet" href="../css/analytics.css">
+  <link rel="icon" href="../assets/logo.png">
+
+  <script>try { const t = localStorage.getItem('studypod_theme'); const d = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme:dark)').matches); if (d) { document.documentElement.classList.add('dark'); } } catch (e) { }</script>
+</head>
+
+<body>
+  <div class="app"><!-- SIDEBAR: Rendered dynamically by common.js - collapsible, sticky, logo -->
+    <div id="layout-sidebar"></div>
+    <!-- MAIN: Primary content area, margin-left for fixed sidebar -->
+    <main class="main"><!-- HEADER: Rendered dynamically - logo left, theme toggle + notif + profile right -->
+      <div id="layout-header"></div>
+      <!-- CONTENT SECTION: Page main content -->
+      <section class="content page-shell">
+
+        <!-- PAGE HEADER: Title, description and primary actions -->
+        <div class="page-head">
+          <div>
+            <h1>Analytics</h1>
+            <p>Student engagement, course performance, revenue and trends.</p>
+          </div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-card metric-card-animated" style="position:relative;overflow:hidden">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div>
+                <div class="kpi-label">Total Students</div>
+                <div class="kpi-value" id="total-students">0</div>
+                <div class="kpi-trend up" style="display:flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                    <polyline points="17 6 23 6 23 12" />
+                  </svg> +12% vs last month</div>
+              </div>
+              <div
+                style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg, #EFF6FF, #DBEAFE);display:grid;place-items:center">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" style="width:22px;height:22px"
+                  class="anim-float">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg></div>
+            </div>
+          </div>
+          <div class="kpi-card metric-card-animated" style="position:relative;overflow:hidden">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div>
+                <div class="kpi-label">Total Courses</div>
+                <div class="kpi-value" id="total-courses">0</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Active courses</div>
+              </div>
+              <div
+                style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg, #F0FDF4, #DCFCE7);display:grid;place-items:center">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" style="width:22px;height:22px"
+                  class="anim-float-slow">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                </svg></div>
+            </div>
+          </div>
+          <div class="kpi-card metric-card-animated" style="position:relative;overflow:hidden">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div>
+                <div class="kpi-label">Avg Quiz Score</div>
+                <div class="kpi-value" id="avg-quiz-score">0%</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Across all quizzes</div>
+              </div>
+              <div
+                style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg, #FFFBEB, #FEF3C7);display:grid;place-items:center">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" style="width:22px;height:22px"
+                  class="anim-pulse">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg></div>
+            </div>
+          </div>
+          <div class="kpi-card metric-card-animated" style="position:relative;overflow:hidden">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div>
+                <div class="kpi-label">Completion Rate</div>
+                <div class="kpi-value" id="completion-rate">0%</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Average progress</div>
+              </div>
+              <div
+                style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg, #F5F3FF, #DDD6FE);display:grid;place-items:center">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" style="width:22px;height:22px"
+                  class="anim-bounce-subtle">
+                  <line x1="18" y1="20" x2="18" y2="10" />
+                  <line x1="12" y1="20" x2="12" y2="4" />
+                  <line x1="6" y1="20" x2="6" y2="14" />
+                </svg></div>
+            </div>
+          </div>
+        </div>
+        <div class="analytics-grid" style="margin-top:20px">
+          <div class="analytics-card">
+            <h3>Enrollment Trend</h3>
+            <div id="enrollment-chart" class="chart-placeholder" style="height:200px">Loading chart...</div>
+          </div>
+          <div class="analytics-card">
+            <h3>Revenue</h3>
+            <div style="font-size:28px;font-weight:700;margin-top:12px" id="total-revenue">₦0</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:4px">From enrollments + conference
+              registrations</div>
+            <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="metric-card"><span>Enrollments</span><strong id="total-enrollments">0</strong></div>
+              <div class="metric-card"><span>Registrations</span><strong id="total-registrations">0</strong></div>
+            </div>
+          </div>
+        </div>
+        <div class="analytics-grid" style="margin-top:20px">
+          <div class="analytics-card">
+            <h3>Course Performance Breakdown</h3>
+            <div id="course-breakdown" class="data-list" style="margin-top:16px"></div>
+          </div>
+          <div class="analytics-card">
+            <h3>Summary</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px">
+              <div class="metric-card"><span>Conferences</span><strong id="total-conferences">0</strong></div>
+              <div class="metric-card"><span>Assignments</span><strong id="total-assignments">0</strong></div>
+              <div class="metric-card"><span>Submissions</span><strong id="total-submissions">0</strong></div>
+              <div class="metric-card"><span>Quizzes</span><strong id="total-courses">0</strong></div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+      <!-- MOBILE NAV: Bottom navigation for mobile -->
+      <div id="layout-mobile-nav"></div><!-- OVERLAYS: Drawers, modals, toasts -->
+      <div id="layout-overlays"></div>
+    </main>
+  </div>
+  <script src="../js/store.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/analytics.js"></script>
+
+</body>
+
+</html>

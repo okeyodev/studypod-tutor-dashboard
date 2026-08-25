@@ -1,0 +1,62 @@
+<!-- ==========================================================================
+     MESSAGES.HTML - StudyPod v2.1
+     Purpose: Messages page with CRUD functionality
+     Features: Animated SVG icons, image upload, responsive, dark mode
+     Dependencies: variables.css, common.css, animated-icons.css
+     ========================================================================== -->
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Settings | studyPod</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/animated-icons.css">
+  <link rel="icon" href="../assets/logo.png">
+
+  <script>try { const t = localStorage.getItem('studypod_theme'); const d = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme:dark)').matches); if (d) { document.documentElement.classList.add('dark'); } } catch (e) { }</script>
+</head>
+
+<body>
+  <div class="app"><!-- SIDEBAR: Rendered dynamically by common.js - collapsible, sticky, logo -->
+    <div id="layout-sidebar"></div>
+    <!-- MAIN: Primary content area, margin-left for fixed sidebar -->
+    <main class="main"><!-- HEADER: Rendered dynamically - logo left, theme toggle + notif + profile right -->
+      <div id="layout-header"></div>
+      <!-- CONTENT SECTION: Page main content -->
+      <section class="content page-shell">
+
+        <!-- PAGE HEADER: Title, description and primary actions -->
+        <div class="page-head">
+          <div>
+            <h1>Settings</h1>
+            
+          </div>
+        </div>
+        <!-- CARD: Main content card -->
+        <div class="card card-pad-lg">
+          <div class="empty-state">
+            <div class="empty-icon"><span class="animated-icon" style="width:16px;height:16px"><svg viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V5a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
+                </svg></span></div>
+            <div class="empty-title">Messages coming soon</div>
+            <div class="empty-sub">This will integrate with real-time chat. For now, use Email for communication.</div>
+            <a href="email.html" class="btn-primary" style="margin-top:12px">Go to Email</a>
+          </div>
+        </div>
+
+      </section>
+      <!-- MOBILE NAV: Bottom navigation for mobile -->
+      <div id="layout-mobile-nav"></div><!-- OVERLAYS: Drawers, modals, toasts -->
+      <div id="layout-overlays"></div>
+    </main>
+  </div>
+  <script src="../js/store.js"></script>
+  <script src="../js/common.js"></script>
+
+</body>
+
+</html>

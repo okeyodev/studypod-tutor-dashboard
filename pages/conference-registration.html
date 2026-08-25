@@ -1,0 +1,104 @@
+<!-- ==========================================================================
+     CONFERENCE-REGISTRATION.HTML - StudyPod v2.1
+     Purpose: Conference Registration page with CRUD functionality
+     Features: Animated SVG icons, image upload, responsive, dark mode
+     Dependencies: variables.css, common.css, animated-icons.css
+     ========================================================================== -->
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Conference Registrations | studyPod</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/animated-icons.css">
+  <link rel="stylesheet" href="../css/conferences.css">
+  <link rel="icon" href="../assets/logo.png">
+
+  <script>try { const t = localStorage.getItem('studypod_theme'); const d = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme:dark)').matches); if (d) { document.documentElement.classList.add('dark'); } } catch (e) { }</script>
+</head>
+
+<body>
+  <div class="app"><!-- SIDEBAR: Rendered dynamically by common.js - collapsible, sticky, logo -->
+    <div id="layout-sidebar"></div>
+    <!-- MAIN: Primary content area, margin-left for fixed sidebar -->
+    <main class="main"><!-- HEADER: Rendered dynamically - logo left, theme toggle + notif + profile right -->
+      <div id="layout-header"></div>
+      <!-- CONTENT SECTION: Page main content -->
+      <section class="content page-shell">
+
+        <!-- PAGE HEADER: Title, description and primary actions -->
+        <div class="page-head">
+          <div>
+            <h1>Conference Registrations</h1>
+            <p>Manage attendees, registrations and payments.</p>
+          </div>
+          <a href="conferences.html" class="btn-light">← Conferences</a>
+        </div>
+        <!-- METRICS GRID: KPI cards -->
+        <div class="page-grid">
+          <div class="metric-card"><span>Total Registrations</span><strong id="total-regs">0</strong></div>
+          <div class="metric-card"><span>Paid</span><strong id="paid-regs">0</strong></div>
+          <div class="metric-card"><span>Pending</span><strong id="pending-regs">0</strong></div>
+          <div class="metric-card"><span>Cancelled</span><strong id="cancelled-regs">0</strong></div>
+        </div>
+        <!-- CARD: Main content card -->
+        <div class="card card-pad-lg">
+          <!-- TOOLBAR: Search, filters and actions -->
+          <div class="toolbar">
+            <select id="conference-select" class="select-input"></select>
+            <input id="reg-search" class="search-input" placeholder="Search attendee, email, membership...">
+          </div>
+          <div class="table-wrap" style="margin-top:16px">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Attendee</th>
+                  <th>Membership</th>
+                  <th>Workshop</th>
+                  <th>Amount</th>
+                  <th>Payment</th>
+                  <th>Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="regs-body"></tbody>
+            </table>
+          </div>
+          <div id="empty-regs" class="empty-state" style="display:none;margin-top:16px">
+            <div class="empty-title">No registrations yet</div>
+            <div class="empty-sub">Attendees will appear here after registration</div>
+          </div>
+        </div>
+        <div id="reg-detail-modal" class="modal-overlay">
+          <div class="modal">
+            <div class="modal-head">
+              <h3>Registration Details</h3><button class="drawer-close" onclick="closeModal('reg-detail-modal')"><svg
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg></button>
+            </div>
+            <div class="modal-body" id="reg-detail-body"></div>
+            <div class="modal-foot"><button class="btn-light"
+                onclick="closeModal('reg-detail-modal')">Close</button><button class="btn-primary"
+                onclick="toast('Email sent')">Send Email</button></div>
+          </div>
+        </div>
+
+      </section>
+      <!-- MOBILE NAV: Bottom navigation for mobile -->
+      <div id="layout-mobile-nav"></div><!-- OVERLAYS: Drawers, modals, toasts -->
+      <div id="layout-overlays"></div>
+    </main>
+  </div>
+  <script src="../js/store.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/conference-registration.js"></script>
+
+</body>
+
+</html>

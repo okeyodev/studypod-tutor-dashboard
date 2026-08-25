@@ -1,0 +1,197 @@
+<!-- ==========================================================================
+     STUDENTS.HTML - StudyPod v2.2
+     Purpose: Students page with tabbed interface - All Students, Paid Enrollments, Payment Records
+     Features: Tabs, search, metrics, responsive, dark mode, logo, collapsible sidebar
+     Dependencies: variables.css, common.css, students.css, tutor-pages.css, animated-icons.css
+     Changelog v2.2:
+     - Added tabbed interface: All Students (demo list), Paid Enrollments, Payment Records
+     - Fixed Invite button to be functional
+     - Added comments for all sections
+     - Logo img with span studypod
+     ========================================================================== -->
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- META: Character set and viewport for responsive -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Students | studyPod</title>
+
+  <!-- STYLES: Design tokens and layout -->
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/animated-icons.css">
+  <link rel="stylesheet" href="../css/students.css">
+  <link rel="stylesheet" href="../css/tutor-pages.css">
+  <link rel="icon" href="../assets/logo.png">
+
+  <!-- THEME: Early theme detection to avoid flash -->
+  <script>try { const t = localStorage.getItem('studypod_theme'); const d = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme:dark)').matches); if (d) { document.documentElement.classList.add('dark'); } } catch (e) { }</script>
+</head>
+
+<body>
+  <!-- APP SHELL: Main layout container -->
+  <div class="app">
+    <!-- SIDEBAR: Rendered dynamically via common.js -->
+    <div id="layout-sidebar"></div>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="main">
+      <!-- HEADER: Rendered dynamically via common.js - contains logo left, theme toggle + notif + profile right -->
+      <div id="layout-header"></div>
+
+      <!-- CONTENT SECTION -->
+      <section class="content page-shell">
+
+        <!-- PAGE HEADER: Title and actions -->
+        <div class="page-head">
+          <div>
+            <h1>Students</h1>
+            <p>Manage learners, enrolments and payment records.</p>
+          </div>
+          <button class="btn-primary" id="btn-invite-students">+ Invite Students</button>
+        </div>
+
+        <!-- METRICS GRID: Overview cards -->
+        <div class="page-grid">
+          <div class="metric-card metric-card-animated" style="--icon-bg-start:#EFF6FF;--icon-bg-end:#DBEAFE">
+            <div class="metric-top">
+              <div class="metric-content">
+                <span>Total Students</span>
+                <strong id="total-students">0</strong>
+              </div>
+              <div class="metric-icon" style="background:linear-gradient(135deg, #EFF6FF, #DBEAFE)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" class="anim-float"
+                  style="width:24px;height:24px">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px">All enrolled</div>
+          </div>
+          <div class="metric-card metric-card-animated" style="--icon-bg-start:#F0FDF4;--icon-bg-end:#DCFCE7">
+            <div class="metric-top">
+              <div class="metric-content">
+                <span>Active</span>
+                <strong id="active-students">0</strong>
+              </div>
+              <div class="metric-icon" style="background:linear-gradient(135deg, #F0FDF4, #DCFCE7)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" class="anim-pulse"
+                  style="width:24px;height:24px">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px">Currently active</div>
+          </div>
+          <div class="metric-card metric-card-animated" style="--icon-bg-start:#FFFBEB;--icon-bg-end:#FEF3C7">
+            <div class="metric-top">
+              <div class="metric-content">
+                <span>Avg Progress</span>
+                <strong id="avg-progress">0</strong>
+              </div>
+              <div class="metric-icon" style="background:linear-gradient(135deg, #FFFBEB, #FEF3C7)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" class="anim-float-slow"
+                  style="width:24px;height:24px">
+                  <line x1="18" y1="20" x2="18" y2="10" />
+                  <line x1="12" y1="20" x2="12" y2="4" />
+                  <line x1="6" y1="20" x2="6" y2="14" />
+                </svg>
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px">Average completion</div>
+          </div>
+          <div class="metric-card metric-card-animated" style="--icon-bg-start:#FEF2F2;--icon-bg-end:#FECACA">
+            <div class="metric-top">
+              <div class="metric-content">
+                <span>At Risk</span>
+                <strong id="at-risk-students">0</strong>
+              </div>
+              <div class="metric-icon" style="background:linear-gradient(135deg, #FEF2F2, #FECACA)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2" class="anim-wiggle"
+                  style="width:24px;height:24px">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px">Needs attention</div>
+          </div>
+        </div>
+
+        <!-- TABS: All Students | Paid Enrollments | Payment Records -->
+        <div class="students-tabs" role="tablist">
+          <button class="tab-btn active" data-tab="all" role="tab" aria-selected="true" id="tab-all">
+            All Students
+          </button>
+          <button class="tab-btn" data-tab="paid" role="tab" aria-selected="false" id="tab-paid">
+            Paid Enrollments
+          </button>
+          <button class="tab-btn" data-tab="records" role="tab" aria-selected="false" id="tab-records">
+            Payment Records
+          </button>
+        </div>
+
+        <!-- STUDENT LIST CARD: Contains toolbar and table -->
+        <div class="card card-pad-lg">
+          <!-- TOOLBAR: Search and filters -->
+          <div class="toolbar">
+            <input id="students-search" class="search-input"
+              placeholder="Search by name, email, membership, transaction...">
+            <select id="course-filter" class="select-input">
+              <option value="all">All Courses</option>
+            </select>
+            <span id="students-tab-title" class="tab-context-title"
+              style="font-size:12px;color:var(--text-muted);margin-left:auto;display:none">All Students</span>
+          </div>
+
+          <!-- TABLE WRAPPER -->
+          <div class="table-wrap" style="margin-top:16px">
+            <table class="student-table">
+              <thead id="students-table-head">
+                <tr>
+                  <th>Student</th>
+                  <th>Course</th>
+                  <th>Membership</th>
+                  <th>Amount Paid</th>
+                  <th>Payment</th>
+                  <th>Delivery</th>
+                  <th>Start Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="students-table-body"></tbody>
+            </table>
+          </div>
+
+          <!-- EMPTY STATE -->
+          <div id="empty-students" class="empty-state" style="display:none;margin-top:16px">
+            <div class="empty-title">No students yet</div>
+            <div class="empty-sub">Enrollments will appear here</div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- MOBILE NAV: Rendered dynamically -->
+      <div id="layout-mobile-nav"></div>
+
+      <!-- OVERLAYS: Drawers, modals, toasts -->
+      <div id="layout-overlays"></div>
+    </main>
+  </div>
+
+  <!-- SCRIPTS: Store, layout, page logic -->
+  <script src="../js/store.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/students.js"></script>
+
+</body>
+
+</html>

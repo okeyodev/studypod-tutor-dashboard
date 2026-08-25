@@ -1,0 +1,96 @@
+<!-- ==========================================================================
+     QUIZ-PERFORMANCE.HTML - StudyPod v2.1
+     Purpose: Quiz Performance page with CRUD functionality
+     Features: Animated SVG icons, image upload, responsive, dark mode
+     Dependencies: variables.css, common.css, animated-icons.css
+     ========================================================================== -->
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Quiz Performance | studyPod</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/animated-icons.css">
+  <link rel="stylesheet" href="../css/quizzes.css">
+  <link rel="icon" href="../assets/logo.png">
+
+  <script>try { const t = localStorage.getItem('studypod_theme'); const d = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme:dark)').matches); if (d) { document.documentElement.classList.add('dark'); } } catch (e) { }</script>
+</head>
+
+<body>
+  <div class="app"><!-- SIDEBAR: Rendered dynamically by common.js - collapsible, sticky, logo -->
+    <div id="layout-sidebar"></div>
+    <!-- MAIN: Primary content area, margin-left for fixed sidebar -->
+    <main class="main"><!-- HEADER: Rendered dynamically - logo left, theme toggle + notif + profile right -->
+      <div id="layout-header"></div>
+      <!-- CONTENT SECTION: Page main content -->
+      <section class="content page-shell">
+
+        <!-- PAGE HEADER: Title, description and primary actions -->
+        <div class="page-head">
+          <div><a href="quizzes.html" style="font-size:12px;color:var(--text-muted)">← Quizzes</a>
+            <h1 id="quiz-title" style="margin-top:6px">Quiz Performance</h1>
+            <p id="quiz-token" style="font-size:12px;color:var(--text-muted)"></p>
+            <p id="quiz-course" style="font-size:13px;color:var(--text-secondary)"></p>
+          </div>
+          <a id="edit-quiz-btn" href="quiz-form.html" class="btn-primary">Edit Quiz</a>
+        </div>
+        <!-- METRICS GRID: KPI cards -->
+        <div class="page-grid">
+          <div class="metric-card"><span>Questions</span><strong id="q-count">0</strong></div>
+          <div class="metric-card"><span>Attempts</span><strong id="attempts-count">0</strong></div>
+          <div class="metric-card"><span>Avg Score</span><strong id="avg-score">0%</strong></div>
+          <div class="metric-card"><span>Pass Rate</span><strong id="pass-rate">0%</strong></div>
+        </div>
+        <!-- CARD: Main content card -->
+        <div class="card card-pad-lg">
+          <div class="card-head">
+            <div class="card-title">Student Performance</div>
+            <div class="card-subtitle">Highest: <span id="highest-score">0%</span></div>
+          </div>
+          <div class="table-wrap" style="margin-top:16px">
+            <table>
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Score</th>
+                  <th>Correct</th>
+                  <th>Time</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="perf-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="attempt-modal" class="modal-overlay">
+          <div class="modal">
+            <div class="modal-head">
+              <h3>Attempt Details</h3><button class="drawer-close" onclick="closeModal('attempt-modal')"><svg
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg></button>
+            </div>
+            <div class="modal-body" id="attempt-body"></div>
+          </div>
+        </div>
+        <script>document.addEventListener('DOMContentLoaded', () => { const id = new URLSearchParams(location.search).get('id'); const eb = document.getElementById('edit-quiz-btn'); if (eb && id) eb.href = `quiz-form.html?id=${id}`; });</script>
+
+      </section>
+      <!-- MOBILE NAV: Bottom navigation for mobile -->
+      <div id="layout-mobile-nav"></div><!-- OVERLAYS: Drawers, modals, toasts -->
+      <div id="layout-overlays"></div>
+    </main>
+  </div>
+  <script src="../js/store.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/quiz-performance.js"></script>
+
+</body>
+
+</html>

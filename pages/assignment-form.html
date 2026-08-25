@@ -1,0 +1,97 @@
+<!-- ==========================================================================
+     ASSIGNMENT-FORM.HTML - StudyPod v2.1
+     Purpose: Assignment Form page with CRUD functionality
+     Features: Animated SVG icons, image upload, responsive, dark mode
+     Dependencies: variables.css, common.css, animated-icons.css
+     ========================================================================== -->
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Assignment Form | studyPod</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/animated-icons.css">
+  <link rel="stylesheet" href="../css/assignments.css">
+  <link rel="icon" href="../assets/logo.png">
+
+  <script>try { const t = localStorage.getItem('studypod_theme'); const d = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme:dark)').matches); if (d) { document.documentElement.classList.add('dark'); } } catch (e) { }</script>
+</head>
+
+<body>
+  <div class="app"><!-- SIDEBAR: Rendered dynamically by common.js - collapsible, sticky, logo -->
+    <div id="layout-sidebar"></div>
+    <!-- MAIN: Primary content area, margin-left for fixed sidebar -->
+    <main class="main"><!-- HEADER: Rendered dynamically - logo left, theme toggle + notif + profile right -->
+      <div id="layout-header"></div>
+      <!-- CONTENT SECTION: Page main content -->
+      <section class="content page-shell">
+
+        <!-- PAGE HEADER: Title, description and primary actions -->
+        <div class="page-head">
+          <div>
+            <h1 id="form-title">Create Assignment</h1>
+            <p>Create coursework for your learners</p>
+          </div>
+          <a href="assignments.html" class="btn-light">← Back</a>
+        </div>
+        <div id="form-errors"
+          style="display:none;background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;padding:12px;border-radius:8px;font-size:13px;margin-bottom:16px">
+        </div>
+        <form id="assignment-form" class="conf-form">
+          <div class="conf-form-section">
+            <h3><span class="animated-icon" style="width:18px;height:18px"><svg viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2">
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                </svg></span> Assignment Details</h3>
+            <div class="form-grid">
+              <div class="form-group"><label class="form-label">Token</label><input id="asg-token" class="form-input"
+                  readonly></div>
+              <div class="form-group"><label class="form-label required">Title</label><input id="asg-title"
+                  class="form-input" placeholder="Python Data Analysis Project"></div>
+              <div class="form-group"><label class="form-label required">Course</label><select id="asg-course"
+                  class="form-select"></select></div>
+              <div class="form-group"><label class="form-label">Max Score</label><input id="asg-max-score" type="number"
+                  class="form-input" value="100"></div>
+              <div class="form-group"><label class="form-label required">Start Date</label><input id="asg-start-date"
+                  type="date" class="form-input"></div>
+              <div class="form-group"><label class="form-label required">Due Date</label><input id="asg-due-date"
+                  type="date" class="form-input"></div>
+              <div class="form-group full"><label class="form-label">Description</label><textarea id="asg-description"
+                  class="form-textarea" placeholder="Brief description"></textarea></div>
+              <div class="form-group full"><label class="form-label">Instructions</label><textarea id="asg-instructions"
+                  class="form-textarea" placeholder="Detailed instructions..."></textarea></div>
+            </div>
+          </div>
+          <div class="conf-form-section">
+            <h3><span class="animated-icon anim-wiggle" style="width:16px;height:16px"><svg viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 11l18-5v12L3 14v-3z" />
+                  <path d="M11.6 16.9a3 3 0 1 1-5.8-1.1" />
+                </svg></span> Status</h3>
+            <div style="display:flex;gap:16px"><label><input type="radio" name="asg-status" value="draft" checked>
+                Draft</label><label><input type="radio" name="asg-status" value="published">
+                Published</label><label><input type="radio" name="asg-status" value="closed"> Closed</label></div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:10px"><a href="assignments.html"
+              class="btn-light">Cancel</a><button type="submit" data-status="draft" class="btn-light">Save
+              Draft</button><button type="submit" data-status="published" class="btn-primary">Create & Publish</button>
+          </div>
+        </form>
+
+      </section>
+      <!-- MOBILE NAV: Bottom navigation for mobile -->
+      <div id="layout-mobile-nav"></div><!-- OVERLAYS: Drawers, modals, toasts -->
+      <div id="layout-overlays"></div>
+    </main>
+  </div>
+  <script src="../js/store.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/assignment-form.js"></script>
+
+</body>
+
+</html>

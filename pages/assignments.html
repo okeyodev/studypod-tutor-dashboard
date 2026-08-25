@@ -1,0 +1,143 @@
+<!-- ==========================================================================
+     ASSIGNMENTS.HTML - StudyPod v2.1
+     Purpose: Assignments page with CRUD functionality
+     Features: Animated SVG icons, image upload, responsive, dark mode
+     Dependencies: variables.css, common.css, animated-icons.css
+     ========================================================================== -->
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Assignments | studyPod</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/animated-icons.css">
+  <link rel="stylesheet" href="../css/assignments.css">
+  <link rel="stylesheet" href="../css/tutor-pages.css">
+  <link rel="icon" href="../assets/logo.png">
+
+  <script>try { const t = localStorage.getItem('studypod_theme'); const d = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme:dark)').matches); if (d) { document.documentElement.classList.add('dark'); } } catch (e) { }</script>
+</head>
+
+<body>
+  <div class="app"><!-- SIDEBAR: Rendered dynamically by common.js - collapsible, sticky, logo -->
+    <div id="layout-sidebar"></div>
+    <!-- MAIN: Primary content area, margin-left for fixed sidebar -->
+    <main class="main"><!-- HEADER: Rendered dynamically - logo left, theme toggle + notif + profile right -->
+      <div id="layout-header"></div>
+      <!-- CONTENT SECTION: Page main content -->
+      <section class="content page-shell">
+
+        <!-- PAGE HEADER: Title, description and primary actions -->
+        <div class="page-head">
+          <div>
+            <h1>Assignments</h1>
+            <p>Create and manage coursework and submissions.</p>
+          </div>
+          <a href="assignment-form.html" class="btn-primary">+ Create Assignment</a>
+        </div>
+        <!-- METRICS GRID: KPI cards -->
+        <div class="page-grid">
+          <div class="metric-card metric-card-animated" style="--icon-bg-start:#EFF6FF;--icon-bg-end:#DBEAFE">
+            <div class="metric-top">
+              <div class="metric-content">
+                <span>Total</span>
+                <strong id="total-asgs">0</strong>
+              </div>
+              <div class="metric-icon" style="background:linear-gradient(135deg, #EFF6FF, #DBEAFE)"><svg
+                  viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" class="anim-float-slow"
+                  style="width:24px;height:24px">
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                </svg></div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px">All assignments</div>
+          </div>
+          <div class="metric-card metric-card-animated" style="--icon-bg-start:#F0FDF4;--icon-bg-end:#DCFCE7">
+            <div class="metric-top">
+              <div class="metric-content">
+                <span>Published</span>
+                <strong id="published-asgs">0</strong>
+              </div>
+              <div class="metric-icon" style="background:linear-gradient(135deg, #F0FDF4, #DCFCE7)"><svg
+                  viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" class="anim-pulse"
+                  style="width:24px;height:24px">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg></div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px">Live assignments</div>
+          </div>
+          <div class="metric-card metric-card-animated" style="--icon-bg-start:#FFFBEB;--icon-bg-end:#FEF3C7">
+            <div class="metric-top">
+              <div class="metric-content">
+                <span>Drafts</span>
+                <strong id="draft-asgs">0</strong>
+              </div>
+              <div class="metric-icon" style="background:linear-gradient(135deg, #FFFBEB, #FEF3C7)"><svg
+                  viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" class="anim-float"
+                  style="width:24px;height:24px">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg></div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px">In preparation</div>
+          </div>
+          <div class="metric-card metric-card-animated" style="--icon-bg-start:#F5F3FF;--icon-bg-end:#DDD6FE">
+            <div class="metric-top">
+              <div class="metric-content">
+                <span>Needs Review</span>
+                <strong id="needs-review-asgs">0</strong>
+              </div>
+              <div class="metric-icon" style="background:linear-gradient(135deg, #F5F3FF, #DDD6FE)"><svg
+                  viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" class="anim-bounce-subtle"
+                  style="width:24px;height:24px">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg></div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px">Pending review</div>
+          </div>
+        </div>
+        <!-- CARD: Main content card -->
+        <div class="card card-pad-lg">
+          <!-- TOOLBAR: Search, filters and actions -->
+          <div class="toolbar">
+            <input id="asg-search" class="search-input" placeholder="Search assignments...">
+            <div style="display:flex;gap:8px"><select id="filter-course" class="select-input">
+                <option value="all">All Courses</option>
+              </select><select id="filter-status" class="select-input">
+                <option value="all">All Status</option>
+                <option value="published">Published</option>
+                <option value="draft">Draft</option>
+                <option value="closed">Closed</option>
+              </select></div>
+          </div>
+          <div id="assignment-grid" class="assignment-grid" style="margin-top:16px"></div>
+          <div id="empty-asgs" class="empty-state" style="display:none;margin-top:16px">
+            <div class="empty-icon"><span class="animated-icon" style="width:18px;height:18px"><svg viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                </svg></span></div>
+            <div class="empty-title">No assignments yet</div>
+            <div class="empty-sub">Create your first assignment</div><a href="assignment-form.html" class="btn-primary"
+              style="margin-top:12px">Create Assignment</a>
+          </div>
+        </div>
+
+      </section>
+      <!-- MOBILE NAV: Bottom navigation for mobile -->
+      <div id="layout-mobile-nav"></div><!-- OVERLAYS: Drawers, modals, toasts -->
+      <div id="layout-overlays"></div>
+    </main>
+  </div>
+  <script src="../js/store.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/assignments.js"></script>
+
+</body>
+
+</html>

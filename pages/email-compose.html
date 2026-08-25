@@ -1,0 +1,68 @@
+<!-- ==========================================================================
+     EMAIL-COMPOSE.HTML - StudyPod v2.1
+     Purpose: Email Compose page with CRUD functionality
+     Features: Animated SVG icons, image upload, responsive, dark mode
+     Dependencies: variables.css, common.css, animated-icons.css
+     ========================================================================== -->
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Compose | studyPod</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/animated-icons.css">
+  <link rel="stylesheet" href="../css/email.css">
+  <link rel="icon" href="../assets/logo.png">
+
+  <script>try { const t = localStorage.getItem('studypod_theme'); const d = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme:dark)').matches); if (d) { document.documentElement.classList.add('dark'); } } catch (e) { }</script>
+</head>
+
+<body>
+  <div class="app"><!-- SIDEBAR: Rendered dynamically by common.js - collapsible, sticky, logo -->
+    <div id="layout-sidebar"></div>
+    <!-- MAIN: Primary content area, margin-left for fixed sidebar -->
+    <main class="main"><!-- HEADER: Rendered dynamically - logo left, theme toggle + notif + profile right -->
+      <div id="layout-header"></div>
+      <!-- CONTENT SECTION: Page main content -->
+      <section class="content page-shell">
+
+        <div class="email-head">
+          <div>
+            <h1>Compose Email</h1>
+            <p>Send a message to your students</p>
+          </div>
+          <a href="email.html" class="btn-light">← Back to Inbox</a>
+        </div>
+        <div class="email-main" style="max-width:800px">
+          <form id="email-compose-form">
+            <div class="email-field"><label>To</label><input id="compose-to" type="text"
+                placeholder="recipient@studypod.com" required></div>
+            <div class="email-field"><label>Subject</label><input id="compose-subject" type="text" placeholder="Subject"
+                required></div>
+            <div class="email-field" style="align-items:flex-start"><label
+                style="margin-top:12px">Message</label><textarea id="compose-body" placeholder="Write your message..."
+                required></textarea></div>
+            <div class="email-footer">
+              <button type="button" class="btn-light" onclick="location.href='email.html'">Discard</button>
+              <button type="button" class="btn-light" id="save-draft-btn">Save Draft</button>
+              <button type="submit" class="btn-primary">Send Email</button>
+            </div>
+          </form>
+        </div>
+
+      </section>
+      <!-- MOBILE NAV: Bottom navigation for mobile -->
+      <div id="layout-mobile-nav"></div><!-- OVERLAYS: Drawers, modals, toasts -->
+      <div id="layout-overlays"></div>
+    </main>
+  </div>
+  <script src="../js/store.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/email.js"></script>
+
+</body>
+
+</html>

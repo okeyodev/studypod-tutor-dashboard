@@ -1,455 +1,243 @@
-<!DOCTYPE html>
+<!-- ==========================================================================
+     INDEX.HTML - Dashboard | StudyPod v2.1
+     Purpose: Main dashboard with stats, engagement chart, performance
+     Features: Animated SVG icons, stats with animations, responsive
+     Dependencies: variables.css, common.css, dashboard.css, animated-icons.css
+     ========================================================================== -->
+<!doctype html>
 <html lang="en">
 
 <head>
-  <!--
-    ==========================================================================
-    INDEX.HTML - Dashboard Page (REFACTORED - Reusable Layout)
-    ==========================================================================
-    Now uses reusable layout system:
-    - Header, Sidebar, Mobile Nav, Overlays are injected via js/layout.js
-    - No duplication across pages
-    - Theme persists across all pages via localStorage
-    - Future pages just need to include layout.js and call Layout.initLayout()
-
-    To add a new page:
-    1. Copy template.html
-    2. Add the navigation entry in the shared renderer
-    3. Call Layout.initLayout({ active: 'your-page-id' })
-  -->
-
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>studyPod Dashboard</title>
-  <meta name="theme-color" content="#F8FAFC">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/png" href="./image/studyPod_logo_pra.png">
-
-  <!-- CSS - Order matters: variables first, then shared, then layout, then page-specific -->
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tutor studyPod  Dashboard</title>
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/common.css">
   <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/animated-icons.css">
+  <link rel="icon" href="assets/logo.png">
+  <script> try { const t = localStorage.getItem('studypod_theme'); const d = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme:dark)').matches); if (d) { document.documentElement.classList.add('dark'); } } catch (e) { } </script>
 </head>
 
 <body>
-  <!-- APP WRAPPER: Sidebar + Main -->
   <div class="app">
-    <!-- Reusable Sidebar injected here -->
+    <!-- SIDEBAR: Rendered dynamically by common.js - collapsible, sticky, logo -->
     <div id="layout-sidebar"></div>
-
-    <!-- Main Content Area -->
-    <div class="main">
-      <!-- Reusable Header injected here -->
+    <!-- MAIN: Primary content area, margin-left for fixed sidebar -->
+    <main class="main">
+      <!-- HEADER: Rendered dynamically - logo left, theme toggle + notif + profile right -->
       <div id="layout-header"></div>
-
-
-
-      <!-- ==================== DASHBOARD CONTENT ==================== -->
-      <!-- Main dashboard sections - each with fade-up animation and delay -->
-
-      <div id="view-dash" class="content">
-
-        <!-- Hero Section - Welcome message + Call to actions -->
-        <!-- Top of dashboard, greeting + 2 buttons -->
-        <div class="hero fade-up" style="animation-delay:0ms">
+      <!-- CONTENT SECTION: Page main content -->
+      <section class="content">
+        <div class="hero fade-up">
           <div>
-            <h1>Good morning, Sarah <span class="wave-emoji">👋</span></h1> <!-- Personalized greeting -->
-            <p>Here's what's happening across your courses, students and upcoming events today.</p> <!-- Subtitle -->
+            <h1>Welcome back, Sarah <span class="wave-emoji"><span class="animated-icon anim-wave-continuous"
+                  style="width:24px;height:24px;display:inline-flex"><svg viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <path d="M12 8a2 2 0 0 1 2 2v4a2 2 0 1 1-4 0v-4a2 2 0 0 1 2-2z" />
+                    <path d="M8 14a2 2 0 0 1 2 2v2a2 2 0 1 1-4 0v-2a2 2 0 0 1 2-2z" />
+                    <path d="M16 14a2 2 0 0 1 2 2v2a2 2 0 1 1-4 0v-2a2 2 0 0 1 2-2z" />
+                  </svg></span></span></h1>
+            <p>Here's what's happening with your courses and students today.</p>
           </div>
-          <div class="hero-actions"> <!-- CTA buttons -->
-            <button onclick="toast('Create Course')" class="btn-primary">+ Create Course</button>
-            <!-- Primary blue button -->
-            <a href="pages/conferences.html" class="btn-secondary" style="display:inline-flex;align-items:center;">🎤 Create
-              Conference</a> <!-- Secondary goes to conferences page -->
+          <div class="hero-actions">
+            <a href="pages/course-form.html" class="btn-primary">+ Create Course</a>
+            <a href="pages/conference-form.html" class="btn-secondary">+ New Conference</a>
           </div>
         </div>
 
-        <div class="stats-grid">
-          <!-- Card 1: Total Students with sparkline mini chart -->
-          <div class="card card-pad fade-up" style="animation-delay:80ms">
-            <div class="stat-top"> <!-- Top row: label + icon -->
+        <div class="stats-grid" style="margin-top:24px">
+          <div class="card card-pad fade-up" style="animation-delay:.05s;cursor:pointer"
+            onclick="location.href='pages/students.html'">
+            <div class="stat-top">
               <div>
                 <div class="stat-label">Total Students</div>
-                <div class="stat-value" data-count="1248">0</div>
-                <!-- Animated number via data-count in dashboard.js -->
-                <div class="stat-sub"><span class="badge-up">↑ 12%</span><span class="stat-muted">vs last month</span>
-                </div> <!-- Growth badge -->
+                <div class="stat-value"><span data-count="6">6</span></div>
+                <div class="stat-sub"><span class="badge-up">+12%</span><span class="stat-muted">vs last month</span>
+                </div>
               </div>
-              <!-- <div class="icon-box blue">👥</div>  -->
-              <div class="icon-box blue">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-                  class="metric-icon">
-                  <path d="M16 21v-1.2a3.8 3.8 0 0 0-3.8-3.8H8.8A3.8 3.8 0 0 0 5 19.8V21"></path>
-                  <circle cx="10.5" cy="7.5" r="3.5"></circle>
-                  <path d="M20.5 21v-1a3.2 3.2 0 0 0-2.6-3.1" opacity=".7"></path>
-                  <circle cx="17" cy="6.2" r="2.3" opacity=".7"></circle>
-                  <circle cx="18.8" cy="4.8" r="1" fill="currentColor" class="anim-live-dot"></circle>
-                </svg>
-              </div>
+              <div class="icon-box blue"><span class="animated-icon anim-float" style="width:24px;height:24px"><svg
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                  </svg></span></div>
             </div>
-            <!-- Mini sparkline SVG - static path -->
-            <svg viewBox="0 0 100 24" class="mini-spark">
-              <path d="M0 20 Q20 18 30 12 T60 10 T100 4" fill="none" stroke="#2563EB" stroke-width="2"
-                stroke-linecap="round" opacity=".6" />
-            </svg>
           </div>
-
-          <!-- Card 2: Active Courses with progress bar -->
-          <div class="card card-pad fade-up" style="animation-delay:160ms">
+          <div class="card card-pad fade-up" style="animation-delay:.1s;cursor:pointer"
+            onclick="location.href='pages/courses.html'">
             <div class="stat-top">
               <div>
                 <div class="stat-label">Active Courses</div>
-                <div class="stat-value" data-count="34">0</div>
-                <div class="stat-sub"><span class="badge-up">↑ 3</span><span class="stat-muted">vs last month</span>
+                <div class="stat-value"><span data-count="4">4</span></div>
+                <div class="stat-sub"><span class="badge-up">+2</span><span class="stat-muted">new this month</span>
                 </div>
               </div>
-              <div class="icon-box green">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-                  class="metric-icon">
-                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" class="anim-course"></path>
-                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"></path>
-                  <path d="M10 8.8 15 12l-5 3.2V8.8Z" fill="currentColor" stroke="none" class="anim-play"></path>
-                </svg>
-              </div>
+              <div class="icon-box green"><span class="animated-icon anim-float-slow"
+                  style="width:24px;height:24px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                  </svg></span></div>
             </div>
-            <div class="progress-track">
-              <div class="progress-fill green"></div>
-            </div> <!-- Green progress bar 75% -->
           </div>
-
-          <!-- Card 3: Completion Rate with circular progress -->
-          <div class="card card-pad fade-up" style="animation-delay:240ms">
+          <div class="card card-pad fade-up" style="animation-delay:.15s;cursor:pointer"
+            onclick="location.href='pages/analytics.html'">
             <div class="stat-top">
               <div>
                 <div class="stat-label">Completion Rate</div>
-                <div class="stat-value" style="display:flex;gap:2px"><span data-count="78">0</span><span
-                    style="font-size:16px">%</span></div>
-                <div class="stat-sub"><span class="badge-up">↑ 5%</span><span class="stat-muted">vs last month</span>
+                <div class="stat-value"><span data-count="78">78</span><span style="font-size:16px">%</span></div>
+                <div class="stat-sub"><span class="badge-up">+5%</span><span class="stat-muted">avg progress</span>
                 </div>
               </div>
-              <!-- Circular progress ring - SVG with draw animation -->
-              <div class="ring-wrap">
-                <!-- <svg viewBox="0 0 52 52" style="transform:rotate(-90deg);width:56px;height:56px">
-                  <circle cx="26" cy="26" r="22" fill="none" stroke="#E2E8F0" stroke-width="5" />
-                  <circle cx="26" cy="26" r="22" fill="none" stroke="#2563EB" stroke-width="5" stroke-linecap="round"
-                    stroke-dasharray="138" stroke-dashoffset="30" class="draw" />
-                </svg>
-                <div class="ring-center">78</div> -->
-                <div class="ring-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-                    class="metric-icon">
-                    <path d="M21.5 12a9.5 9.5 0 1 1-3-6.9" class="anim-ring"></path>
-                    <path d="M21.5 12a9.5 9.5 0 0 0-6.2-8.8" opacity=".25"></path>
-                    <path d="M8.5 12.5 11 15l5-5.5" class="anim-check"></path>
-                  </svg>
-                </div>
-
-              </div>
+              <div class="icon-box yellow"><span class="animated-icon anim-pulse" style="width:24px;height:24px"><svg
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="20" x2="18" y2="10" />
+                    <line x1="12" y1="20" x2="12" y2="4" />
+                    <line x1="6" y1="20" x2="6" y2="14" />
+                  </svg></span></div>
             </div>
           </div>
-
-          <!-- Card 4: Total Earnings with mini bar chart -->
-          <div class="card card-pad fade-up" style="animation-delay:320ms">
+          <div class="card card-pad fade-up" style="animation-delay:.2s;cursor:pointer"
+            onclick="location.href='pages/conferences.html'">
             <div class="stat-top">
               <div>
-                <div class="stat-label">Total Earnings</div>
-                <div class="stat-value">$24.6k</div>
-                <div class="stat-sub"><span class="badge-up">↑ 8%</span><span class="stat-muted">vs last month</span>
-                </div>
+                <div class="stat-label">Upcoming Conferences</div>
+                <div class="stat-value"><span data-count="2">2</span></div>
+                <div class="stat-sub"><span class="stat-muted">this month</span></div>
               </div>
-              <div class="icon-box yellow">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-                  class="metric-icon">
-                  <rect x="2" y="6.5" width="20" height="13" rx="2.5"></rect>
-                  <circle cx="12" cy="13" r="2.3"></circle>
-                  <path d="M12 11.8v2.4" stroke-width="1.4"></path>
-                  <circle cx="6.2" cy="13" r="0.5" fill="currentColor"></circle>
-                  <circle cx="17.8" cy="13" r="0.5" fill="currentColor"></circle>
-                  <g class="anim-coin-bg">
-                    <circle cx="18.5" cy="5" r="1.8" fill="currentColor" opacity=".14"></circle>
-                    <path d="M18.5 4.2v1.6" stroke-width="1.2" class="anim-coin"></path>
-                  </g>
-                </svg>
-              </div>
-            </div>
-            <!-- Mini bar chart - 5 bars -->
-            <div class="mini-bars">
-              <div class="mini-bar" style="height:12px"></div>
-              <div class="mini-bar" style="height:20px"></div>
-              <div class="mini-bar active" style="height:32px"></div> <!-- Active blue bar -->
-              <div class="mini-bar" style="height:24px"></div>
-              <div class="mini-bar" style="height:16px"></div>
+              <div class="icon-box blue" style="background:var(--color-purple-icon-bg)"><span
+                  class="animated-icon anim-bounce-subtle" style="width:24px;height:24px"><svg viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                  </svg></span></div>
             </div>
           </div>
         </div>
 
-        <!-- Two Column Section: Engagement Chart + Course Performance -->
-        <div class="two-col">
-          <!-- Chart Card - Student engagement over time with range switcher -->
-          <div class="card card-pad-lg fade-up" style="animation-delay:400ms">
-            <div class="card-head"> <!-- Header: title + range buttons -->
+        <div class="two-col" style="margin-top:20px">
+          <div class="card card-pad-lg fade-up" style="animation-delay:.25s">
+            <div class="card-head">
               <div>
                 <div class="card-title">Student Engagement</div>
-                <div class="card-subtitle">+184 new students this month</div>
+                <div class="card-subtitle">+12% from last month</div>
               </div>
-              <!-- Range Switcher - 7D,30D,3M,1Y - updates chart via setRange() in dashboard.js -->
-              <div class="range-switch">
-                <button onclick="setRange('7D')" id="r-7D" class="range-btn">7D</button>
-                <button onclick="setRange('30D')" id="r-30D" class="range-btn active">30D</button>
-                <button onclick="setRange('3M')" id="r-3M" class="range-btn">3M</button>
-                <button onclick="setRange('1Y')" id="r-1Y" class="range-btn">1Y</button>
-              </div>
+              <div class="range-switch"><button id="r-7D" class="range-btn" onclick="setRange('7D')">7D</button><button
+                  id="r-30D" class="range-btn active" onclick="setRange('30D')">30D</button><button id="r-3M"
+                  class="range-btn" onclick="setRange('3M')">3M</button><button id="r-1Y" class="range-btn"
+                  onclick="setRange('1Y')">1Y</button></div>
             </div>
-            <!-- SVG Chart - Drawn dynamically by drawChart() in dashboard.js -->
-            <svg id="chart" viewBox="0 0 600 180" class="chart-svg"></svg>
-            <div class="chart-labels">
-              <span>SEP</span><span>OCT</span><span>NOV</span><span>DEC</span><span>JAN</span><span>FEB</span>
+            <div style="margin-top:16px"><svg id="chart" class="chart-svg"></svg>
+              <div class="chart-labels"><span>Week 1</span><span>Week 2</span><span>Week 3</span><span>Week 4</span>
+              </div>
             </div>
           </div>
-
-          <!-- Course Performance - List with progress bars -->
-          <div class="card card-pad-lg fade-up" style="animation-delay:480ms">
-            <div class="card-head" style="margin-bottom:20px">
-              <div class="card-title">Course Performance</div>
-                <a href="pages/conferences.html" style="font-size:12px;color:#2563EB;font-weight:500">View all →</a>
+          <div class="card card-pad-lg fade-up" style="animation-delay:.3s">
+            <div class="card-head">
+              <div class="card-title">Course Performance</div><a href="pages/courses.html" class="btn-light"
+                style="font-size:11px">View All</a>
             </div>
-            <div class="course-list">
-              <!-- Course Row 1 -->
+            <div class="course-list" style="margin-top:16px">
               <div class="course-row">
                 <div class="course-row-head"><span class="course-name">Python for Data Science</span><span
                     class="course-pct">68%</span></div>
-                <div class="course-meta">1,024 students</div>
+                <div class="course-meta">1,024 learners • Programming</div>
                 <div class="track">
-                  <div class="fill fill-blue progress" style="--w:68%"></div>
-                </div> <!-- --w triggers width animation -->
-              </div>
-              <!-- Course Row 2 -->
-              <div class="course-row">
-                <div class="course-row-head"><span class="course-name">UX Design Fundamentals</span><span
-                    class="course-pct">54%</span></div>
-                <div class="course-meta">876 students</div>
-                <div class="track">
-                  <div class="fill fill-purple progress" style="--w:54%"></div>
-                </div>
-              </div>
-              <!-- Course Row 3 -->
-              <div class="course-row">
-                <div class="course-row-head"><span class="course-name">Digital Marketing</span><span
-                    class="course-pct">82%</span></div>
-                <div class="course-meta">634 students</div>
-                <div class="track">
-                  <div class="fill fill-green progress" style="--w:82%"></div>
+                  <div class="fill fill-blue" style="--w:68%" data-width="68"></div>
                 </div>
               </div>
             </div>
+            <a href="pages/analytics.html"
+              style="display:inline-flex;margin-top:16px;font-size:12px;color:var(--color-primary);font-weight:500">View
+              Full Performance →</a>
           </div>
         </div>
 
-        <!-- Attention Section - Yellow background, 4 actionable cards -->
-        <div class="attention card fade-up" style="animation-delay:560ms">
-          <div class="attention-head"><span>⚡</span><span class="attention-title">Needs Your Attention</span></div>
-          <div class="attention-grid">
-            <!-- Attention Item 1: Assignments waiting -->
-            <div class="att-box">
-              <div class="att-icon" style="background:#FEF3C7">⚠</div>
-              <div class="att-text">
-                <div class="att-h">12 assignments waiting</div>
-                <div class="att-p">UX Design — Week 4</div>
-                <button onclick="toast('Review Students')" class="att-action btn-dark">Review</button>
+        <div class="two-col-wide" style="margin-top:20px">
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="card card-pad-lg fade-up" style="animation-delay:.35s">
+              <div class="card-head">
+                <div class="card-title">Needs Your Attention</div>
+              </div>
+              <div class="attention-grid" style="margin-top:16px">
+                <div class="card"
+                  style="padding:16px;border:1px solid var(--border-attention);background:var(--color-warning-light)">
+                  <div style="font-size:12px;font-weight:600">Assignments</div>
+                  <div style="font-size:13px;margin-top:6px"><span id="needs-review-count">2</span> awaiting review
+                  </div><a href="pages/assignments.html" class="btn-light" style="margin-top:10px;font-size:11px">Review
+                    →</a>
+                </div>
+                <div class="card" style="padding:16px">
+                  <div style="font-size:12px;font-weight:600">Conferences</div>
+                  <div style="font-size:13px;margin-top:6px" id="upcoming-conf-text">React Masterclass tomorrow</div><a
+                    href="pages/conferences.html" class="btn-light" style="margin-top:10px;font-size:11px">View →</a>
+                </div>
+                <div class="card" style="padding:16px">
+                  <div style="font-size:12px;font-weight:600">Drafts</div>
+                  <div style="font-size:13px;margin-top:6px"><span id="drafts-count">2</span> drafts</div><a
+                    href="pages/courses.html?filter=draft" class="btn-light"
+                    style="margin-top:10px;font-size:11px">Review →</a>
+                </div>
               </div>
             </div>
-            <!-- Attention Item 2: Conference starts tomorrow - Highlighted -->
-            <div class="att-box" style="box-shadow:0 0 0 1px rgba(37,99,235,.1)">
-              <div class="att-icon" style="background:#EFF6FF">🎤</div>
-              <div class="att-text">
-                <div class="att-h">Conference starts tomorrow</div>
-                <div class="att-p">React Masterclass • 86 registered</div>
-                <a href="pages/conferences.html" class="att-action btn-primary"
-                  style="padding:6px 12px;text-decoration:none;display:inline-block;">Manage</a>
+            <div class="card card-pad-lg fade-up" style="animation-delay:.4s">
+              <div class="card-head">
+                <div class="card-title">Upcoming Conferences</div><a href="pages/conferences.html" class="btn-light"
+                  style="font-size:11px">View All</a>
+              </div>
+              <div id="upcoming-confs" style="margin-top:16px;display:flex;flex-direction:column;gap:12px">
+                <div class="data-row">
+                  <div class="row-main">
+                    <div class="row-title">React State Management Masterclass</div>
+                    <div class="row-meta">Aug 24 • 4PM-6PM • Lagos</div>
+                  </div><span class="tag good">Published</span>
+                </div>
               </div>
             </div>
-            <!-- Attention Item 3: Unread messages -->
-            <div class="att-box">
-              <div class="att-icon" style="background:#F0FDF4">💬</div>
-              <div class="att-text">
-                <div class="att-h">5 unread messages</div>
-                <div class="att-p">Students waiting</div>
-                <button onclick="toast('Open Messages')" class="att-action btn-light">Open</button>
-              </div>
+          </div>
+          <div class="card card-pad-lg fade-up" style="animation-delay:.45s">
+            <div class="card-head">
+              <div class="card-title">Top Performing Students</div><a href="pages/students.html?filter=top-performance"
+                class="btn-light" style="font-size:11px">View All</a>
             </div>
-            <!-- Attention Item 4: Draft incomplete -->
-            <div class="att-box">
-              <div class="att-icon" style="background:#F5F3FF">📚</div>
-              <div class="att-text">
-                <div class="att-h">1 draft incomplete</div>
-                <div class="att-p">Digital Marketing</div>
-                <button onclick="toast('Continue Editing')" class="att-action btn-light">Continue</button>
-              </div>
+            <div class="table-wrap" style="margin-top:16px">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Student</th>
+                    <th>Course</th>
+                    <th class="text-right">Progress</th>
+                    <th class="text-right">Score</th>
+                    <th class="pl">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="student-cell">
+                        <div class="student-av av-light-blue">MJ</div><span>Michael Johnson</span>
+                      </div>
+                    </td>
+                    <td style="color:#64748B">Python</td>
+                    <td class="text-right">92%</td>
+                    <td class="text-right">95</td>
+                    <td class="pl"><span class="status-badge status-excellent">Excellent</span></td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
-
-        <!-- Two Column Wide: Upcoming Conference + Recent Activity -->
-        <div class="two-col-wide">
-          <!-- Upcoming Conference Card - Gradient header -->
-          <div class="card fade-up" style="animation-delay:640ms;overflow:hidden">
-            <div class="conf-hero"> <!-- Gradient background -->
-              <div class="conf-tag-top"><span class="conf-dot"></span> UPCOMING CONFERENCE</div>
-              <div class="conf-pill">Registration Open</div>
-              <div class="conf-hero-title">React State Management Masterclass</div>
-              <div class="conf-hero-sub">Tomorrow • 4:00 PM – 6:00 PM • Live on eStudy</div>
-            </div>
-            <div class="conf-body">
-              <div class="conf-stats">
-                <div class="conf-left">
-                  <div>👥 <span style="font-weight:500">86 registered</span></div>
-                  <div class="avatars">
-                    <div class="av-blue"></div>
-                    <div class="av-purple"></div>
-                    <div class="av-more">+84</div>
-                  </div>
-                </div>
-                <div style="display:flex;gap:8px">
-                  <a href="pages/conferences.html" class="btn-dark" style="text-decoration:none;">Manage Conference</a>
-                  <button class="btn-light">Share</button>
-                </div>
-              </div>
-              <div class="progress-track" style="margin-top:16px">
-                <div class="progress-fill blue" style="width:86%"></div>
-              </div>
-              <div style="display:flex;justify-content:space-between;font-size:11px;color:#94A3B8;margin-top:8px">
-                <span>86 / 100 seats filled</span><span>86%</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Recent Activity Timeline - Vertical line with dots -->
-          <div class="card card-pad-lg fade-up" style="animation-delay:720ms">
-            <div class="card-head" style="margin-bottom:20px">
-              <div class="card-title">Recent Activity</div>
-              <button style="font-size:12px;color:#2563EB;font-weight:500">View all →</button>
-            </div>
-            <div class="activity-wrap">
-              <div class="activity-line"></div> <!-- Vertical line connecting dots -->
-              <div class="act-list">
-                <div class="act-item">
-                  <div class="act-dot blue">●</div>
-                  <div class="act-text"><span class="act-bold">Michael Johnson</span> completed <span
-                      class="act-muted">Python — Module 8</span>
-                    <div class="act-time">12 min ago</div>
-                  </div>
-                </div>
-                <div class="act-item">
-                  <div class="act-dot green">●</div>
-                  <div class="act-text"><span class="act-bold">Ava Kim</span> submitted <span class="act-muted">UX
-                      Design Assignment #4</span>
-                    <div class="act-time">34 min ago</div>
-                  </div>
-                </div>
-                <div class="act-item">
-                  <div class="act-dot yellow">●</div>
-                  <div class="act-text"><span class="act-bold">Ryan Lee</span> enrolled in <span
-                      class="act-muted">Digital Marketing Strategy</span>
-                    <div class="act-time">1 hr ago</div>
-                  </div>
-                </div>
-                <div class="act-item">
-                  <div class="act-dot purple">●</div>
-                  <div class="act-text"><span class="act-bold">Emma Patel</span> sent you a message<div
-                      class="act-time">2 hrs ago</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Top Performing Students Table - Clickable rows open drawer -->
-        <div class="card card-pad-lg fade-up" style="animation-delay:800ms">
-          <div class="card-head" style="margin-bottom:20px">
-            <div class="card-title">Top Performing Students</div>
-            <button style="font-size:12px;color:#2563EB;font-weight:500">View all students →</button>
-          </div>
-          <div class="table-wrap"> <!-- Horizontal scroll on mobile -->
-            <table>
-              <thead>
-                <tr>
-                  <th>Student</th>
-                  <th>Course</th>
-                  <th style="text-align:right">Progress</th>
-                  <th style="text-align:right">Score</th>
-                  <th class="pl">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Each row opens student drawer via openStudent() from common.js -->
-                <tr onclick="openStudent('Michael Johnson','MJ')">
-                  <td>
-                    <div class="student-cell">
-                      <div class="student-av av-light-blue">MJ</div><span style="font-weight:500">Michael Johnson</span>
-                    </div>
-                  </td>
-                  <td style="color:#64748B">Python</td>
-                  <td class="text-right">92%</td>
-                  <td class="text-right" style="font-weight:500">95</td>
-                  <td class="pl"><span class="status-badge status-excellent">Excellent</span></td>
-                </tr>
-                <tr onclick="openStudent('Ava Kim','AK')">
-                  <td>
-                    <div class="student-cell">
-                      <div class="student-av av-pink">AK</div><span style="font-weight:500">Ava Kim</span>
-                    </div>
-                  </td>
-                  <td style="color:#64748B">UX Design</td>
-                  <td class="text-right">86%</td>
-                  <td class="text-right" style="font-weight:500">88</td>
-                  <td class="pl"><span class="status-badge status-excellent">Excellent</span></td>
-                </tr>
-                <tr onclick="openStudent('Ryan Lee','RL')">
-                  <td>
-                    <div class="student-cell">
-                      <div class="student-av av-light-yellow">RL</div><span style="font-weight:500">Ryan Lee</span>
-                    </div>
-                  </td>
-                  <td style="color:#64748B">Marketing</td>
-                  <td class="text-right">76%</td>
-                  <td class="text-right" style="font-weight:500">79</td>
-                  <td class="pl"><span class="status-badge status-good">Good</span></td>
-                </tr>
-                <tr onclick="openStudent('Emma Patel','EP')">
-                  <td>
-                    <div class="student-cell">
-                      <div class="student-av av-light-indigo">EP</div><span style="font-weight:500">Emma Patel</span>
-                    </div>
-                  </td>
-                  <td style="color:#64748B">Python</td>
-                  <td class="text-right">64%</td>
-                  <td class="text-right" style="font-weight:500">72</td>
-                  <td class="pl"><span class="status-badge status-progress">In Progress</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- ==================== MOBILE BOTTOM NAVIGATION ==================== -->
-      <!-- Fixed bottom bar, visible only on <1024px - Shared across pages -->
-
-
-      <!-- Reusable Mobile Bottom Nav injected here -->
+      </section>
+      <!-- MOBILE NAV: Bottom navigation for mobile -->
       <div id="layout-mobile-nav"></div>
-
-      <!-- Reusable Overlays (Drawer, Toast) injected here -->
+      <!-- OVERLAYS: Drawers, modals, toasts -->
       <div id="layout-overlays"></div>
-    </div>
+    </main>
   </div>
-
-  <!-- JS - Order: common (theme persistence) -> layout (reusable) -> page-specific -->
+  <script src="js/store.js"></script>
   <script src="js/common.js"></script>
   <script src="js/dashboard.js"></script>
 </body>

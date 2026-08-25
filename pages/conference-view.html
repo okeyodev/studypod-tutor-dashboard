@@ -1,0 +1,87 @@
+<!-- ==========================================================================
+     CONFERENCE-VIEW.HTML - StudyPod v2.1
+     Purpose: Conference View page with CRUD functionality
+     Features: Animated SVG icons, image upload, responsive, dark mode
+     Dependencies: variables.css, common.css, animated-icons.css
+     ========================================================================== -->
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Conference View | studyPod</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/animated-icons.css">
+  <link rel="stylesheet" href="../css/conferences.css">
+  <link rel="icon" href="../assets/logo.png">
+
+  <script>try { const t = localStorage.getItem('studypod_theme'); const d = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme:dark)').matches); if (d) { document.documentElement.classList.add('dark'); } } catch (e) { }</script>
+</head>
+
+<body>
+  <div class="app"><!-- SIDEBAR: Rendered dynamically by common.js - collapsible, sticky, logo -->
+    <div id="layout-sidebar"></div>
+    <!-- MAIN: Primary content area, margin-left for fixed sidebar -->
+    <main class="main"><!-- HEADER: Rendered dynamically - logo left, theme toggle + notif + profile right -->
+      <div id="layout-header"></div>
+      <!-- CONTENT SECTION: Page main content -->
+      <section class="content page-shell">
+
+        <!-- PAGE HEADER: Title, description and primary actions -->
+        <div class="page-head">
+          <div><a href="conferences.html" style="font-size:12px;color:var(--text-muted)">← Conferences</a>
+            <h1 id="conf-name">Conference</h1>
+            <p id="conf-token" style="font-size:12px;color:var(--text-muted)"></p>
+          </div>
+          <div style="display:flex;gap:8px"><a id="edit-conf-btn" href="conference-form.html"
+              class="btn-light">Edit</a><a id="reg-conf-btn" href="conference-registration.html"
+              class="btn-primary">View Registrations</a></div>
+        </div>
+        <!-- METRICS GRID: KPI cards -->
+        <div class="page-grid">
+          <div class="metric-card"><span>Registrations</span><strong id="kpi-regs">0</strong></div>
+          <div class="metric-card"><span>Revenue</span><strong id="kpi-revenue">₦0</strong></div>
+          <div class="metric-card"><span>Status</span><strong id="kpi-status">-</strong></div>
+        </div>
+        <!-- CARD: Main content card -->
+        <div class="card card-pad-lg">
+          <div class="card-title">Details</div>
+          <div id="conf-details" style="margin-top:16px;font-size:13px;line-height:1.8"></div>
+        </div>
+        <script>
+          document.addEventListener('DOMContentLoaded', () => {
+            if (typeof Store === 'undefined') { setTimeout(() => location.reload(), 300); return; }
+            const id = new URLSearchParams(location.search).get('id');
+            if (!id) { location.href = 'conferences.html'; return; }
+            const conf = Store.getById('conferences', id);
+            if (!conf) { toast('Not found'); location.href = 'conferences.html'; return; }
+            document.getElementById('conf-name').textContent = conf.name;
+            document.getElementById('conf-token').textContent = conf.token;
+            document.getElementById('edit-conf-btn').href = `conference-form.html?id=${conf.id}`;
+            document.getElementById('reg-conf-btn').href = `conference-registration.html?conferenceId=${conf.id}`;
+            const regs = Store.filter('registrations', r => r.conferenceId === id);
+            document.getElementById('kpi-regs').textContent = regs.length;
+            document.getElementById('kpi-revenue').textContent = formatCurrency(regs.reduce((s, r) => s + (r.amount?.amount || 0), 0), conf.fee?.currency || 'NGN');
+            document.getElementById('kpi-status').textContent = conf.status;
+            document.getElementById('conf-details').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div><strong>Title:</strong> ${escapeHtml(conf.title)}<br><strong>Workshop:</strong> ${escapeHtml(conf.workshopId || '')}<br><strong>State:</strong> ${escapeHtml(conf.location?.state || '')}<br><strong>Country:</strong> ${escapeHtml(conf.location?.country || '')}<br><strong>Venue:</strong> ${escapeHtml(conf.location?.venue || '')}<br></div>
+      <div><strong>Date:</strong> ${formatDate(conf.startDate)} - ${formatDate(conf.endDate)}<br><strong>Time:</strong> ${escapeHtml(conf.startTime || '')}-${escapeHtml(conf.endTime || '')}<br><strong>Delivery:</strong> ${escapeHtml(conf.deliveryMethod)}<br><strong>Fee:</strong> ${formatCurrency(conf.fee?.amount || 0, conf.fee?.currency)}<br></div>
+    </div>`;
+          });
+        </script>
+
+      </section>
+      <!-- MOBILE NAV: Bottom navigation for mobile -->
+      <div id="layout-mobile-nav"></div><!-- OVERLAYS: Drawers, modals, toasts -->
+      <div id="layout-overlays"></div>
+    </main>
+  </div>
+  <script src="../js/store.js"></script>
+  <script src="../js/common.js"></script>
+
+</body>
+
+</html>

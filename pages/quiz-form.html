@@ -1,0 +1,109 @@
+<!-- ==========================================================================
+     QUIZ-FORM.HTML - StudyPod v2.1
+     Purpose: Quiz Form page with CRUD functionality
+     Features: Animated SVG icons, image upload, responsive, dark mode
+     Dependencies: variables.css, common.css, animated-icons.css
+     ========================================================================== -->
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Quiz Form | studyPod</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/animated-icons.css">
+  <link rel="stylesheet" href="../css/quizzes.css">
+  <link rel="icon" href="../assets/logo.png">
+
+  <script>try { const t = localStorage.getItem('studypod_theme'); const d = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme:dark)').matches); if (d) { document.documentElement.classList.add('dark'); } } catch (e) { }</script>
+</head>
+
+<body>
+  <div class="app"><!-- SIDEBAR: Rendered dynamically by common.js - collapsible, sticky, logo -->
+    <div id="layout-sidebar"></div>
+    <!-- MAIN: Primary content area, margin-left for fixed sidebar -->
+    <main class="main"><!-- HEADER: Rendered dynamically - logo left, theme toggle + notif + profile right -->
+      <div id="layout-header"></div>
+      <!-- CONTENT SECTION: Page main content -->
+      <section class="content page-shell">
+
+        <!-- PAGE HEADER: Title, description and primary actions -->
+        <div class="page-head">
+          <div>
+            <h1 id="form-title">Create Quiz</h1>
+            <p>Create an assessment for your course</p>
+          </div>
+          <a href="quizzes.html" class="btn-light">← Back</a>
+        </div>
+        <div id="form-errors"
+          style="display:none;background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;padding:12px;border-radius:8px;font-size:13px;margin-bottom:16px">
+        </div>
+        <form id="quiz-form" class="conf-form">
+          <div class="conf-form-section">
+            <h3><span class="animated-icon" style="width:18px;height:18px"><svg viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2">
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                </svg></span> Quiz Details</h3>
+            <div class="form-grid">
+              <div class="form-group"><label class="form-label">Token</label><input id="quiz-token" class="form-input"
+                  readonly></div>
+              <div class="form-group"><label class="form-label required">Title</label><input id="quiz-title"
+                  class="form-input" placeholder="Python Basics Quiz"></div>
+              <div class="form-group"><label class="form-label required">Course</label><select id="quiz-course"
+                  class="form-select"></select></div>
+              <div class="form-group"><label class="form-label">Time Limit (min)</label><input id="quiz-time-limit"
+                  type="number" class="form-input" value="30"></div>
+              <div class="form-group"><label class="form-label">Max Attempts</label><input id="quiz-max-attempts"
+                  type="number" class="form-input" value="1"></div>
+              <div class="form-group"><label class="form-label">Passing Score %</label><input id="quiz-passing-score"
+                  type="number" class="form-input" value="70"></div>
+              <div class="form-group full"><label class="form-label">Description</label><textarea id="quiz-description"
+                  class="form-textarea" placeholder="Description..."></textarea></div>
+              <div class="form-group"><label><input type="checkbox" id="quiz-randomize"> Randomize Questions</label>
+              </div>
+              <div class="form-group"><label><input type="checkbox" id="quiz-show-results" checked> Show Results</label>
+              </div>
+            </div>
+          </div>
+          <div class="conf-form-section">
+            <h3><span class="animated-icon anim-pulse" style="width:18px;height:18px"><svg viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg></span> Questions</h3>
+            <div id="questions-container" class="question-builder"></div><button type="button" id="add-question-btn"
+              class="btn-light" style="margin-top:12px">+ Add Question</button>
+          </div>
+          <div class="conf-form-section">
+            <h3><span class="animated-icon anim-wiggle" style="width:16px;height:16px"><svg viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 11l18-5v12L3 14v-3z" />
+                  <path d="M11.6 16.9a3 3 0 1 1-5.8-1.1" />
+                </svg></span> Status</h3>
+            <div style="display:flex;gap:16px"><label><input type="radio" name="quiz-status" value="draft" checked>
+                Draft</label><label><input type="radio" name="quiz-status" value="published">
+                Published</label><label><input type="radio" name="quiz-status" value="closed"> Closed</label></div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:10px"><a href="quizzes.html"
+              class="btn-light">Cancel</a><button type="submit" data-status="draft" class="btn-light">Save
+              Draft</button><button type="submit" data-status="published" class="btn-primary">Create & Publish</button>
+          </div>
+        </form>
+
+      </section>
+      <!-- MOBILE NAV: Bottom navigation for mobile -->
+      <div id="layout-mobile-nav"></div><!-- OVERLAYS: Drawers, modals, toasts -->
+      <div id="layout-overlays"></div>
+    </main>
+  </div>
+  <script src="../js/store.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/quiz-form.js"></script>
+
+</body>
+
+</html>

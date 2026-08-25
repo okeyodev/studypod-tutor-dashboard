@@ -1,0 +1,85 @@
+<!-- ==========================================================================
+     EMAIL-DRAFTS.HTML - StudyPod v2.1
+     Purpose: Email Drafts page with CRUD functionality
+     Features: Animated SVG icons, image upload, responsive, dark mode
+     Dependencies: variables.css, common.css, animated-icons.css
+     ========================================================================== -->
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Drafts | studyPod</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/animated-icons.css">
+  <link rel="stylesheet" href="../css/email.css">
+  <link rel="icon" href="../assets/logo.png">
+
+  <script>try { const t = localStorage.getItem('studypod_theme'); const d = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme:dark)').matches); if (d) { document.documentElement.classList.add('dark'); } } catch (e) { }</script>
+</head>
+
+<body>
+  <div class="app"><!-- SIDEBAR: Rendered dynamically by common.js - collapsible, sticky, logo -->
+    <div id="layout-sidebar"></div>
+    <!-- MAIN: Primary content area, margin-left for fixed sidebar -->
+    <main class="main"><!-- HEADER: Rendered dynamically - logo left, theme toggle + notif + profile right -->
+      <div id="layout-header"></div>
+      <!-- CONTENT SECTION: Page main content -->
+      <section class="content page-shell">
+
+        <div class="email-head">
+          <div>
+            <h1>Email - Drafts</h1>
+            <p>Draft messages</p>
+          </div>
+          <a href="email-compose.html" class="btn-primary">+ Compose</a>
+        </div>
+        <div class="email-layout">
+          <div class="email-sidebar">
+            <h2>Folders</h2>
+            <button class="email-nav" data-folder="inbox" onclick="location.href='email.html'"><span><span
+                  class="animated-icon" style="width:16px;height:16px"><svg viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+                    <path
+                      d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+                  </svg></span> Inbox</span></button>
+            <button class="email-nav" data-folder="sent" onclick="location.href='email-sent.html'"><span><span
+                  class="animated-icon" style="width:16px;height:16px"><svg viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13" />
+                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                  </svg></span> Sent</span></button>
+            <button class="email-nav active" data-folder="drafts"><span><span class="animated-icon"
+                  style="width:18px;height:18px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                  </svg></span> Drafts</span><span class="email-count" id="count-drafts">0</span></button>
+          </div>
+          <div class="email-main">
+            <div class="email-toolbar">
+              <div>
+                <div class="email-title">Drafts</div>
+                <div class="email-subtitle" id="folder-subtitle">0 drafts</div>
+              </div><input id="email-search" class="email-search" placeholder="Search drafts...">
+            </div>
+            <div id="email-list" class="email-list"></div>
+          </div>
+        </div>
+
+      </section>
+      <!-- MOBILE NAV: Bottom navigation for mobile -->
+      <div id="layout-mobile-nav"></div><!-- OVERLAYS: Drawers, modals, toasts -->
+      <div id="layout-overlays"></div>
+    </main>
+  </div>
+  <script src="../js/store.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/email.js"></script>
+
+</body>
+
+</html>

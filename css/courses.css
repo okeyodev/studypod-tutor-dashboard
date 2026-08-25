@@ -1,0 +1,179 @@
+/* COURSES.CSS - New */
+.courses-header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.courses-filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+.course-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  transition: var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+}
+
+.course-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+body.dark .course-card {
+  background: var(--bg-card-dark);
+  border-color: var(--border-dark);
+}
+
+.course-card-top {
+  padding: 20px;
+  flex: 1;
+}
+
+.course-card-token {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.course-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 8px;
+}
+
+.course-card-field {
+  display: inline-flex;
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.course-card-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.meta-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.meta-value {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.course-card-foot {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-page);
+}
+
+body.dark .course-card-foot {
+  background: var(--bg-track-dark);
+  border-color: var(--border-dark);
+}
+
+.course-price {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.course-status {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+}
+
+.course-status.published {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+}
+
+.course-status.draft {
+  background: var(--bg-track);
+  color: var(--text-secondary);
+}
+
+.form-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+body.dark .form-section {
+  background: var(--bg-card-dark);
+  border-color: var(--border-dark);
+}
+
+.form-section h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media(max-width:900px) {
+  .course-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media(max-width:600px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .course-card-meta {
+    grid-template-columns: 1fr;
+  }
+}

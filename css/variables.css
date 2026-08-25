@@ -1,115 +1,168 @@
 /* ==========================================================================
-   VARIABLES.CSS - Design Tokens (Single Source of Truth)
+   VARIABLES.CSS - Design Tokens (Single Source of Truth) v2.1
    ==========================================================================
-   Purpose: DRY principle - Change any value here and it updates everywhere.
-   This file contains ONLY CSS custom properties, no actual styles.
-   Both dashboard and conferences pages import this file FIRST.
-   
+   Purpose: Central design system - colors, spacing, typography, shadows
+   Updated: Fixed dark mode palette for harmonious, eye-pleasing contrast
    Structure:
-   - Brand & Primary Colors
-   - Backgrounds (Light/Dark)
-   - Borders
-   - Text Colors
-   - Semantic Colors (Success, Danger, Warning)
-   - Avatars & Icons
-   - Spacing & Sizing
-   - Radius & Shadows
-   - Transitions & Fonts
+   - Primary brand colors
+   - Background layers (page, card, sidebar, header)
+   - Borders and dividers
+   - Text hierarchy
+   - Semantic colors (success, warning, danger, progress)
+   - Icon backgrounds and avatars
+   - Layout dimensions
+   - Radii, shadows, transitions, fonts
+   
+   Dark Mode Philosophy:
+   - Page: #0F172A (slate-900) - soft dark, not pure black #020617 which was harsh
+   - Cards: #1E293B (slate-800) - slightly lighter for elevation
+   - Sidebar: #0B1120 - deeper for depth separation
+   - Borders: #2A3A55 - visible but not harsh, was #1E293B which blended with cards
+   - Text: #E2E8F0 primary (was #F1F5F9 too bright), #94A3B8 secondary
+   - Semantic colors use rgba with low opacity for dark to avoid neon clash
    ========================================================================== */
 
 :root {
-  /* --- Brand & Primary - Main blue used for buttons, links, active states --- */
+  /* Primary Brand - StudyPod Blue */
   --color-primary: #2563EB;
   --color-primary-hover: #1D4ED8;
   --color-primary-light: #EFF6FF;
-  /* Light blue bg for active nav */
-  --color-primary-light-dark: rgba(30, 58, 138, 0.3);
-  /* Dark mode active nav */
+  --color-primary-light-dark: rgba(37, 99, 235, 0.12);
+  /* Was rgba(30,58,138,0.3) too dark */
   --color-primary-text-light: #93C5FD;
-  /* Light blue text in dark mode */
+  --color-primary-ring: rgba(37, 99, 235, 0.15);
 
-  /* --- Page Backgrounds - Main page and card backgrounds --- */
+  /* Background Layers - Light / Dark - Harmonious Elevation */
   --bg-page: #F8FAFC;
-  /* Light gray page bg */
-  --bg-page-dark: #020617;
-  /* Very dark blue for dark mode page */
+  --bg-page-dark: #0F172A;
+  /* Changed from #020617 - less harsh, better for eyes */
   --bg-card: #ffffff;
-  /* White card bg */
   --bg-card-dark: #1E293B;
-  /* Dark slate card bg */
+  /* slate-800 */
+  --bg-card-hover-dark: #263449;
+  /* Slightly lighter on hover in dark */
   --bg-sidebar: #ffffff;
-  --bg-sidebar-dark: #0F172A;
-  --bg-header: rgba(248, 250, 252, 0.8);
-  /* Semi-transparent for blur effect */
-  --bg-header-dark: rgba(2, 6, 23, 0.8);
+  --bg-sidebar-dark: #0B1120;
+  /* Deeper than page for depth, was #0F172A same as page */
+  --bg-header: rgba(248, 250, 252, 0.85);
+  --bg-header-dark: rgba(15, 23, 42, 0.85);
+  /* Was rgba(2,6,23,0.8) - too dark */
   --bg-user-card: #F8FAFC;
   --bg-user-card-dark: #1E293B;
-  --bg-range-switch: #F8FAFC;
-  --bg-range-switch-dark: #0F172A;
-  --bg-track: #F1F5F9;
-  /* Progress bar track */
-  --bg-track-dark: #0F172A;
+  --bg-range-switch: #F1F5F9;
+  --bg-range-switch-dark: #1E293B;
+  --bg-track: #d9dde0;
+  --bg-track-dark: #1E293B;
   --bg-hover: #F8FAFC;
-  --bg-hover-dark: #0F172A;
+  --bg-hover-dark: #263449;
+  /* Was #0F172A same as page - now distinct */
   --bg-popover: #ffffff;
   --bg-popover-dark: #1E293B;
+  --bg-input: #ffffff;
+  --bg-input-dark: #1E293B;
+  --bg-empty: #F8FAFC;
+  --bg-empty-dark: rgba(30, 41, 59, 0.5);
 
-  /* --- Borders - All border colors --- */
-  --border-light: #E2E8F0;
-  /* Light gray border */
-  --border-dark: #1E293B;
-  /* Dark border for dark mode */
+  /* Borders - Visible but soft */
+  --border-light: #dad8d8;
+  --border-dark: #2A3A55;
+  /* Was #1E293B same as card bg - invisible! Now visible */
   --border-strong: #334155;
-  /* Stronger border */
+  --border-strong-dark: #475569;
   --border-attention: #FDE68A;
-  /* Yellow border for attention section */
-  --border-attention-dark: rgba(120, 53, 15, 0.5);
+  --border-attention-dark: rgba(251, 191, 36, 0.2);
+  /* Was rgba(120,53,15,0.5) too brown */
+  --border-focus: #93C5FD;
+  --border-focus-dark: rgba(37, 99, 235, 0.4);
 
-  /* --- Text Colors --- */
+  /* Text Hierarchy - Reduced harshness in dark */
   --text-primary: #0F172A;
-  /* Main dark text */
-  --text-primary-dark: #F1F5F9;
-  /* Light text in dark mode */
+  --text-primary-dark: #E2E8F0;
+  /* Was #F1F5F9 too bright white - now slate-200 softer */
   --text-secondary: #64748B;
-  /* Secondary gray */
+  --text-secondary-dark: #94A3B8;
+  /* Lighter secondary for dark */
   --text-muted: #94A3B8;
-  /* Muted labels, timestamps */
+  --text-muted-dark: #64748B;
+  /* Darker muted for dark mode - was same */
   --text-tertiary: #475569;
-  /* Nav items */
+  --text-tertiary-dark: #94A3B8;
   --text-white: #ffffff;
   --text-white-80: rgba(255, 255, 255, 0.8);
   --text-white-90: rgba(255, 255, 255, 0.9);
+  --text-inverse: #ffffff;
+  --text-inverse-dark: #0F172A;
 
-  /* --- Semantic Colors - Success, Error, Warning --- */
+  /* Semantic Colors - Harmonized for dark mode */
   --color-success-bg: #DCFCE7;
-  /* Green bg for up badge */
   --color-success-text: #16A34A;
-  --color-success-bg-dark: #14532D;
+  --color-success-bg-dark: rgba(22, 163, 74, 0.12);
+  /* Was #14532D solid - too harsh */
   --color-success-text-dark: #86EFAC;
+  --color-success-border-dark: rgba(22, 163, 74, 0.2);
+
   --color-danger: #EF4444;
-  /* Red for notifications */
+  --color-danger-dark: #F87171;
+  --color-danger-bg: #FEF2F2;
+  --color-danger-bg-dark: rgba(239, 68, 68, 0.1);
+  --color-danger-border: #FECACA;
+  --color-danger-border-dark: rgba(239, 68, 68, 0.2);
+
   --color-warning-bg: #FEF3C7;
   --color-warning-light: #FFFBEB;
-  /* Attention section bg */
-  --color-warning-light-dark: #1C0A00;
+  --color-warning-light-dark: rgba(251, 191, 36, 0.08);
+  /* Was #1C0A00 too dark brown */
   --color-warning-text: #92400E;
-  --color-warning-text-dark: #FBBF24;
+  --color-warning-text-dark: #FCD34D;
+  /* Was #FBBF24 slightly harsh, now softer */
+  --color-warning-bg-dark: rgba(251, 191, 36, 0.12);
+  --color-warning-border: #FDE68A;
+  --color-warning-border-dark: rgba(251, 191, 36, 0.2);
+
+  --color-info-bg: #EFF6FF;
+  --color-info-bg-dark: rgba(37, 99, 235, 0.1);
+  --color-info-text: #1D4ED8;
+  --color-info-text-dark: #93C5FD;
+
+  /* Progress and accents */
   --color-progress-green: #10B981;
+  --color-progress-green-dark: #34D399;
   --color-progress-purple: #8B5CF6;
+  --color-progress-purple-dark: #A78BFA;
+  --color-progress-blue: #2563EB;
+  --color-progress-blue-dark: #60A5FA;
 
-  /* --- Avatar & Icon Backgrounds --- */
+  /* Icon Backgrounds - Light pastels that work in both modes via opacity in dark */
   --color-blue-icon-bg: #EFF6FF;
+  --color-blue-icon-bg-dark: rgba(37, 99, 235, 0.12);
   --color-green-icon-bg: #F0FDF4;
+  --color-green-icon-bg-dark: rgba(16, 185, 129, 0.12);
   --color-yellow-icon-bg: #FEF3C7;
+  --color-yellow-icon-bg-dark: rgba(251, 191, 36, 0.12);
   --color-purple-icon-bg: #F5F3FF;
-  --color-avatar-blue: #BFDBFE;
-  --color-avatar-purple: #DDD6FE;
-  --color-avatar-yellow: #FDE68A;
-  --color-avatar-light-blue: #DBEAFE;
-  --color-avatar-pink: #FCE7F3;
-  --color-avatar-indigo: #E0E7FF;
+  --color-purple-icon-bg-dark: rgba(139, 92, 246, 0.12);
+  --color-pink-icon-bg: #FDF2F8;
+  --color-pink-icon-bg-dark: rgba(236, 72, 153, 0.12);
+  --color-orange-icon-bg: #FFF7ED;
+  --color-orange-icon-bg-dark: rgba(249, 115, 22, 0.12);
 
-  /* --- Layout Sizing --- */
+  /* Avatars - Keep light in dark for contrast but slightly muted */
+  --color-avatar-blue: #BFDBFE;
+  --color-avatar-blue-dark: #93C5FD;
+  --color-avatar-purple: #DDD6FE;
+  --color-avatar-purple-dark: #C4B5FD;
+  --color-avatar-yellow: #FDE68A;
+  --color-avatar-yellow-dark: #FCD34D;
+  --color-avatar-light-blue: #DBEAFE;
+  --color-avatar-light-blue-dark: rgba(37, 99, 235, 0.2);
+  --color-avatar-pink: #FCE7F3;
+  --color-avatar-pink-dark: rgba(236, 72, 153, 0.2);
+  --color-avatar-indigo: #E0E7FF;
+  --color-avatar-indigo-dark: rgba(99, 102, 241, 0.2);
+  --color-avatar-green: #DCFCE7;
+  --color-avatar-green-dark: rgba(16, 185, 129, 0.2);
+
+  /* Layout */
   --sidebar-width: 280px;
   --sidebar-collapsed-width: 72px;
   --header-height: 64px;
@@ -117,24 +170,63 @@
   --content-padding-mobile: 16px;
   --card-padding: 20px;
   --card-padding-lg: 24px;
+  --mobile-nav-height: 72px;
 
-  /* --- Border Radius --- */
+  /* Radii */
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
+  --radius-2xl: 20px;
   --radius-full: 999px;
 
-  /* --- Shadows --- */
+  /* Shadows - Softer in dark mode */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm-dark: 0 1px 2px rgba(0, 0, 0, 0.2);
   --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-md-dark: 0 4px 12px rgba(0, 0, 0, 0.25);
   --shadow-lg: 0 10px 30px rgba(15, 23, 42, 0.08);
   --shadow-lg-dark: 0 10px 30px rgba(0, 0, 0, 0.35);
   --shadow-popover: 0 20px 40px rgba(15, 23, 42, 0.12);
+  --shadow-popover-dark: 0 20px 40px rgba(0, 0, 0, 0.4);
+  --shadow-card-hover: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-card-hover-dark: 0 8px 24px rgba(0, 0, 0, 0.3);
 
-  /* --- Transitions & Fonts --- */
+  /* Transitions */
   --transition-fast: 0.18s ease;
   --transition-normal: 0.22s ease;
+  --transition-slow: 0.32s ease;
   --transition-sidebar: 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
-  --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+  --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Typography */
+  --font-main: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Z-index */
+  --z-sidebar: 30;
+  --z-header: 20;
+  --z-mobile-nav: 25;
+  --z-popover: 40;
+  --z-drawer: 50;
+  --z-modal: 60;
+  --z-toast: 110;
+}
+
+/* Dark mode root overrides for better harmony */
+.dark {
+  color-scheme: dark;
+}
+
+/* Ensure smooth transitions between themes */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 0.18s;
+  transition-timing-function: ease;
+}
+
+/* Exclude elements that should not transition on theme change */
+.no-theme-transition,
+.no-theme-transition * {
+  transition: none !important;
 }

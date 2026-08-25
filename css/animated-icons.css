@@ -1,0 +1,494 @@
+/* ==========================================================================
+   ANIMATED-ICONS.CSS - StudyPod v2.1 - Animated SVG Icon System
+   Purpose: Replaces all emojis with accessible, animated SVG icons
+   Features: Float, pulse, wave, spin, wiggle animations + dark mode support
+   ========================================================================== */
+
+/* Base animated icon wrapper */
+.animated-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.animated-icon svg {
+  width: 100%;
+  height: 100%;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Icon sizes */
+.icon-xs {
+  width: 16px;
+  height: 16px;
+}
+
+.icon-sm {
+  width: 20px;
+  height: 20px;
+}
+
+.icon-md {
+  width: 24px;
+  height: 24px;
+}
+
+.icon-lg {
+  width: 32px;
+  height: 32px;
+}
+
+.icon-xl {
+  width: 48px;
+  height: 48px;
+}
+
+.icon-2xl {
+  width: 64px;
+  height: 64px;
+}
+
+/* Animation utilities */
+.anim-float {
+  animation: float-subtle 3s ease-in-out infinite;
+}
+
+.anim-float-slow {
+  animation: float-subtle 4s ease-in-out infinite;
+}
+
+.anim-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.anim-pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+.anim-wave {
+  animation: waveOnce 0.8s ease-in-out infinite;
+  transform-origin: 70% 70%;
+}
+
+.anim-wave-continuous {
+  animation: waveHand 2s ease-in-out infinite;
+  transform-origin: 70% 70%;
+}
+
+.anim-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+
+.anim-wiggle {
+  animation: wiggle 2s ease-in-out infinite;
+}
+
+.anim-bounce-subtle {
+  animation: bounce-subtle 2s ease-in-out infinite;
+}
+
+.anim-draw {
+  stroke-dasharray: 120;
+  stroke-dashoffset: 120;
+  animation: draw 1.5s ease forwards;
+}
+
+.anim-scale-in {
+  animation: scale-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Keyframes */
+@keyframes float-subtle {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes pulse-dot {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.4);
+    opacity: 0.7;
+  }
+}
+
+@keyframes waveOnce {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(18deg);
+  }
+
+  50% {
+    transform: rotate(-10deg);
+  }
+
+  75% {
+    transform: rotate(14deg);
+  }
+
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes waveHand {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  20% {
+    transform: rotate(14deg);
+  }
+
+  40% {
+    transform: rotate(-8deg);
+  }
+
+  60% {
+    transform: rotate(14deg);
+  }
+
+  80% {
+    transform: rotate(-4deg);
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes wiggle {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(-6deg);
+  }
+
+  75% {
+    transform: rotate(6deg);
+  }
+}
+
+@keyframes bounce-subtle {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: 120;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Icon boxes with animated backgrounds */
+.icon-box-animated {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.icon-box-animated::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--icon-bg-start), var(--icon-bg-end));
+  opacity: 0.9;
+  z-index: -1;
+}
+
+.icon-box-animated::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.4), transparent 60%);
+  z-index: -1;
+}
+
+.icon-box-animated:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15);
+}
+
+.icon-box-animated .animated-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--icon-color);
+}
+
+/* Color variants */
+.icon-box-animated.blue {
+  --icon-bg-start: #EFF6FF;
+  --icon-bg-end: #DBEAFE;
+  --icon-color: #2563EB;
+}
+
+.icon-box-animated.green {
+  --icon-bg-start: #F0FDF4;
+  --icon-bg-end: #DCFCE7;
+  --icon-color: #16A34A;
+}
+
+.icon-box-animated.yellow {
+  --icon-bg-start: #FFFBEB;
+  --icon-bg-end: #FEF3C7;
+  --icon-color: #D97706;
+}
+
+.icon-box-animated.purple {
+  --icon-bg-start: #F5F3FF;
+  --icon-bg-end: #DDD6FE;
+  --icon-color: #7C3AED;
+}
+
+.icon-box-animated.pink {
+  --icon-bg-start: #FDF2F8;
+  --icon-bg-end: #FCE7F3;
+  --icon-color: #DB2777;
+}
+
+.icon-box-animated.orange {
+  --icon-bg-start: #FFF7ED;
+  --icon-bg-end: #FFEDD5;
+  --icon-color: #EA580C;
+}
+
+/* Dark mode variants */
+body.dark .icon-box-animated.blue {
+  --icon-bg-start: rgba(37, 99, 235, 0.15);
+  --icon-bg-end: rgba(37, 99, 235, 0.25);
+  --icon-color: #93C5FD;
+}
+
+body.dark .icon-box-animated.green {
+  --icon-bg-start: rgba(16, 185, 129, 0.15);
+  --icon-bg-end: rgba(16, 185, 129, 0.25);
+  --icon-color: #6EE7B7;
+}
+
+body.dark .icon-box-animated.yellow {
+  --icon-bg-start: rgba(245, 158, 11, 0.15);
+  --icon-bg-end: rgba(245, 158, 11, 0.25);
+  --icon-color: #FCD34D;
+}
+
+body.dark .icon-box-animated.purple {
+  --icon-bg-start: rgba(139, 92, 246, 0.15);
+  --icon-bg-end: rgba(139, 92, 246, 0.25);
+  --icon-color: #C4B5FD;
+}
+
+body.dark .icon-box-animated.pink {
+  --icon-bg-start: rgba(236, 72, 153, 0.15);
+  --icon-bg-end: rgba(236, 72, 153, 0.25);
+  --icon-color: #F9A8D4;
+}
+
+body.dark .icon-box-animated.orange {
+  --icon-bg-start: rgba(249, 115, 22, 0.15);
+  --icon-bg-end: rgba(249, 115, 22, 0.25);
+  --icon-color: #FDBA74;
+}
+
+/* Metric card animated */
+.metric-card-animated {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.22s ease;
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
+}
+
+.metric-card-animated:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary-light);
+}
+
+.metric-card-animated .metric-icon-wrap {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  opacity: 0.9;
+}
+
+.metric-card-animated .metric-content {
+  position: relative;
+  z-index: 1;
+}
+
+.metric-card-animated::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, var(--color-primary-light) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.metric-card-animated:hover::before {
+  opacity: 0.6;
+}
+
+body.dark .metric-card-animated {
+  background: var(--bg-card-dark);
+  border-color: var(--border-dark);
+}
+
+body.dark .metric-card-animated:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-lg-dark);
+}
+
+body.dark .metric-card-animated::before {
+  background: radial-gradient(circle at center, rgba(37, 99, 235, 0.08) 0%, transparent 50%);
+}
+
+/* Empty state animated icons */
+.empty-icon-animated {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  background: var(--color-primary-light);
+  display: grid;
+  place-items: center;
+  margin: 0 auto 16px;
+  animation: float-subtle 3s ease-in-out infinite;
+}
+
+.empty-icon-animated .animated-icon {
+  width: 36px;
+  height: 36px;
+  color: var(--color-primary);
+}
+
+body.dark .empty-icon-animated {
+  background: rgba(37, 99, 235, 0.12);
+}
+
+/* Specific icon animations */
+.icon-students {
+  animation: float-subtle 3s ease-in-out infinite;
+}
+
+.icon-courses {
+  animation: float-subtle 3.2s ease-in-out infinite;
+}
+
+.icon-analytics {
+  animation: pulse 2.5s ease-in-out infinite;
+}
+
+.icon-conference {
+  animation: bounce-subtle 2s ease-in-out infinite;
+}
+
+.icon-notification {
+  animation: wiggle 2s ease-in-out infinite;
+}
+
+.icon-wave {
+  animation: waveHand 2s ease-in-out infinite;
+  transform-origin: 70% 70%;
+}
+
+/* Form section icons */
+.form-section-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary);
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.form-section-icon.anim {
+  animation: float-subtle 3s ease-in-out infinite;
+}

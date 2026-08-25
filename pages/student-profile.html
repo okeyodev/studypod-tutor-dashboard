@@ -1,0 +1,150 @@
+<!-- ==========================================================================
+     STUDENT-PROFILE.HTML - StudyPod v2.1
+     Purpose: Student Profile page with CRUD functionality
+     Features: Animated SVG icons, image upload, responsive, dark mode
+     Dependencies: variables.css, common.css, animated-icons.css
+     ========================================================================== -->
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Student Profile | studyPod</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/animated-icons.css">
+  <link rel="stylesheet" href="../css/students.css">
+  <link rel="icon" href="../assets/logo.png">
+
+  <script>try { const t = localStorage.getItem('studypod_theme'); const d = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme:dark)').matches); if (d) { document.documentElement.classList.add('dark'); } } catch (e) { }</script>
+</head>
+
+<body>
+  <div class="app"><!-- SIDEBAR: Rendered dynamically by common.js - collapsible, sticky, logo -->
+    <div id="layout-sidebar"></div>
+    <!-- MAIN: Primary content area, margin-left for fixed sidebar -->
+    <main class="main"><!-- HEADER: Rendered dynamically - logo left, theme toggle + notif + profile right -->
+      <div id="layout-header"></div>
+      <!-- CONTENT SECTION: Page main content -->
+      <section class="content page-shell">
+
+        <!-- PAGE HEADER: Title, description and primary actions -->
+        <div class="page-head">
+          <div><a href="students.html" style="font-size:12px;color:var(--text-muted)">← Students</a>
+            <h1 id="student-name">Student Profile</h1>
+            <p id="student-email"></p>
+          </div>
+          <button class="btn-primary" onclick="handleSendEmail()">Send Email</button>
+        </div>
+        <div class="student-profile">
+          <div class="profile-card">
+            <div id="profile-avatar" class="profile-avatar">MJ</div>
+            <div id="profile-name" style="font-weight:600">Michael Johnson</div>
+            <div id="profile-email" style="font-size:12px;color:var(--text-muted)"></div>
+            <div style="margin-top:12px;font-size:12px;line-height:1.8">
+              <div>Membership: <span id="profile-membership"></span></div>
+              <div>Phone: <span id="profile-phone"></span></div>
+            </div>
+            <div class="profile-stats">
+              <div class="profile-stat"><strong id="profile-courses">0</strong><span>Courses</span></div>
+              <div class="profile-stat"><strong id="profile-score">0</strong><span>Avg Score</span></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <!-- CARD: Main content card -->
+            <div class="card card-pad-lg">
+              <div class="card-title">Enrolled Courses</div>
+              <div id="profile-courses-list" class="data-list" style="margin-top:12px"></div>
+            </div>
+            <!-- CARD: Main content card -->
+            <div class="card card-pad-lg">
+              <div class="card-title">Payment History</div>
+              <div id="profile-payments" class="data-list" style="margin-top:12px"></div>
+            </div>
+            <!-- CARD: Main content card -->
+            <div class="card card-pad-lg">
+              <div class="card-title">Assignment Performance</div>
+              <div id="profile-assignments" class="data-list" style="margin-top:12px"></div>
+            </div>
+            <!-- CARD: Main content card -->
+            <div class="card card-pad-lg">
+              <div class="card-title">Quiz Performance</div>
+              <div id="profile-quizzes" class="data-list" style="margin-top:12px"></div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          document.addEventListener('DOMContentLoaded', () => {
+            if (typeof Store === 'undefined') { setTimeout(() => location.reload(), 300); return; }
+            const id = new URLSearchParams(location.search).get('id');
+            if (!id) { toast('No student'); location.href = 'students.html'; return; }
+            const stu = Store.getById('students', id);
+            if (!stu) { toast('Student not found'); location.href = 'students.html'; return; }
+            document.getElementById('student-name').textContent = stu.firstName + ' ' + stu.lastName;
+            document.getElementById('student-email').textContent = stu.email;
+            document.getElementById('profile-name').textContent = stu.firstName + ' ' + stu.lastName;
+            document.getElementById('profile-email').textContent = stu.email;
+            document.getElementById('profile-membership').textContent = stu.membershipNo;
+            document.getElementById('profile-phone').textContent = stu.phone;
+            document.getElementById('profile-avatar').textContent = stu.avatar;
+            const enrolls = Store.filter('enrollments', e => e.studentId === id);
+            document.getElementById('profile-courses').textContent = enrolls.length;
+            const subs = Store.filter('submissions', s => s.studentId === id && s.score !== null);
+            const atts = Store.filter('attempts', a => a.studentId === id);
+            let total = 0, cnt = 0; subs.forEach(s => { total += s.score; cnt++; }); atts.forEach(a => { total += a.score; cnt++; });
+            document.getElementById('profile-score').textContent = cnt ? Math.round(total / cnt) : 0;
+            const courses = Store.get('courses');
+            document.getElementById('profile-courses-list').innerHTML = enrolls.map(en => {
+              const c = courses.find(cc => cc.id === en.courseId);
+              return `<div class="data-row"><div class="row-main"><div class="row-title">${escapeHtml(c ? c.name : 'Unknown')}</div><div class="row-meta">${formatDate(en.enrolledAt)} • ${formatCurrency(en.amountPaid?.amount || 0, en.amountPaid?.currency)}</div></div><span class="tag ${en.paymentStatus === 'paid' ? 'good' : 'warn'}">${en.paymentStatus}</span></div>`;
+            }).join('') || '<div class="empty-sub">No enrollments</div>';
+            document.getElementById('profile-payments').innerHTML = enrolls.map(en => `<div class="data-row"><div class="row-main"><div class="row-title">${escapeHtml(en.transactionReference || 'TXN')}</div><div class="row-meta">${formatDate(en.paymentDate)} • ${formatCurrency(en.amountPaid?.amount || 0, en.amountPaid?.currency)}</div></div><span class="tag good">${en.paymentStatus}</span></div>`).join('') || '<div class="empty-sub">No payments</div>';
+            document.getElementById('profile-assignments').innerHTML = subs.map(s => {
+              const asg = Store.getById('assignments', s.assignmentId);
+              return `<div class="data-row"><div class="row-main"><div class="row-title">${escapeHtml(asg ? asg.title : 'Assignment')}</div><div class="row-meta">Score ${s.score} • ${formatDateTime(s.submittedAt)}</div></div><span class="tag ${s.status === 'graded' ? 'good' : 'warn'}">${s.status}</span></div>`;
+            }).join('') || '<div class="empty-sub">No submissions</div>';
+            document.getElementById('profile-quizzes').innerHTML = atts.map(a => {
+              const q = Store.getById('quizzes', a.quizId);
+              return `<div class="data-row"><div class="row-main"><div class="row-title">${escapeHtml(q ? q.title : 'Quiz')}</div><div class="row-meta">Score ${a.score}% • ${a.correctAnswers}/${a.totalQuestions}</div></div><span class="tag ${a.score >= 70 ? 'good' : 'warn'}">${a.score >= 70 ? 'Passed' : 'Failed'}</span></div>`;
+            }).join('') || '<div class="empty-sub">No quiz attempts</div>';
+          });
+        </script>
+
+      </section>
+      <!-- MOBILE NAV: Bottom navigation for mobile -->
+      <div id="layout-mobile-nav"></div><!-- OVERLAYS: Drawers, modals, toasts -->
+      <div id="layout-overlays"></div>
+    </main>
+  </div>
+  <script src="../js/store.js"></script>
+  <script src="../js/common.js"></script>
+
+
+  <script>
+    /**
+     * Handle Send Email - navigate to email compose with student email
+     */
+    function handleSendEmail() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+        if (!id || !window.Store) {
+          window.location.href = 'email-compose.html';
+          return;
+        }
+        const stu = Store.getById('students', id);
+        if (stu && stu.email) {
+          window.location.href = 'email-compose.html?to=' + encodeURIComponent(stu.email) + '&name=' + encodeURIComponent((stu.firstName || '') + ' ' + (stu.lastName || ''));
+        } else {
+          window.location.href = 'email-compose.html';
+        }
+      } catch (e) {
+        window.location.href = 'email-compose.html';
+      }
+    }
+  </script>
+</body>
+
+</html>

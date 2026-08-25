@@ -1,0 +1,166 @@
+<!-- ==========================================================================
+     COURSES.HTML - StudyPod v2.1
+     Purpose: Courses page with CRUD functionality
+     Features: Animated SVG icons, image upload, responsive, dark mode
+     Dependencies: variables.css, common.css, animated-icons.css
+     ========================================================================== -->
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Courses | studyPod</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/animated-icons.css">
+  <link rel="stylesheet" href="../css/courses.css">
+  <link rel="stylesheet" href="../css/tutor-pages.css">
+  <link rel="icon" href="../assets/logo.png">
+
+  <script>try { const t = localStorage.getItem('studypod_theme'); const d = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme:dark)').matches); if (d) { document.documentElement.classList.add('dark'); } } catch (e) { }</script>
+</head>
+
+<body>
+  <div class="app"><!-- SIDEBAR: Rendered dynamically by common.js - collapsible, sticky, logo -->
+    <div id="layout-sidebar"></div>
+    <!-- MAIN: Primary content area, margin-left for fixed sidebar -->
+    <main class="main"><!-- HEADER: Rendered dynamically - logo left, theme toggle + notif + profile right -->
+      <div id="layout-header"></div>
+      <!-- CONTENT SECTION: Page main content -->
+      <section class="content page-shell">
+
+        <!-- PAGE HEADER: Title, description and primary actions -->
+        <div class="page-head">
+          <div>
+            <h1>Courses</h1>
+            <p>Create and manage your courses, learners and programs.</p>
+          </div>
+          <a href="course-form.html" class="btn-primary">+ Create Course</a>
+        </div>
+        <!-- METRICS GRID: KPI cards -->
+        <div class="page-grid">
+          <div class="metric-card metric-card-animated" style="--icon-bg-start:#EFF6FF;--icon-bg-end:#DBEAFE">
+            <div class="metric-top">
+              <div class="metric-content">
+                <span>Total Courses</span>
+                <strong id="total-courses">0</strong>
+              </div>
+              <div class="metric-icon"
+                style="--icon-bg-start:#EFF6FF;--icon-bg-end:#DBEAFE;background:linear-gradient(135deg, #EFF6FF, #DBEAFE)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" class="anim-float-slow"
+                  style="width:24px;height:24px">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                </svg></div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px;display:flex;align-items:center;gap:4px">
+              <span style="width:6px;height:6px;background:#2563EB;border-radius:50%;display:inline-block"
+                class="anim-pulse"></span> All courses in catalog</div>
+          </div>
+          <div class="metric-card metric-card-animated" style="--icon-bg-start:#F0FDF4;--icon-bg-end:#DCFCE7">
+            <div class="metric-top">
+              <div class="metric-content">
+                <span>Published</span>
+                <strong id="published-courses">0</strong>
+              </div>
+              <div class="metric-icon"
+                style="--icon-bg-start:#F0FDF4;--icon-bg-end:#DCFCE7;background:linear-gradient(135deg, #F0FDF4, #DCFCE7)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" class="anim-pulse"
+                  style="width:24px;height:24px">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg></div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px">Live and visible to learners</div>
+          </div>
+          <div class="metric-card metric-card-animated" style="--icon-bg-start:#FFFBEB;--icon-bg-end:#FEF3C7">
+            <div class="metric-top">
+              <div class="metric-content">
+                <span>Drafts</span>
+                <strong id="draft-courses">0</strong>
+              </div>
+              <div class="metric-icon"
+                style="--icon-bg-start:#FFFBEB;--icon-bg-end:#FEF3C7;background:linear-gradient(135deg, #FFFBEB, #FEF3C7)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" class="anim-float"
+                  style="width:24px;height:24px">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg></div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px">In preparation</div>
+          </div>
+          <div class="metric-card metric-card-animated" style="--icon-bg-start:#F5F3FF;--icon-bg-end:#DDD6FE">
+            <div class="metric-top">
+              <div class="metric-content">
+                <span>Active Learners</span>
+                <strong id="active-learners">0</strong>
+              </div>
+              <div class="metric-icon"
+                style="--icon-bg-start:#F5F3FF;--icon-bg-end:#DDD6FE;background:linear-gradient(135deg, #F5F3FF, #DDD6FE)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" class="anim-float"
+                  style="width:24px;height:24px">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg></div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px">Enrolled across courses</div>
+          </div>
+        </div>
+        <!-- CARD: Main content card -->
+        <div class="card card-pad-lg">
+          <!-- TOOLBAR: Search, filters and actions -->
+          <div class="toolbar">
+            <input id="courses-search" class="search-input" placeholder="Search courses by name, field, location..."
+              aria-label="Search courses">
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <select id="filter-status" class="select-input">
+                <option value="all">All Status</option>
+                <option value="published">Published</option>
+                <option value="draft">Draft</option>
+              </select>
+              <select id="filter-field" class="select-input">
+                <option value="all">All Fields</option>
+              </select>
+              <select id="filter-delivery" class="select-input">
+                <option value="all">All Delivery</option>
+                <option value="Virtual">Virtual</option>
+                <option value="On-Premise">On-Premise</option>
+              </select>
+            </div>
+          </div>
+          <div id="courses-grid" class="course-grid" style="margin-top:16px"></div>
+          <div id="empty-courses" class="empty-state" style="display:none;margin-top:16px">
+            <div class="empty-icon"><span class="animated-icon anim-float-slow" style="width:20px;height:20px"><svg
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                </svg></span></div>
+            <div class="empty-title">No courses yet</div>
+            <div class="empty-sub">Create your first course to start teaching learners.</div><a href="course-form.html"
+              class="btn-primary" style="margin-top:12px">Create Course</a>
+          </div>
+          <div id="no-results" class="empty-state" style="display:none;margin-top:16px">
+            <div class="empty-title">No matching courses</div>
+            <div class="empty-sub">Try adjusting your search or filters</div><button class="btn-light"
+              style="margin-top:12px"
+              onclick="document.getElementById('courses-search').value=''; document.getElementById('filter-status').value='all'; document.getElementById('filter-field').value='all'; document.getElementById('filter-delivery').value='all'; window.CoursesPage && window.CoursesPage.render && window.CoursesPage.render();">Clear
+              Filters</button>
+          </div>
+        </div>
+
+      </section>
+      <!-- MOBILE NAV: Bottom navigation for mobile -->
+      <div id="layout-mobile-nav"></div><!-- OVERLAYS: Drawers, modals, toasts -->
+      <div id="layout-overlays"></div>
+    </main>
+  </div>
+  <script src="../js/store.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/courses.js"></script>
+
+</body>
+
+</html>

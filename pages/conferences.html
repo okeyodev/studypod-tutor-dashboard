@@ -1,182 +1,103 @@
-<!DOCTYPE html>
+<!-- ==========================================================================
+     CONFERENCES.HTML - StudyPod v2.1
+     Purpose: Conferences page with CRUD functionality
+     Features: Animated SVG icons, image upload, responsive, dark mode
+     Dependencies: variables.css, common.css, animated-icons.css
+     ========================================================================== -->
+<!doctype html>
 <html lang="en">
 
 <head>
-  <!--
-    ==========================================================================
-    CONFERENCES.HTML - Conferences Page (REFACTORED - Reusable Layout)
-    ==========================================================================
-    Now uses reusable layout system:
-    - Same header, sidebar, mobile nav as dashboard (no duplication)
-    - Theme persists across pages via localStorage
-    - Active state auto-detected or set via Layout.initLayout()
-  -->
-
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>studyPod Conferences</title>
-  <meta name="theme-color" content="#F8FAFC">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/png" href="../image/studyPod_logo_pra.png">
-
-  <!-- CSS - Order matters -->
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Conferences | studyPod</title>
   <link rel="stylesheet" href="../css/variables.css">
   <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/animated-icons.css">
   <link rel="stylesheet" href="../css/conferences.css">
+  <link rel="icon" href="../assets/logo.png">
+
+  <script>try { const t = localStorage.getItem('studypod_theme'); const d = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme:dark)').matches); if (d) { document.documentElement.classList.add('dark'); } } catch (e) { }</script>
 </head>
 
 <body>
-  <!-- APP WRAPPER -->
-  <div class="app">
-    <!-- Reusable Sidebar -->
+  <div class="app"><!-- SIDEBAR: Rendered dynamically by common.js - collapsible, sticky, logo -->
     <div id="layout-sidebar"></div>
-
-    <div class="main">
-      <!-- Reusable Header -->
+    <!-- MAIN: Primary content area, margin-left for fixed sidebar -->
+    <main class="main"><!-- HEADER: Rendered dynamically - logo left, theme toggle + notif + profile right -->
       <div id="layout-header"></div>
+      <!-- CONTENT SECTION: Page main content -->
+      <section class="content page-shell">
 
-
-
-      <!-- ==================== CONFERENCES CONTENT - Separated Page ==================== -->
-      <!-- This was previously hidden div #view-conf inside index.html, now its own page -->
-
-      <div class="content conf-page">
-
-        <!-- Page Header with Flow Breadcrumb -->
-        <!-- Shows lifecycle: Create -> Schedule -> Register -> Reminders -> Live -> Analytics -->
-        <div class="conf-page-head">
+        <!-- PAGE HEADER: Title, description and primary actions -->
+        <div class="page-head">
           <div>
-            <h1>Conferences</h1> <!-- Page title -->
-            <p>Manage your live learning events, masterclasses and workshops.</p> <!-- Description -->
-            <!-- Flow breadcrumb showing conference lifecycle -->
-            <div class="breadcrumb-flow"><span style="display:flex;align-items:center;gap:6px"><span
-                  style="width:8px;height:8px;background:#2563EB;border-radius:50%"></span>Create</span><span>→</span><span>Schedule</span><span>→</span><span>Register</span><span>→</span><span>Reminders</span><span>→</span><span
-                class="active">Live</span><span>→</span><span>Analytics</span></div>
+            <h1>Conferences</h1>
+            <p>Create, schedule and manage your conferences.</p>
           </div>
-          <button onclick="toast('Create Conference')" class="btn-primary">+ Create Conference</button>
-          <!-- Primary CTA -->
+          <a href="conference-form.html" class="btn-primary">+ Create Conference</a>
         </div>
-
-        <!-- Conference Stats Grid - 3 metric cards at top -->
-        <div class="conf-stats-grid">
-          <!-- Stat 1: Upcoming count -->
-          <div class="conf-card">
-            <div class="conf-card-label">Upcoming</div>
-            <div class="conf-card-value">3</div>
-            <div class="conf-card-sub">+1 this week</div>
-          </div>
-          <!-- Stat 2: Total attendees -->
-          <div class="conf-card">
-            <div class="conf-card-label">Attendees</div>
-            <div class="conf-card-value">842</div>
-            <div class="conf-card-sub">+124 vs last month</div>
-          </div>
-          <!-- Stat 3: Attendance rate -->
-          <div class="conf-card">
-            <div class="conf-card-label">Attendance Rate</div>
-            <div class="conf-card-value">87%</div>
-            <div class="conf-card-sub">+3% vs avg</div>
-          </div>
+        <div class="page-grid" id="conf-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+          <div class="metric-card"><span>Total Conferences</span><strong id="total-confs">0</strong></div>
+          <div class="metric-card"><span>Published</span><strong id="published-confs">0</strong></div>
+          <div class="metric-card"><span>Drafts</span><strong id="draft-confs">0</strong></div>
+          <div class="metric-card"><span>Completed</span><strong id="completed-confs">0</strong></div>
         </div>
-
-        <!-- Upcoming Conferences Grid - Cards with gradient headers -->
-        <div class="conf-list-card">
-          <div class="card-title" style="margin-bottom:16px">Upcoming Conferences</div>
-          <div class="conf-grid">
-            <!-- Conference Card 1: React Masterclass -->
-            <div class="conf-item">
-              <div class="conf-item-hero grad1"> <!-- Gradient 1: blue->purple -->
-                <div class="conf-item-top"><span class="conf-pill-light">Aug 24 • 4PM-6PM</span><span
-                    class="conf-pill-green">Registration Open</span></div>
-                <div class="conf-item-title">React State Management Masterclass</div>
-              </div>
-              <div class="conf-item-foot">
-                <div>👥 86 registered • 100 seats</div>
-                <div style="display:flex;gap:8px"><button onclick="handleConferenceAction('manage','React Masterclass')"
-                    class="btn-dark" style="padding:6px 12px;font-size:12px">Manage</button><button class="btn-light"
-                    style="padding:6px 12px;font-size:12px">Share</button></div>
-              </div>
+        <!-- CARD: Main content card -->
+        <div class="card card-pad-lg">
+          <div class="toolbar" id="conf-toolbar">
+            <input id="conf-search" class="search-input"
+              placeholder="Search conferences by name, workshop, location...">
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <select id="filter-status" class="select-input">
+                <option value="all">All Status</option>
+                <option value="published">Published</option>
+                <option value="draft">Draft</option>
+                <option value="completed">Completed</option>
+              </select>
+              <select id="filter-workshop" class="select-input">
+                <option value="all">All Workshops</option>
+              </select>
+              <select id="filter-delivery" class="select-input">
+                <option value="all">All Delivery</option>
+                <option value="Virtual">Virtual</option>
+                <option value="On-Premise">On-Premise</option>
+              </select>
             </div>
-
-            <!-- Conference Card 2: UX Workshop -->
-            <div class="conf-item">
-              <div class="conf-item-hero grad2"> <!-- Gradient 2: green->teal -->
-                <div class="conf-item-top"><span class="conf-pill-light">Aug 28 • 2PM-4PM</span><span
-                    class="conf-pill-amber">Almost Full</span></div>
-                <div class="conf-item-title">UX Research Deep Dive Workshop</div>
-              </div>
-              <div class="conf-item-foot">
-                <div>👥 142 registered • 150 seats</div>
-                <div style="display:flex;gap:8px"><button onclick="handleConferenceAction('manage','UX Workshop')"
-                    class="btn-dark" style="padding:6px 12px;font-size:12px">Manage</button><button class="btn-light"
-                    style="padding:6px 12px;font-size:12px">Share</button></div>
-              </div>
-            </div>
-
-            <!-- Conference Card 3: Draft -->
-            <div class="conf-item">
-              <div class="conf-item-hero grad3"> <!-- Gradient 3: pink->orange -->
-                <div class="conf-item-top"><span class="conf-pill-light">Sep 02 • 10AM-12PM</span><span
-                    class="conf-pill-light">Draft</span></div>
-                <div class="conf-item-title">Digital Marketing Live Q&A</div>
-              </div>
-              <div class="conf-item-foot">
-                <div>👥 0 registered • 200 seats</div>
-                <div style="display:flex;gap:8px"><button class="btn-light"
-                    style="padding:6px 12px;font-size:12px">Continue Editing</button></div>
-              </div>
-            </div>
-
-            <!-- Create New Placeholder - Dashed border card -->
-            <div class="conf-create">
-              <div class="conf-create-icon">🎤</div> <!-- Icon -->
-              <div class="conf-create-title">Create live learning experiences</div>
-              <div class="conf-create-sub">Organize workshops, masterclasses, webinars and live sessions.</div>
-              <button onclick="toast('Create Conference')" class="conf-create-btn">+ Create Conference</button>
-            </div>
+          </div>
+          <div id="conf-grid" class="conf-grid" style="margin-top:16px"></div>
+          <div id="empty-confs" class="empty-state" style="display:none;margin-top:16px">
+            <div class="empty-icon"><span class="animated-icon anim-bounce-subtle" style="width:20px;height:20px"><svg
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                </svg></span></div>
+            <div class="empty-title">No conferences found</div>
+            <div class="empty-sub">Create a conference to start managing registrations.</div><a
+              href="conference-form.html" class="btn-primary" style="margin-top:12px">Create Conference</a>
+          </div>
+          <div id="no-conf-results" class="empty-state" style="display:none;margin-top:16px">
+            <div class="empty-title">No matching conferences</div>
+            <div class="empty-sub">Try adjusting search or filters</div>
           </div>
         </div>
-
-        <!-- Past Conferences List - Simple list with analytics button -->
-        <div class="conf-list-card">
-          <div class="card-title" style="margin-bottom:16px">Past Conferences</div>
-          <div class="past-list">
-            <!-- Past Item 1 -->
-            <div class="past-item">
-              <div>
-                <div class="past-title">React Fundamentals Workshop</div>
-                <div class="past-sub">Aug 10 • 142 attendees • 91% attendance • Recording available</div>
-              </div><button onclick="handleConferenceAction('analytics','React Fundamentals')"
-                style="font-size:12px;color:#2563EB;font-weight:500;border:1px solid #E2E8F0;padding:6px 12px;border-radius:8px">View
-                Analytics</button>
-            </div>
-            <!-- Past Item 2 -->
-            <div class="past-item">
-              <div>
-                <div class="past-title">Intro to UX Design — Live Session</div>
-                <div class="past-sub">Jul 28 • 98 attendees • 84% attendance</div>
-              </div><button onclick="handleConferenceAction('analytics','UX Design Live')"
-                style="font-size:12px;color:#2563EB;font-weight:500;border:1px solid #E2E8F0;padding:6px 12px;border-radius:8px">View
-                Analytics</button>
-            </div>
+        <div class="card card-pad-lg" id="past-card">
+          <div class="card-head">
+            <div class="card-title">Past Conferences</div>
           </div>
+          <div id="past-list" class="past-list" style="margin-top:12px"></div>
         </div>
-      </div>
 
-      <!-- ==================== MOBILE NAV - Shared ==================== -->
-
-
-      <!-- Reusable Mobile Nav -->
-      <div id="layout-mobile-nav"></div>
-
-      <!-- Reusable Overlays -->
+      </section>
+      <!-- MOBILE NAV: Bottom navigation for mobile -->
+      <div id="layout-mobile-nav"></div><!-- OVERLAYS: Drawers, modals, toasts -->
       <div id="layout-overlays"></div>
-    </div>
+    </main>
   </div>
-
-  <!-- JS -->
+  <script src="../js/store.js"></script>
   <script src="../js/common.js"></script>
   <script src="../js/conferences.js"></script>
+
 </body>
 
 </html>

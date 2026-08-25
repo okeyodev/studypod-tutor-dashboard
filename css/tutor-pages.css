@@ -1,0 +1,251 @@
+/* TUTOR-PAGES.CSS + EXTENDED */
+.page-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* PAGE HEADER */
+.page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+/* PAGE HEADER */
+.page-head h1 {
+  font-size: 30px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+/* PAGE HEADER */
+.page-head p {
+  margin-top: 6px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.page-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.metric-card {
+  padding: 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+}
+
+body.dark .metric-card {
+  background: var(--bg-card-dark);
+  border-color: var(--border-dark);
+}
+
+.metric-card strong {
+  display: block;
+  font-size: 25px;
+  margin-top: 4px;
+}
+
+.metric-card span {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.data-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.data-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  transition: var(--transition-fast);
+}
+
+.data-row:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-light);
+  transform: translateY(-1px);
+}
+
+body.dark .data-row {
+  background: var(--bg-card-dark);
+  border-color: var(--border-dark);
+}
+
+.row-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.row-title {
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.row-meta {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.row-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.tag {
+  display: inline-flex;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.tag.warn {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+}
+
+.tag.good {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+}
+
+.progress-line {
+  height: 7px;
+  background: var(--bg-track);
+  border-radius: 999px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.progress-line i {
+  display: block;
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: inherit;
+  transition: width 1s ease;
+}
+
+.empty-state {
+  padding: 38px;
+  text-align: center;
+  color: var(--text-secondary);
+  border: 1px dashed var(--border-light);
+  border-radius: var(--radius-md);
+}
+
+.course-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.course-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  transition: var(--transition-fast);
+}
+
+.course-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+body.dark .course-card {
+  background: var(--bg-card-dark);
+  border-color: var(--border-dark);
+}
+
+.course-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.course-card-title {
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.course-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 12px 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.course-card-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+}
+
+body.dark .course-card-foot {
+  border-color: var(--border-dark);
+}
+
+@media(max-width:900px) {
+  .course-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media(max-width:700px) {
+
+  /* PAGE HEADER */
+  .page-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  /* PAGE HEADER */
+  .page-head h1 {
+    font-size: 26px;
+  }
+
+  .data-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .row-actions {
+    justify-content: flex-start;
+    width: 100%;
+  }
+}
