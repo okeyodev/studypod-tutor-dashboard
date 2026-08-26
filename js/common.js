@@ -655,13 +655,15 @@ function setActiveNav(activeId) {
     return `
       <nav class="mobile-nav" id="mobile-nav-scroll">
         <a href="${sitePath("index.html")}" id="m-dashboard" class="mob-btn ${["dashboard", "index"].includes(activeId) ? "active" : ""}" data-mob-id="dashboard">${ICONS.home}<span>Home</span></a>
-        <a href="${pagePath("courses.html")}" id="m-courses" class="mob-btn ${isCoursesActive ? "active" : ""}" data-mob-id="courses">${ICONS.courses}<span>Courses</span></a>
+        <a href="${pagePath("courses.html")}" id="m-courses" class="mob-btn ${isCoursesActive ? "active" : ""}" data-mob-id="courses">${ICONS.courses}<span>Course</span></a>
         <a href="${pagePath("students.html")}" id="m-students" class="mob-btn ${isStudentsActive ? "active" : ""}" data-mob-id="students">${ICONS.students}<span>Students</span></a>
-        <a href="${pagePath("conferences.html")}" id="m-conferences" class="mob-btn ${isConferencesActive ? "active" : ""}" data-mob-id="conferences">${ICONS.conferences}<span>Conf</span></a>
+        <a href="${pagePath("conferences.html")}" id="m-conferences" class="mob-btn ${isConferencesActive ? "active" : ""}" data-mob-id="conferences">${ICONS.conferences}<span>Live</span></a>
         <a href="${pagePath("assignments.html")}" id="m-assignments" class="mob-btn ${isAssignmentsActive ? "active" : ""}" data-mob-id="assignments">${ICONS.assignments}<span>Tasks</span></a>
-        <a href="${pagePath("quizzes.html")}" id="m-quizzes" class="mob-btn ${isQuizzesActive ? "active" : ""}" data-mob-id="quizzes">${ICONS.quizzes}<span>Quizzes</span></a>
-        <a href="${pagePath("email.html")}" id="m-email" class="mob-btn ${isEmailActive ? "active" : ""}" data-mob-id="email">${ICONS.email}<span>Email</span></a>
-        <a href="${pagePath("analytics.html")}" id="m-analytics" class="mob-btn ${["analytics"].includes(activeId) ? "active" : ""}" data-mob-id="analytics">${ICONS.analytics}<span>Analytics</span></a>
+        <a href="${pagePath("quizzes.html")}" id="m-quizzes" class="mob-btn ${isQuizzesActive ? "active" : ""}" data-mob-id="quizzes">${ICONS.quizzes}<span>Quiz</span></a>
+        <a href="${pagePath("email.html")}" id="m-email" class="mob-btn ${isEmailActive ? "active" : ""}" data-mob-id="email">${ICONS.email}<span>Mail</span></a>
+        <a href="${pagePath("analytics.html")}" id="m-analytics" class="mob-btn ${["analytics"].includes(activeId) ? "active" : ""}" data-mob-id="analytics">${ICONS.analytics}<span>Stats</span></a>
+        <a href="${pagePath("settings.html")}" id="m-settings" class="mob-btn ${["settings"].includes(activeId) ? "active" : ""}" data-mob-id="settings">${ICONS.settings}<span>Settings</span></a>
+        <a href="${pagePath("support.html")}" id="m-support" class="mob-btn ${["support"].includes(activeId) ? "active" : ""}" data-mob-id="support">${ICONS.help}<span>Support</span></a>
       </nav><div style="height:72px" class="mobile-spacer"></div>`;
   }
 
