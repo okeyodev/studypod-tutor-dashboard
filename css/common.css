@@ -1338,7 +1338,7 @@ body.dark .page-head p {
 
 .page-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
   max-width: 100%;
 }
@@ -1921,10 +1921,10 @@ body.dark .empty-sub {
     display: flex;
   }
 
-  .page-grid {
+  /* .page-grid {
     grid-template-columns: 1fr;
     gap: 12px;
-  }
+  } */
 
   .form-grid {
     grid-template-columns: 1fr;
@@ -2015,7 +2015,19 @@ body.dark .empty-sub {
     flex-direction: column;
     align-items: flex-start;
   }
+
+  .past-item {
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+  }
 }
+
+/* @media(max-width:620px) {
+  .page-grid {
+      grid-template-columns: 1fr;
+    }
+} */
 
 /* Additional fixes for horizontal scroll on mobile */
 @media(max-width:1024px) {

@@ -475,7 +475,7 @@
             ${points ? `<span> ${safeEscape(points)}</span>` : ""}
           </div>
           <div class="assignment-foot">
-            <div style="display:flex;gap:8px;align-items:center;font-size:11px;color:var(--text-secondary)">
+            <div>
               <span>${submissionCount} total</span>
               <span>•</span>
               <span>${needsReviewCount} pending</span>

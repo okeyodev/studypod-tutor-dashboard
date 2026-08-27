@@ -58,6 +58,7 @@ body.dark .assignment-card {
 
 .assignment-foot {
   display: flex;
+  font-size: 11px;
   justify-content: space-between;
   align-items: center;
   margin-top: 16px;
@@ -105,4 +106,48 @@ body.dark .submission-row {
   place-items: center;
   font-size: 10px;
   font-weight: 600;
+}
+
+@media(max-width:400px) {
+  .assignment-card {
+      margin: 10px 10px 10px 0px;
+    }
+}
+
+@media(max-width:321px) {
+  .assignment-card {
+      margin: 10px 114px 10px 0px;
+    }
+}
+
+@media(max-width:380px) {
+  .assignment-card {
+      margin: 10px 100px 10px 0px;
+    }
+}
+
+@media(max-width:414px) {
+  .assignment-card {
+      margin: 10px 25px 10px 0px;
+    }
+}
+
+@media(max-width:640px) {
+  /* .assignment-card {
+    width: 500px;
+  } */
+
+ .assignment-title {
+  flex-direction: column;
+ }
+
+ /* .assignment-card {
+  margin: 10px 40px 10px 0px;
+ } */
+
+ .assignment-foot span {
+  text-wrap: none;
+  flex-direction: column;
+  gap: 15px;
+ }
 }
