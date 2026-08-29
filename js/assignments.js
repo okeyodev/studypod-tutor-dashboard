@@ -381,6 +381,9 @@
     };
   }
 
+  // ---------- Render Assignments - REFACTORED for PHP deployment ----------
+  // HTML moved to assignments.html <template id="assignment-card-template">
+  // Logic preserved: token, status, course, due date, submissions, review, points, reusable
   function renderAssignments() {
     const grid =
       document.querySelector("#assignment-grid") ||
@@ -413,9 +416,14 @@
 
     const isDataRowMode =
       grid.classList.contains("data-list") || grid.id === "page-list";
+    const template = document.getElementById("assignment-card-template");
 
-    const html = filteredAssignments
-      .map((assignment) => {
+    // Clear grid
+    grid.innerHTML = "";
+
+    if (template && template.content && !isDataRowMode) {
+      // PHP-ready path: use template cloning for card mode
+      filteredAssignments.forEach((assignment) => {
         const courseName = getCourseName(assignment.courseId);
         const subs = getSubmissionsForAssignment(assignment.id);
         const submissionCount = subs.length;
@@ -424,76 +432,172 @@
         ).length;
         const statusInfo = getStatusTag(assignment.status);
         const dueDateFormatted = safeFormatDate(assignment.dueDate);
-        const token = safeEscape(
-          assignment.token || assignment.id.slice(0, 12).toUpperCase(),
-        );
-        const title = safeEscape(assignment.title || "Untitled Assignment");
-        const courseEsc = safeEscape(courseName);
+        const token =
+          assignment.token || assignment.id.slice(0, 12).toUpperCase();
+        const title = assignment.title || "Untitled Assignment";
+        const courseEsc = courseName;
         const points =
           assignment.totalPoints != null ? `${assignment.totalPoints} pts` : "";
         const gradedCount = subs.filter(
           (s) => normalizeStatus(s.status) === "graded",
         ).length;
 
-        if (isDataRowMode) {
-          // Render as data-row for tutor-pages.css compatibility
-          return `
-          <div class="data-row" data-id="${safeEscape(assignment.id)}">
-            <div class="row-main">
-              <div class="row-title"><span class="assignment-token" style="margin-right:8px">${token}</span> ${title}</div>
-              <div class="row-meta">
-                <span class="tag">${courseEsc}</span>
-                <span>Due: ${safeEscape(dueDateFormatted)}</span>
-                <span>${submissionCount} submission${submissionCount !== 1 ? "s" : ""}</span>
-                ${needsReviewCount > 0 ? `<span style="color:var(--color-warning-text)">• ${needsReviewCount} needs review</span>` : ""}
-                ${points ? `<span>• ${safeEscape(points)}</span>` : ""}
+        const clone = template.content.cloneNode(true);
+        const cardEl = clone.querySelector(".assignment-card");
+        if (!cardEl) return;
+
+        cardEl.setAttribute("data-id", assignment.id);
+
+        // Token
+        const tokenEl = clone.querySelector(".assignment-token");
+        if (tokenEl) tokenEl.textContent = token;
+
+        // Status tag
+        const statusTag = clone.querySelector(".assignment-status-tag");
+        if (statusTag) {
+          statusTag.textContent = statusInfo.label;
+          statusTag.className = `tag ${statusInfo.cls}`;
+        }
+
+        // Title
+        const titleEl = clone.querySelector(".assignment-title");
+        if (titleEl) {
+          titleEl.textContent = title;
+          titleEl.title = title;
+        }
+
+        // Course
+        const courseEl = clone.querySelector(".assignment-course");
+        if (courseEl) courseEl.textContent = courseEsc;
+
+        // Meta
+        const dueEl = clone.querySelector(".assignment-due");
+        if (dueEl) dueEl.textContent = ` Due: ${dueDateFormatted}`;
+
+        const subEl = clone.querySelector(".assignment-submissions");
+        if (subEl)
+          subEl.textContent = ` ${submissionCount} submission${submissionCount !== 1 ? "s" : ""}`;
+
+        const reviewEl = clone.querySelector(".assignment-review-info");
+        if (reviewEl) {
+          if (needsReviewCount > 0) {
+            reviewEl.textContent = `! ${needsReviewCount} needs review`;
+            reviewEl.style.color = "var(--color-warning-text)";
+            reviewEl.style.fontWeight = "600";
+          } else {
+            reviewEl.textContent = ` ${gradedCount} graded`;
+            reviewEl.style.color = "var(--color-success-text)";
+          }
+        }
+
+        const pointsEl = clone.querySelector(".assignment-points");
+        if (pointsEl) {
+          pointsEl.textContent = points ? ` ${points}` : "";
+        }
+
+        // Foot stats
+        const footTotal = clone.querySelector(".foot-total");
+        if (footTotal) footTotal.textContent = `${submissionCount} total`;
+        const footPending = clone.querySelector(".foot-pending");
+        if (footPending)
+          footPending.textContent = `${needsReviewCount} pending`;
+
+        // Actions
+        const viewLink = clone.querySelector(".assignment-view-link");
+        if (viewLink)
+          viewLink.href = `assignment-submissions.html?id=${encodeURIComponent(assignment.id)}`;
+
+        const editLink = clone.querySelector(".assignment-edit-link");
+        if (editLink)
+          editLink.href = `assignment-form.html?id=${encodeURIComponent(assignment.id)}`;
+
+        const deleteBtn = clone.querySelector(".assignment-delete-btn");
+        if (deleteBtn) deleteBtn.setAttribute("data-id", assignment.id);
+
+        grid.appendChild(clone);
+      });
+    } else {
+      // Fallback or data-row mode - original logic preserved
+      const html = filteredAssignments
+        .map((assignment) => {
+          const courseName = getCourseName(assignment.courseId);
+          const subs = getSubmissionsForAssignment(assignment.id);
+          const submissionCount = subs.length;
+          const needsReviewCount = subs.filter((s) =>
+            isNeedsReviewStatus(s.status),
+          ).length;
+          const statusInfo = getStatusTag(assignment.status);
+          const dueDateFormatted = safeFormatDate(assignment.dueDate);
+          const token = safeEscape(
+            assignment.token || assignment.id.slice(0, 12).toUpperCase(),
+          );
+          const title = safeEscape(assignment.title || "Untitled Assignment");
+          const courseEsc = safeEscape(courseName);
+          const points =
+            assignment.totalPoints != null
+              ? `${assignment.totalPoints} pts`
+              : "";
+          const gradedCount = subs.filter(
+            (s) => normalizeStatus(s.status) === "graded",
+          ).length;
+
+          if (isDataRowMode) {
+            return `
+            <div class="data-row" data-id="${safeEscape(assignment.id)}">
+              <div class="row-main">
+                <div class="row-title"><span class="assignment-token" style="margin-right:8px">${token}</span> ${title}</div>
+                <div class="row-meta">
+                  <span class="tag">${courseEsc}</span>
+                  <span>Due: ${safeEscape(dueDateFormatted)}</span>
+                  <span>${submissionCount} submission${submissionCount !== 1 ? "s" : ""}</span>
+                  ${needsReviewCount > 0 ? `<span style="color:var(--color-warning-text)">• ${needsReviewCount} needs review</span>` : ""}
+                  ${points ? `<span>• ${safeEscape(points)}</span>` : ""}
+                </div>
+              </div>
+              <div class="row-actions">
+                <span class="tag ${statusInfo.cls}">${safeEscape(statusInfo.label)}</span>
+                <a href="assignment-submissions.html?id=${safeEscape(assignment.id)}" class="btn-secondary btn-sm">View Submissions (${submissionCount})</a>
+                <a href="assignment-form.html?id=${safeEscape(assignment.id)}" class="btn-secondary btn-sm">Edit</a>
+                <button class="btn-secondary btn-sm" style="color:var(--color-danger, #ef4444)" data-action="delete" data-id="${safeEscape(assignment.id)}">Delete</button>
               </div>
             </div>
-            <div class="row-actions">
+          `;
+          }
+
+          return `
+          <div class="assignment-card" data-id="${safeEscape(assignment.id)}">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+              <div class="assignment-token">${token}</div>
               <span class="tag ${statusInfo.cls}">${safeEscape(statusInfo.label)}</span>
-              <a href="assignment-submissions.html?id=${safeEscape(assignment.id)}" class="btn-secondary btn-sm">View Submissions (${submissionCount})</a>
-              <a href="assignment-form.html?id=${safeEscape(assignment.id)}" class="btn-secondary btn-sm">Edit</a>
-              <button class="btn-secondary btn-sm" style="color:var(--color-danger, #ef4444)" data-action="delete" data-id="${safeEscape(assignment.id)}">Delete</button>
+            </div>
+            <div class="assignment-title" title="${title}">${title}</div>
+            <div class="assignment-course">${courseEsc}</div>
+            <div class="assignment-meta">
+              <span> Due: ${safeEscape(dueDateFormatted)}</span>
+              <span> ${submissionCount} submission${submissionCount !== 1 ? "s" : ""}</span>
+              ${needsReviewCount > 0 ? `<span style="color:var(--color-warning-text);font-weight:600">! ${needsReviewCount} needs review</span>` : `<span style="color:var(--color-success-text)"> ${gradedCount} graded</span>`}
+              ${points ? `<span> ${safeEscape(points)}</span>` : ""}
+            </div>
+            <div class="assignment-foot">
+              <div>
+                <span>${submissionCount} total</span>
+                <span>•</span>
+                <span>${needsReviewCount} pending</span>
+              </div>
+              <div class="assign-foot">
+                <a href="assignment-submissions.html?id=${safeEscape(assignment.id)}" class="btn-secondary btn-sm" style="text-decoration:none;font-size:12px;padding:6px 10px;border:1px solid var(--border-light);border-radius:6px;background:var(--bg-page);">View Submissions</a>
+                <a href="assignment-form.html?id=${safeEscape(assignment.id)}" class="btn-secondary btn-sm" style="text-decoration:none;font-size:12px;padding:6px 10px;border:1px solid var(--border-light);border-radius:6px;text-align:center;">Edit</a>
+                <button class="btn-secondary btn-sm" data-action="delete" data-id="${safeEscape(assignment.id)}" style="font-size:12px;padding:6px 10px;border:1px solid var(--border-light);border-radius:6px;color:var(--color-danger, #ef4444);background:transparent;cursor:pointer">Delete</button>
+              </div>
             </div>
           </div>
         `;
-        }
+        })
+        .join("");
 
-        // Card mode (assignments.css)
-        return `
-        <div class="assignment-card" data-id="${safeEscape(assignment.id)}">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
-            <div class="assignment-token">${token}</div>
-            <span class="tag ${statusInfo.cls}">${safeEscape(statusInfo.label)}</span>
-          </div>
-          <div class="assignment-title" title="${title}">${title}</div>
-          <div class="assignment-course">${courseEsc}</div>
-          <div class="assignment-meta">
-            <span> Due: ${safeEscape(dueDateFormatted)}</span>
-            <span> ${submissionCount} submission${submissionCount !== 1 ? "s" : ""}</span>
-            ${needsReviewCount > 0 ? `<span style="color:var(--color-warning-text);font-weight:600">! ${needsReviewCount} needs review</span>` : `<span style="color:var(--color-success-text)"> ${gradedCount} graded</span>`}
-            ${points ? `<span> ${safeEscape(points)}</span>` : ""}
-          </div>
-          <div class="assignment-foot">
-            <div>
-              <span>${submissionCount} total</span>
-              <span>•</span>
-              <span>${needsReviewCount} pending</span>
-            </div>
-            <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
-              <a href="assignment-submissions.html?id=${safeEscape(assignment.id)}" class="btn-secondary btn-sm" style="text-decoration:none;font-size:12px;padding:6px 10px;border:1px solid var(--border-light);border-radius:6px;background:var(--bg-page);">View Submissions</a>
-              <a href="assignment-form.html?id=${safeEscape(assignment.id)}" class="btn-secondary btn-sm" style="text-decoration:none;font-size:12px;padding:6px 10px;border:1px solid var(--border-light);border-radius:6px;">Edit</a>
-              <button class="btn-secondary btn-sm" data-action="delete" data-id="${safeEscape(assignment.id)}" style="font-size:12px;padding:6px 10px;border:1px solid var(--border-light);border-radius:6px;color:var(--color-danger, #ef4444);background:transparent;cursor:pointer">Delete</button>
-            </div>
-          </div>
-        </div>
-      `;
-      })
-      .join("");
+      grid.innerHTML = html;
+    }
 
-    grid.innerHTML = html;
-
-    // Bind delete buttons via delegation (also direct binding fallback)
     grid.querySelectorAll('[data-action="delete"]').forEach((btn) => {
       btn.addEventListener("click", (e) => {
         e.preventDefault();
@@ -502,6 +606,8 @@
       });
     });
   }
+
+  // --- Delete ---
 
   // --- Delete ---
   async function deleteAssignment(id) {

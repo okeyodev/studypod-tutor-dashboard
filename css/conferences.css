@@ -294,6 +294,13 @@ body.dark .conf-form-section {
   margin-bottom: 16px;
 }
 
+@media(max-width: 600px) {
+  .past-item {
+    flex-direction: column;
+    gap: 15px;
+  }
+}
+
 @media(max-width:1024px) {
   .conf-stats-grid {
     grid-template-columns: 1fr;

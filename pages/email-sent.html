@@ -71,6 +71,43 @@
                 <div class="email-subtitle" id="folder-subtitle">0 messages</div>
               </div><input id="email-search" class="email-search" placeholder="Search sent...">
             </div>
+
+            <!-- ==========================================================================
+       REUSABLE TEMPLATE: Email Item - Moved from email.js for PHP deployment
+       PHP-ready: clone via JS or render via PHP loop
+       Logic preserved: avatar color, initials, sender, date, subject, preview,
+       unread, starred, read/unread, trash, click actions, reusable
+       ========================================================================== -->
+            <template id="email-item-template">
+              <div class="email-item" data-id="">
+                <div class="email-avatar"></div>
+                <div class="email-item-body">
+                  <div class="email-item-top">
+                    <div class="email-sender"></div>
+                    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+                      <span class="email-date"></span>
+                      <span class="email-star" style="font-size:16px;cursor:pointer;user-select:none"></span>
+                    </div>
+                  </div>
+                  <div class="email-subject"></div>
+                  <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:4px">
+                    <div class="email-preview" style="flex:1;min-width:0"></div>
+                    <div style="display:flex;gap:6px;flex-shrink:0" class="email-actions"
+                      onclick="event.stopPropagation()">
+                      <button class="email-button email-read-btn"
+                        style="padding:5px 8px;font-size:11px;line-height:1"></button>
+                      <button class="email-button email-delete-btn"
+                        style="padding:5px 8px;font-size:11px;line-height:1"><svg viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
+                          <polyline points="3 6 5 6 21 6" />
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        </svg></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+
             <div id="email-list" class="email-list"></div>
           </div>
         </div>

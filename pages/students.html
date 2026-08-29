@@ -152,6 +152,167 @@
           </div>
 
           <!-- TABLE WRAPPER -->
+
+          <!-- ==========================================================================
+       REUSABLE TEMPLATES: Tabbed Content Tables - Moved from students.js for PHP
+       PHP-ready: clone via JS or render via PHP loop, logic preserved
+       Tabs: All Students, Paid Enrollments, Payment Records
+       ========================================================================== -->
+
+          <!-- Template: Table Headers for each tab -->
+          <template id="table-header-all-template">
+            <tr>
+              <th>Student</th>
+              <th>Course</th>
+              <th>Membership</th>
+              <th>Amount Paid</th>
+              <th>Payment</th>
+              <th>Delivery</th>
+              <th>Start Date</th>
+              <th>Action</th>
+            </tr>
+          </template>
+          <template id="table-header-paid-template">
+            <tr>
+              <th>Student</th>
+              <th>Course</th>
+              <th>Membership</th>
+              <th>Amount Paid</th>
+              <th>Payment</th>
+              <th>Delivery</th>
+              <th>Start Date</th>
+              <th>Action</th>
+            </tr>
+          </template>
+          <template id="table-header-records-template">
+            <tr>
+              <th>Student</th>
+              <th>Transaction Ref</th>
+              <th>Course</th>
+              <th>Amount</th>
+              <th>Payment Date</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </template>
+
+          <!-- Template: All Students Row - Table version -->
+          <template id="student-row-template">
+            <tr class="student-row" data-student-id="">
+              <td>
+                <div class="student-info">
+                  <div class="student-avatar"
+                    style="background:var(--color-avatar-light-blue);color:var(--color-primary)"></div>
+                  <div>
+                    <div class="student-name"></div>
+                    <div class="student-email"></div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="student-courses"
+                  style="font-size:13px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                </div>
+                <div class="student-avg" style="font-size:11px;color:var(--text-muted)"></div>
+              </td>
+              <td><span class="student-membership"
+                  style="font-family:monospace;font-size:12px;background:var(--bg-page);padding:4px 8px;border-radius:6px"></span>
+              </td>
+              <td class="student-amount" style="font-weight:600"></td>
+              <td><span class="payment-badge student-payment-status"></span></td>
+              <td class="student-delivery"></td>
+              <td class="student-start-date"></td>
+              <td>
+                <button class="btn-light view-student-btn" data-student-id=""
+                  style="padding:6px 10px;font-size:12px">View</button>
+              </td>
+            </tr>
+          </template>
+
+          <!-- Template: All Students Card - Mobile responsive -->
+          <template id="student-card-template">
+            <div class="data-row student-row" data-student-id=""
+              style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border-light)">
+              <div style="display:flex;gap:12px;align-items:center;min-width:0">
+                <div class="student-avatar"></div>
+                <div style="min-width:0">
+                  <div class="student-name-card"
+                    style="font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px"></div>
+                  <div class="student-email-membership"
+                    style="font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                  </div>
+                  <div class="student-meta-card" style="font-size:11px;margin-top:4px"></div>
+                </div>
+              </div>
+              <button class="btn-primary view-student-btn" data-student-id=""
+                style="padding:6px 10px;font-size:12px;flex:none">View</button>
+            </div>
+          </template>
+
+          <!-- Template: Paid Enrollment Row - Table version -->
+          <template id="paid-enrollment-row-template">
+            <tr data-enroll-id="" data-student-id="">
+              <td>
+                <div class="student-info">
+                  <div class="student-avatar"></div>
+                  <div>
+                    <div class="student-name"></div>
+                    <div class="student-email"></div>
+                  </div>
+                </div>
+              </td>
+              <td class="enroll-course"
+                style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></td>
+              <td><span class="enroll-membership"
+                  style="font-family:monospace;font-size:12px;background:var(--bg-page);padding:4px 8px;border-radius:6px"></span>
+              </td>
+              <td class="enroll-amount" style="font-weight:600"></td>
+              <td><span class="payment-badge enroll-status"></span></td>
+              <td class="enroll-delivery"></td>
+              <td class="enroll-start-date"></td>
+              <td><button class="btn-light view-student-btn" data-student-id=""
+                  style="padding:6px 10px;font-size:12px">View</button></td>
+            </tr>
+          </template>
+
+          <!-- Template: Payment Record Row - Table version -->
+          <template id="payment-record-row-template">
+            <tr data-enroll-id="" data-student-id="">
+              <td>
+                <div class="student-info">
+                  <div class="student-avatar"></div>
+                  <div>
+                    <div class="student-name"></div>
+                    <div class="student-email"></div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="payment-txn"
+                  style="font-family:monospace;font-size:12px;background:var(--bg-page);padding:4px 8px;border-radius:6px"></span>
+              </td>
+              <td class="payment-course"></td>
+              <td class="payment-amount" style="font-weight:600"></td>
+              <td class="payment-date"></td>
+              <td><span class="payment-badge payment-status"></span></td>
+              <td><button class="btn-light view-student-btn" data-student-id=""
+                  style="padding:6px 10px;font-size:12px">View</button></td>
+            </tr>
+          </template>
+
+          <!-- Template: Enrollment/Record Card - Mobile -->
+          <template id="enrollment-card-template">
+            <div class="data-row enrollment-card"
+              style="padding:14px 16px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;gap:10px">
+              <div>
+                <div class="enroll-name" style="font-weight:600;font-size:13px"></div>
+                <div class="enroll-meta" style="font-size:11px;color:var(--text-muted)"></div>
+                <div class="enroll-details" style="font-size:11px;margin-top:4px"></div>
+              </div>
+              <button class="btn-light view-student-btn" data-student-id=""
+                style="padding:6px 10px;font-size:12px;height:fit-content">View</button>
+            </div>
+          </template>
+
           <div class="table-wrap" style="margin-top:16px">
             <table class="student-table">
               <thead id="students-table-head">

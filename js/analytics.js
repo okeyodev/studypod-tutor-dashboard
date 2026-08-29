@@ -67,11 +67,9 @@ function renderKPIs() {
 }
 
 function renderCharts() {
-  // Simple bar chart for enrollment trend (mock based on months)
   const canvas = document.getElementById("enrollment-chart");
   if (!canvas) return;
   const enrollments = Store.get("enrollments");
-  // Group by month
   const months = [
     "Jan",
     "Feb",
@@ -93,15 +91,35 @@ function renderCharts() {
       counts[d.getMonth()]++;
     } catch (e) {}
   });
-  // If no data, show demo
   const hasData = counts.some((c) => c > 0);
   const data = hasData ? counts : [2, 3, 5, 4, 6, 8, 7, 5, 4, 3, 2, 1];
   const max = Math.max(...data, 1);
-  canvas.innerHTML = `
+
+  const templateBar = document.getElementById("analytics-chart-bar-template");
+
+  if (templateBar && templateBar.content) {
+    // PHP-ready path
+    canvas.innerHTML = "";
+    const wrapper = document.createElement("div");
+    wrapper.style.cssText =
+      "display:flex;align-items:flex-end;gap:8px;height:160px;padding:10px";
+    data.forEach((v, i) => {
+      const clone = templateBar.content.cloneNode(true);
+      const bar = clone.querySelector(".chart-bar");
+      if (bar) bar.style.height = `${(v / max) * 120}px`;
+      const label = clone.querySelector(".chart-label");
+      if (label) label.textContent = months[i];
+      wrapper.appendChild(clone);
+    });
+    canvas.appendChild(wrapper);
+  } else {
+    // Fallback
+    canvas.innerHTML = `
     <div style="display:flex;align-items:flex-end;gap:8px;height:160px;padding:10px">
       ${data.map((v, i) => `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:100%;background:var(--color-primary);border-radius:6px 6px 0 0;height:${(v / max) * 120}px;min-height:4px;transition:height 1s ease"></div><span style="font-size:10px;color:var(--text-muted)">${months[i]}</span></div>`).join("")}
     </div>
   `;
+  }
 }
 
 function renderBreakdown() {
@@ -112,36 +130,94 @@ function renderBreakdown() {
   const submissions = Store.get("submissions");
   const attempts = Store.get("attempts");
 
-  container.innerHTML =
-    courses
-      .map((course) => {
-        const courseEnroll = enrollments.filter(
-          (e) => e.courseId === course.id,
-        ).length;
-        const courseSubs = submissions.filter((s) => {
-          const asg = Store.getById("assignments", s.assignmentId);
-          return asg && asg.courseId === course.id;
-        });
-        const courseAtt = attempts.filter((a) => {
-          const q = Store.getById("quizzes", a.quizId);
-          return q && q.courseId === course.id;
-        });
-        const avg = (() => {
-          let t = 0,
-            c = 0;
-          courseSubs
-            .filter((s) => s.score !== null)
-            .forEach((s) => {
-              t += s.score;
-              c++;
-            });
-          courseAtt.forEach((a) => {
-            t += a.score;
+  const template = document.getElementById("analytics-course-row-template");
+  container.innerHTML = "";
+
+  if (!courses.length) {
+    container.innerHTML = `<div class="empty-state">No courses yet</div>`;
+    return;
+  }
+
+  if (template && template.content) {
+    // PHP-ready path: clone from HTML template
+    const fragment = document.createDocumentFragment();
+    courses.forEach((course) => {
+      const courseEnroll = enrollments.filter(
+        (e) => e.courseId === course.id,
+      ).length;
+      const courseSubs = submissions.filter((s) => {
+        const asg = Store.getById("assignments", s.assignmentId);
+        return asg && asg.courseId === course.id;
+      });
+      const courseAtt = attempts.filter((a) => {
+        const q = Store.getById("quizzes", a.quizId);
+        return q && q.courseId === course.id;
+      });
+      const avg = (() => {
+        let t = 0,
+          c = 0;
+        courseSubs
+          .filter((s) => s.score !== null)
+          .forEach((s) => {
+            t += s.score;
             c++;
           });
-          return c ? Math.round(t / c) : 0;
-        })();
-        return `
+        courseAtt.forEach((a) => {
+          t += a.score;
+          c++;
+        });
+        return c ? Math.round(t / c) : 0;
+      })();
+
+      const clone = template.content.cloneNode(true);
+      const row = clone.querySelector(".data-row");
+      const titleEl = clone.querySelector(".row-title");
+      if (titleEl) titleEl.textContent = course.name;
+      const metaEl = clone.querySelector(".row-meta");
+      if (metaEl)
+        metaEl.textContent = `${courseEnroll} learners • ${courseSubs.length} submissions • ${courseAtt.length} quiz attempts`;
+      const progressI = clone.querySelector(".progress-line i");
+      if (progressI) progressI.style.width = `${avg}%`;
+      const tagEl = clone.querySelector(".tag");
+      if (tagEl) tagEl.textContent = `${avg}% avg`;
+      const linkEl = clone.querySelector("a.btn-light");
+      if (linkEl) linkEl.href = `course-performance.html?id=${course.id}`;
+
+      fragment.appendChild(clone);
+    });
+    container.appendChild(fragment);
+  } else {
+    // Fallback original string template
+    container.innerHTML =
+      courses
+        .map((course) => {
+          const courseEnroll = enrollments.filter(
+            (e) => e.courseId === course.id,
+          ).length;
+          const courseSubs = submissions.filter((s) => {
+            const asg = Store.getById("assignments", s.assignmentId);
+            return asg && asg.courseId === course.id;
+          });
+          const courseAtt = attempts.filter((a) => {
+            const q = Store.getById("quizzes", a.quizId);
+            return q && q.courseId === course.id;
+          });
+          const avg = (() => {
+            let t = 0,
+              c = 0;
+            courseSubs
+              .filter((s) => s.score !== null)
+              .forEach((s) => {
+                t += s.score;
+                c++;
+              });
+            courseAtt.forEach((a) => {
+              t += a.score;
+              c++;
+            });
+            return c ? Math.round(t / c) : 0;
+          })();
+          return `
       <div class="data-row">
         <div class="row-main">
           <div class="row-title">${escapeHtml(course.name)}</div>
@@ -150,8 +226,9 @@ function renderBreakdown() {
         </div>
         <div class="row-actions"><span class="tag good">${avg}% avg</span><a href="course-performance.html?id=${course.id}" class="btn-light">View</a></div>
       </div>`;
-      })
-      .join("") || `<div class="empty-state">No courses yet</div>`;
+        })
+        .join("") || `<div class="empty-state">No courses yet</div>`;
+  }
 }
 
 function setText(id, val) {

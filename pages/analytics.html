@@ -56,7 +56,8 @@
                   <circle cx="9" cy="7" r="4" />
                   <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
                   <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                </svg></div>
+                </svg>
+              </div>
             </div>
           </div>
           <div class="kpi-card metric-card-animated" style="position:relative;overflow:hidden">
@@ -72,7 +73,8 @@
                   class="anim-float-slow">
                   <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
                   <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                </svg></div>
+                </svg>
+              </div>
             </div>
           </div>
           <div class="kpi-card metric-card-animated" style="position:relative;overflow:hidden">
@@ -89,7 +91,8 @@
                   <circle cx="12" cy="12" r="10" />
                   <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
                   <line x1="12" y1="17" x2="12.01" y2="17" />
-                </svg></div>
+                </svg>
+              </div>
             </div>
           </div>
           <div class="kpi-card metric-card-animated" style="position:relative;overflow:hidden">
@@ -106,7 +109,8 @@
                   <line x1="18" y1="20" x2="18" y2="10" />
                   <line x1="12" y1="20" x2="12" y2="4" />
                   <line x1="6" y1="20" x2="6" y2="14" />
-                </svg></div>
+                </svg>
+              </div>
             </div>
           </div>
         </div>
@@ -129,6 +133,30 @@
         <div class="analytics-grid" style="margin-top:20px">
           <div class="analytics-card">
             <h3>Course Performance Breakdown</h3>
+
+            <!-- ==========================================================================
+       REUSABLE TEMPLATES: Analytics Tables - Moved from analytics.js for PHP
+       ========================================================================== -->
+            <template id="analytics-course-row-template">
+              <div class="data-row">
+                <div class="row-main">
+                  <div class="row-title"></div>
+                  <div class="row-meta"></div>
+                  <div class="progress-line"><i></i></div>
+                </div>
+                <div class="row-actions"><span class="tag good"></span><a href="" class="btn-light">View</a></div>
+              </div>
+            </template>
+
+            <template id="analytics-chart-bar-template">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+                <div class="chart-bar"
+                  style="width:100%;background:var(--color-primary);border-radius:6px 6px 0 0;min-height:4px;transition:height 1s ease">
+                </div>
+                <span class="chart-label" style="font-size:10px;color:var(--text-muted)"></span>
+              </div>
+            </template>
+
             <div id="course-breakdown" class="data-list" style="margin-top:16px"></div>
           </div>
           <div class="analytics-card">

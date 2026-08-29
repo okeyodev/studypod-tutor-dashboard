@@ -1,6 +1,6 @@
 <!-- ==========================================================================
-     CONFERENCE-REGISTRATION.HTML - StudyPod v2.1
-     Purpose: Conference Registration page with CRUD functionality
+     COURSE-PERFORMANCE.HTML - StudyPod v2.1
+     Purpose: Course Performance page with CRUD functionality
      Features: Animated SVG icons, image upload, responsive, dark mode
      Dependencies: variables.css, common.css, animated-icons.css
      ========================================================================== -->
@@ -10,11 +10,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Conference Registrations | studyPod</title>
+  <title>Course Performance | studyPod</title>
   <link rel="stylesheet" href="../css/variables.css">
   <link rel="stylesheet" href="../css/common.css">
   <link rel="stylesheet" href="../css/animated-icons.css">
-  <link rel="stylesheet" href="../css/conferences.css">
+  <link rel="stylesheet" href="../css/courses.css">
+  <link rel="stylesheet" href="../css/tutor-pages.css">
   <link rel="icon" href="../assets/logo.png">
 
   <script>try { const t = localStorage.getItem('studypod_theme'); const d = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme:dark)').matches); if (d) { document.documentElement.classList.add('dark'); } } catch (e) { }</script>
@@ -31,62 +32,161 @@
 
         <!-- PAGE HEADER: Title, description and primary actions -->
         <div class="page-head">
-          <div>
-            <h1>Conference Registrations</h1>
-            <p>Manage attendees, registrations and payments.</p>
+          <div><a href="courses.html" style="font-size:12px;color:var(--text-muted)">← Courses</a>
+            <h1 id="course-name" style="margin-top:6px">Course Performance</h1>
+            <p id="course-token" style="margin-top:4px;color:var(--text-muted);font-size:12px">CRS-2026-001</p>
           </div>
-          <a href="conferences.html" class="btn-light">← Conferences</a>
+          <a id="edit-course-btn" href="course-form.html" class="btn-primary">Edit Course</a>
         </div>
         <!-- METRICS GRID: KPI cards -->
         <div class="page-grid">
-          <div class="metric-card"><span>Total Registrations</span><strong id="total-regs">0</strong></div>
-          <div class="metric-card"><span>Paid</span><strong id="paid-regs">0</strong></div>
-          <div class="metric-card"><span>Pending</span><strong id="pending-regs">0</strong></div>
-          <div class="metric-card"><span>Cancelled</span><strong id="cancelled-regs">0</strong></div>
+          <div class="metric-card metric-card-animated" style="--icon-bg-start:#EFF6FF;--icon-bg-end:#DBEAFE">
+            <div class="metric-top">
+              <div class="metric-content">
+                <span>Total Learners</span>
+                <strong id="cp-total">0</strong>
+              </div>
+              <div class="metric-icon" style="background:linear-gradient(135deg, #EFF6FF, #DBEAFE)"><svg
+                  viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" class="anim-float"
+                  style="width:24px;height:24px">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg></div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px">Enrolled learners</div>
+          </div>
+          <div class="metric-card metric-card-animated" style="--icon-bg-start:#F0FDF4;--icon-bg-end:#DCFCE7">
+            <div class="metric-top">
+              <div class="metric-content">
+                <span>Avg Progress</span>
+                <strong id="cp-progress">0</strong>
+              </div>
+              <div class="metric-icon" style="background:linear-gradient(135deg, #F0FDF4, #DCFCE7)"><svg
+                  viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" class="anim-pulse"
+                  style="width:24px;height:24px">
+                  <line x1="18" y1="20" x2="18" y2="10" />
+                  <line x1="12" y1="20" x2="12" y2="4" />
+                  <line x1="6" y1="20" x2="6" y2="14" />
+                </svg></div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px">Completion rate</div>
+          </div>
+          <div class="metric-card metric-card-animated" style="--icon-bg-start:#FFFBEB;--icon-bg-end:#FEF3C7">
+            <div class="metric-top">
+              <div class="metric-content">
+                <span>Assignments</span>
+                <strong id="cp-assignments">0</strong>
+              </div>
+              <div class="metric-icon" style="background:linear-gradient(135deg, #FFFBEB, #FEF3C7)"><svg
+                  viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" class="anim-float-slow"
+                  style="width:24px;height:24px">
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                </svg></div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px">Total tasks</div>
+          </div>
+          <div class="metric-card metric-card-animated" style="--icon-bg-start:#F5F3FF;--icon-bg-end:#DDD6FE">
+            <div class="metric-top">
+              <div class="metric-content">
+                <span>Quizzes</span>
+                <strong id="cp-quizzes">0</strong>
+              </div>
+              <div class="metric-icon" style="background:linear-gradient(135deg, #F5F3FF, #DDD6FE)"><svg
+                  viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" class="anim-bounce-subtle"
+                  style="width:24px;height:24px">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg></div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px">Total assessments</div>
+          </div>
         </div>
         <!-- CARD: Main content card -->
         <div class="card card-pad-lg">
-          <!-- TOOLBAR: Search, filters and actions -->
-          <div class="toolbar">
-            <select id="conference-select" class="select-input"></select>
-            <input id="reg-search" class="search-input" placeholder="Search attendee, email, membership...">
+          <div class="card-head">
+            <div class="card-title">Learner Progress</div>
           </div>
-          <div class="table-wrap" style="margin-top:16px">
-            <table>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Attendee</th>
-                  <th>Membership</th>
-                  <th>Workshop</th>
-                  <th>Amount</th>
-                  <th>Payment</th>
-                  <th>Date</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="regs-body"></tbody>
-            </table>
+
+          <!-- ==========================================================================
+       REUSABLE TEMPLATES: Course Performance Tables - Moved from course-performance.js
+       ========================================================================== -->
+          <template id="learner-progress-row-template">
+            <div class="data-row">
+              <div class="row-main">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div class="student-avatar"
+                    style="width:32px;height:32px;border-radius:50%;background:var(--color-avatar-light-blue);display:grid;place-items:center;font-weight:600;font-size:11px">
+                  </div>
+                  <div>
+                    <div class="row-title"></div>
+                    <div class="row-meta"></div>
+                  </div>
+                </div>
+                <div class="progress-line" style="margin-top:8px"><i></i></div>
+              </div>
+              <div class="row-actions"><span class="tag good"></span><a href="" class="btn-light">View</a></div>
+            </div>
+          </template>
+
+          <template id="cp-assignment-row-template">
+            <div class="data-row">
+              <div class="row-main">
+                <div class="row-title"></div>
+                <div class="row-meta"></div>
+              </div>
+              <div class="row-actions"><a href="" class="btn-light">View</a></div>
+            </div>
+          </template>
+
+          <template id="cp-quiz-row-template">
+            <div class="data-row">
+              <div class="row-main">
+                <div class="row-title"></div>
+                <div class="row-meta"></div>
+              </div>
+              <div class="row-actions"><a href="" class="btn-light">Performance</a></div>
+            </div>
+          </template>
+
+          <template id="top-student-row-template">
+            <div class="data-row">
+              <div class="row-main">
+                <div class="row-title"></div>
+                <div class="row-meta"></div>
+              </div>
+              <span class="tag good"></span>
+            </div>
+          </template>
+
+          <div id="learner-progress" class="data-list" style="margin-top:16px"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <!-- CARD: Main content card -->
+          <div class="card card-pad-lg">
+            <div class="card-head">
+              <div class="card-title">Assignments</div><a id="create-asg" href="assignment-form.html"
+                class="btn-light">+ New</a>
+            </div>
+            <div id="assignments-list" class="data-list" style="margin-top:16px"></div>
           </div>
-          <div id="empty-regs" class="empty-state" style="display:none;margin-top:16px">
-            <div class="empty-title">No registrations yet</div>
-            <div class="empty-sub">Attendees will appear here after registration</div>
+          <!-- CARD: Main content card -->
+          <div class="card card-pad-lg">
+            <div class="card-head">
+              <div class="card-title">Quizzes</div><a href="quiz-form.html" class="btn-light">+ New Quiz</a>
+            </div>
+            <div id="quizzes-list" class="data-list" style="margin-top:16px"></div>
           </div>
         </div>
-        <div id="reg-detail-modal" class="modal-overlay">
-          <div class="modal">
-            <div class="modal-head">
-              <h3>Registration Details</h3><button class="drawer-close" onclick="closeModal('reg-detail-modal')"><svg
-                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg></button>
-            </div>
-            <div class="modal-body" id="reg-detail-body"></div>
-            <div class="modal-foot"><button class="btn-light"
-                onclick="closeModal('reg-detail-modal')">Close</button><button class="btn-primary"
-                onclick="toast('Email sent')">Send Email</button></div>
+        <!-- CARD: Main content card -->
+        <div class="card card-pad-lg">
+          <div class="card-head">
+            <div class="card-title">Top Students</div>
           </div>
+          <div id="top-students" class="data-list" style="margin-top:16px"></div>
         </div>
 
       </section>
@@ -97,7 +197,7 @@
   </div>
   <script src="../js/store.js"></script>
   <script src="../js/common.js"></script>
-  <script src="../js/conference-registration.js"></script>
+  <script src="../js/course-performance.js"></script>
 
 </body>
 

@@ -364,6 +364,9 @@
     `;
   }
 
+  // ---------- Create Quiz Card - REFACTORED for PHP deployment ----------
+  // HTML moved to quizzes.html <template id="quiz-card-template">
+  // Original logic preserved: course-card-top with token, status, title, course, meta, stats, actions
   function createQuizCard(quiz) {
     const course = coursesMap.get(quiz.courseId);
     const courseName = course
@@ -380,12 +383,130 @@
     const passingScore = quiz.passingScore != null ? quiz.passingScore : "—";
     const timeLimit = quiz.timeLimit != null ? quiz.timeLimit : "—";
 
-    const card = document.createElement("div");
-    card.className = "quiz-card course-card"; // support both css
-    card.dataset.quizId = quiz.id;
+    const template = document.getElementById("quiz-card-template");
 
-    // Use common css tokens
-    card.innerHTML = `
+    if (template && template.content) {
+      // PHP-ready path: clone from HTML template
+      const clone = template.content.cloneNode(true);
+      const cardEl = clone.querySelector(".quiz-card");
+      if (!cardEl) {
+        // Fallback
+        const card = document.createElement("div");
+        card.className = "quiz-card course-card";
+        card.dataset.quizId = quiz.id;
+        return card;
+      }
+
+      cardEl.dataset.quizId = quiz.id;
+
+      // Token
+      const tokenEl = clone.querySelector(".quiz-token");
+      if (tokenEl) tokenEl.textContent = token;
+
+      // Status
+      const statusEl = clone.querySelector(".quiz-status");
+      if (statusEl) {
+        statusEl.textContent = status;
+        statusEl.classList.add(statusClass);
+        statusEl.style.background =
+          status === "published"
+            ? "var(--color-success-bg, #DCFCE7)"
+            : "var(--bg-track, #F1F5F9)";
+        statusEl.style.color =
+          status === "published"
+            ? "var(--color-success-text, #15803D)"
+            : "var(--text-secondary, #64748B)";
+      }
+
+      // Title
+      const titleEl = clone.querySelector(".quiz-title");
+      if (titleEl) titleEl.textContent = quiz.title || "Untitled Quiz";
+
+      // Course
+      const courseEl = clone.querySelector(".quiz-course");
+      if (courseEl) courseEl.textContent = courseName;
+
+      // Meta - Q count, time, pass
+      const qcountText = clone.querySelector(".qcount-text");
+      if (qcountText) qcountText.textContent = `${questionCount} Qs`;
+      else {
+        const qcount = clone.querySelector(".quiz-qcount");
+        if (qcount) {
+          const span = qcount.querySelector("span") || qcount;
+          // Keep svg, update text
+          const svg = qcount.querySelector("svg");
+          qcount.textContent = "";
+          if (svg) qcount.appendChild(svg);
+          qcount.append(` ${questionCount} Qs`);
+        }
+      }
+
+      const timeEl = clone.querySelector(".quiz-timelimit");
+      if (timeEl) timeEl.textContent = `⏱ ${timeLimit}m`;
+
+      const passEl = clone.querySelector(".quiz-pass");
+      if (passEl) passEl.textContent = ` ${passingScore}% Pass`;
+
+      // Stats
+      const attemptsEl = clone.querySelector(".quiz-attempts-count");
+      if (attemptsEl) attemptsEl.textContent = attemptsCount;
+
+      const avgEl = clone.querySelector(".quiz-avg-score");
+      if (avgEl) avgEl.textContent = avgDisplay;
+
+      const questionsEl = clone.querySelector(".quiz-questions-count");
+      if (questionsEl) questionsEl.textContent = questionCount;
+
+      // Actions
+      const perfLink = clone.querySelector(".quiz-performance-link");
+      if (perfLink)
+        perfLink.href = `quiz-performance.html?id=${encodeURIComponent(quiz.id)}`;
+
+      const editLink = clone.querySelector(".quiz-edit-link");
+      if (editLink)
+        editLink.href = `quiz-form.html?id=${encodeURIComponent(quiz.id)}`;
+
+      const duplicateBtn = clone.querySelector(".quiz-duplicate-btn");
+      if (duplicateBtn) {
+        duplicateBtn.setAttribute("data-id", quiz.id);
+        duplicateBtn.setAttribute("data-action", "duplicate");
+        // Keep empty as per original
+      }
+
+      const publishBtn = clone.querySelector(".quiz-publish-btn");
+      if (publishBtn) {
+        publishBtn.setAttribute("data-id", quiz.id);
+        publishBtn.setAttribute("data-action", "toggle-publish");
+        publishBtn.title = status === "published" ? "Unpublish" : "Publish";
+        publishBtn.innerHTML =
+          status === "published"
+            ? ""
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></svg>';
+      }
+
+      const deleteBtn = clone.querySelector(".quiz-delete-btn");
+      if (deleteBtn) {
+        deleteBtn.setAttribute("data-id", quiz.id);
+        deleteBtn.setAttribute("data-action", "delete");
+      }
+
+      // Create wrapper div to return as element
+      const wrapper = document.createElement("div");
+      wrapper.appendChild(clone);
+      const card = wrapper.firstElementChild;
+      // Ensure card has correct classes and dataset
+      if (card) {
+        card.className = "quiz-card course-card";
+        card.dataset.quizId = quiz.id;
+        return card;
+      }
+      return wrapper.firstElementChild || cardEl;
+    } else {
+      // Fallback: original logic if template not found
+      const card = document.createElement("div");
+      card.className = "quiz-card course-card";
+      card.dataset.quizId = quiz.id;
+      card.innerHTML = `
       <div class="course-card-top" style="padding:0;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:8px;">
           <span class="quiz-token course-card-token" style="font-size:10px; font-weight:700; letter-spacing:0.08em; color:var(--text-muted); text-transform:uppercase;">${safeEscape(token)}</span>
@@ -394,43 +515,34 @@
         <h3 class="quiz-title course-card-title" style="font-size:16px; font-weight:700; line-height:1.3; margin:8px 0;">${safeEscape(quiz.title || "Untitled Quiz")}</h3>
         <span class="assignment-course quiz-course" style="font-size:12px; color:var(--color-primary, #4F46E5); background:var(--color-primary-light, #EEF2FF); padding:4px 8px; border-radius:999px; display:inline-flex; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${safeEscape(courseName)}</span>
         <div class="quiz-meta course-card-meta" style="display:flex; gap:12px; font-size:11px; color:var(--text-secondary); margin-top:12px; flex-wrap:wrap;">
-          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> ${questionCount} Qs</span>
+          <span> ${questionCount} Qs</span>
           <span>⏱ ${timeLimit}m</span>
           <span> ${passingScore}% Pass</span>
         </div>
         <div class="quiz-stats" style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:16px;">
           <div class="quiz-stat" style="text-align:center; padding:10px; background:var(--bg-page, #F8FAFC); border-radius:8px;">
             <strong style="display:block; font-size:16px;">${attemptsCount}</strong>
-            <span style="font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">Attempts</span>
+            <span style="font-size:10px; color:var(--text-muted); text-transform:uppercase;">Attempts</span>
           </div>
           <div class="quiz-stat" style="text-align:center; padding:10px; background:var(--bg-page, #F8FAFC); border-radius:8px;">
             <strong style="display:block; font-size:16px;">${safeEscape(avgDisplay)}</strong>
-            <span style="font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">Avg Score</span>
+            <span style="font-size:10px; color:var(--text-muted); text-transform:uppercase;">Avg Score</span>
           </div>
           <div class="quiz-stat" style="text-align:center; padding:10px; background:var(--bg-page, #F8FAFC); border-radius:8px;">
             <strong style="display:block; font-size:16px;">${questionCount}</strong>
-            <span style="font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">Questions</span>
+            <span style="font-size:10px; color:var(--text-muted); text-transform:uppercase;">Questions</span>
           </div>
         </div>
       </div>
       <div class="course-card-foot quiz-foot" style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border-light, #E2E8F0); display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
         <div class="quiz-actions" style="display:flex; gap:6px; flex-wrap:wrap; flex:1;">
-          <a href="quiz-performance.html?id=${encodeURIComponent(quiz.id)}" class="btn-secondary" style="font-size:12px; padding:6px 10px; border-radius:6px; border:1px solid var(--border-light); background:var(--bg-card); text-decoration:none; color:var(--text-primary); cursor:pointer; display:inline-flex; align-items:center; gap:4px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Performance</a>
-          <a href="quiz-form.html?id=${encodeURIComponent(quiz.id)}" class="btn-secondary" style="font-size:12px; padding:6px 10px; border-radius:6px; border:1px solid var(--border-light); background:var(--bg-card); text-decoration:none; color:var(--text-primary); cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit</a>
-        </div>
-        <div class="quiz-actions-secondary" style="display:flex; gap:6px; align-items:center;">
-          <button data-action="duplicate" data-id="${safeEscape(quiz.id)}" title="Duplicate quiz" class="btn-icon" style="width:28px; height:28px; border-radius:6px; border:1px solid var(--border-light); background:var(--bg-card); display:grid; place-items:center; cursor:pointer;"></button>
-          <button data-action="toggle-publish" data-id="${safeEscape(quiz.id)}" title="${status === "published" ? "Unpublish" : "Publish"}" class="btn-icon" style="width:28px; height:28px; border-radius:6px; border:1px solid var(--border-light); background:var(--bg-card); display:grid; place-items:center; cursor:pointer;">${status === "published" ? "" : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></svg>'}</button>
-          <button data-action="delete" data-id="${safeEscape(quiz.id)}" title="Delete quiz" class="btn-icon danger" style="width:28px; height:28px; border-radius:6px; border:1px solid #FECACA; background:#FEF2F2; color:#DC2626; display:grid; place-items:center; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+          <a href="quiz-performance.html?id=${encodeURIComponent(quiz.id)}" class="btn-secondary">Performance</a>
+          <a href="quiz-form.html?id=${encodeURIComponent(quiz.id)}" class="btn-secondary">Edit</a>
         </div>
       </div>
     `;
-
-    // Bind button events inside card (delegation also works, but attach here for safety)
-    // Use event delegation at grid level to keep it simple, so no per card listeners needed
-    // We'll instead use data-action handlers centralized.
-
-    return card;
+      return card;
+    }
   }
 
   function bindEvents() {

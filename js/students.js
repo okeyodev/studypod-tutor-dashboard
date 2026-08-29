@@ -276,22 +276,26 @@
 
   // ---- TABLE ROW BUILDERS ----
 
+  // ---- TABLE ROW BUILDERS - REFACTORED for PHP deployment ----
+  // HTML moved to students.html <template> tags for PHP-ready reusable tables
+  // Logic preserved: student info, courses, membership, amount, payment status, delivery, start date
+
   function buildAllStudentsRow(student, meta) {
-    const initials = safeEscape(getInitials(student));
-    const displayName = safeEscape(getDisplayName(student));
-    const email = safeEscape(student.email || "");
-    const membership = safeEscape(meta.membership);
-    const courses = meta.courseNames.length
-      ? safeEscape(
-          meta.courseNames.slice(0, 2).join(", ") +
-            (meta.courseNames.length > 2
-              ? ` +${meta.courseNames.length - 2}`
-              : ""),
-        )
-      : '<span style="color:var(--text-muted)">—</span>';
+    const templateRow = document.getElementById("student-row-template");
+    const templateCard = document.getElementById("student-card-template");
+
+    const initials = getInitials(student);
+    const displayName = getDisplayName(student);
+    const email = student.email || "";
+    const membership = meta.membership;
+    const coursesText = meta.courseNames.length
+      ? meta.courseNames.slice(0, 2).join(", ") +
+        (meta.courseNames.length > 2 ? ` +${meta.courseNames.length - 2}` : "")
+      : "—";
+    const coursesFull = meta.courseNames.join(", ");
     const amount = safeCurrency(meta.totalPaid, meta.currency);
     const delivery = meta.deliveryList.length
-      ? safeEscape(meta.deliveryList.join(", "))
+      ? meta.deliveryList.join(", ")
       : "-";
     const start = safeDate(meta.startDate);
     const statusClass =
@@ -302,46 +306,162 @@
           : meta.paymentStatus === "pending"
             ? "pending"
             : "";
-    const statusLabel =
-      meta.paymentStatus === "-" ? "—" : safeEscape(meta.paymentStatus);
+    const statusLabel = meta.paymentStatus === "-" ? "—" : meta.paymentStatus;
     const enrollmentBadge = meta.enrollmentCount
-      ? `<span style="font-size:11px;background:var(--bg-page);padding:2px 6px;border-radius:999px;margin-left:6px">${meta.enrollmentCount}</span>`
+      ? `${meta.enrollmentCount}`
       : "";
-    const score = meta.avgScore
-      ? `<span title="${meta.allScoresCount} graded items" style="font-weight:600">${meta.avgScore}%</span>`
+    const avgScore = meta.avgScore ? `${meta.avgScore}%` : "—";
+    const allScoresCount = meta.allScoresCount || 0;
+
+    // PHP-ready path: use templates from HTML
+    if (templateRow && templateRow.content) {
+      const clone = templateRow.content.cloneNode(true);
+      const tr = clone.querySelector("tr");
+      if (tr) {
+        tr.setAttribute("data-student-id", student.id);
+
+        const avatarEl = clone.querySelector(".student-avatar");
+        if (avatarEl) avatarEl.textContent = safeEscape(initials);
+
+        const nameEl = clone.querySelector(".student-name");
+        if (nameEl) {
+          nameEl.textContent = safeEscape(displayName);
+          if (enrollmentBadge) {
+            const badge = document.createElement("span");
+            badge.style.cssText =
+              "font-size:11px;background:var(--bg-page);padding:2px 6px;border-radius:999px;margin-left:6px";
+            badge.textContent = enrollmentBadge;
+            nameEl.appendChild(badge);
+          }
+        }
+
+        const emailEl = clone.querySelector(".student-email");
+        if (emailEl) emailEl.textContent = safeEscape(email);
+
+        const coursesEl = clone.querySelector(".student-courses");
+        if (coursesEl) {
+          coursesEl.textContent = safeEscape(coursesText);
+          coursesEl.title = safeEscape(coursesFull);
+        }
+
+        const avgEl = clone.querySelector(".student-avg");
+        if (avgEl) {
+          if (meta.avgScore) {
+            avgEl.innerHTML = `Avg: <span title="${allScoresCount} graded items" style="font-weight:600">${safeEscape(avgScore)}</span>`;
+          } else {
+            avgEl.innerHTML = `Avg: <span style="color:var(--text-muted)">—</span>`;
+          }
+        }
+
+        const membershipEl = clone.querySelector(".student-membership");
+        if (membershipEl) membershipEl.textContent = safeEscape(membership);
+
+        const amountEl = clone.querySelector(".student-amount");
+        if (amountEl) amountEl.textContent = amount;
+
+        const statusEl = clone.querySelector(".student-payment-status");
+        if (statusEl) {
+          statusEl.textContent = safeEscape(statusLabel);
+          statusEl.className = `payment-badge ${statusClass}`;
+        }
+
+        const deliveryEl = clone.querySelector(".student-delivery");
+        if (deliveryEl) deliveryEl.textContent = delivery || "-";
+
+        const startEl = clone.querySelector(".student-start-date");
+        if (startEl) startEl.textContent = start;
+
+        const viewBtn = clone.querySelector(".view-student-btn");
+        if (viewBtn) viewBtn.setAttribute("data-student-id", student.id);
+
+        // Create card version
+        let cardEl = null;
+        if (templateCard && templateCard.content) {
+          const cardClone = templateCard.content.cloneNode(true);
+          cardEl =
+            cardClone.querySelector(".student-row") ||
+            cardClone.firstElementChild;
+          if (cardEl) {
+            cardEl.setAttribute("data-student-id", student.id);
+            const cAvatar = cardEl.querySelector(".student-avatar");
+            if (cAvatar) cAvatar.textContent = safeEscape(initials);
+            const cName = cardEl.querySelector(".student-name-card");
+            if (cName) {
+              cName.textContent = safeEscape(displayName);
+              const badge = document.createElement("span");
+              badge.className = `payment-badge ${statusClass}`;
+              badge.style.fontSize = "10px";
+              badge.textContent = safeEscape(statusLabel);
+              cName.appendChild(badge);
+            }
+            const cEmail = cardEl.querySelector(".student-email-membership");
+            if (cEmail)
+              cEmail.textContent = `${safeEscape(email)} • ${safeEscape(membership)}`;
+            const cMeta = cardEl.querySelector(".student-meta-card");
+            if (cMeta)
+              cMeta.textContent = `${safeEscape(coursesText)} • ${delivery} • ${start} • ${amount}`;
+            const cView = cardEl.querySelector(".view-student-btn");
+            if (cView) cView.setAttribute("data-student-id", student.id);
+          }
+        }
+
+        return {
+          tableEl: tr,
+          cardEl: cardEl,
+          table: tr.outerHTML,
+          card: cardEl ? cardEl.outerHTML : "",
+        };
+      }
+    }
+
+    // Fallback: original string template
+    const initialsEsc = safeEscape(initials);
+    const displayNameEsc = safeEscape(displayName);
+    const emailEsc = safeEscape(email);
+    const membershipEsc = safeEscape(membership);
+    const coursesEsc = meta.courseNames.length
+      ? safeEscape(coursesText)
+      : '<span style="color:var(--text-muted)">—</span>';
+    const amountEsc = amount;
+    const deliveryEsc = delivery || "-";
+    const startEsc = start;
+    const statusClassEsc = statusClass;
+    const statusLabelEsc = statusLabel === "—" ? "—" : safeEscape(statusLabel);
+    const enrollmentBadgeHtml = enrollmentBadge
+      ? `<span style="font-size:11px;background:var(--bg-page);padding:2px 6px;border-radius:999px;margin-left:6px">${enrollmentBadge}</span>`
+      : "";
+    const scoreHtml = meta.avgScore
+      ? `<span title="${allScoresCount} graded items" style="font-weight:600">${meta.avgScore}%</span>`
       : '<span style="color:var(--text-muted)">—</span>';
 
-    // supports both table and data-list
     return {
       table: `
         <tr class="student-row" data-student-id="${safeEscape(student.id)}">
           <td>
             <div class="student-info">
-              <div class="student-avatar" style="background:var(--color-avatar-light-blue);color:var(--color-primary)">${initials}</div>
+              <div class="student-avatar" style="background:var(--color-avatar-light-blue);color:var(--color-primary)">${initialsEsc}</div>
               <div>
-                <div class="student-name">${displayName} ${enrollmentBadge}</div>
-                <div class="student-email">${email}</div>
+                <div class="student-name">${displayNameEsc} ${enrollmentBadgeHtml}</div>
+                <div class="student-email">${emailEsc}</div>
               </div>
             </div>
           </td>
-          <td><div style="font-size:13px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${safeEscape(meta.courseNames.join(", "))}">${courses}</div><div style="font-size:11px;color:var(--text-muted)">Avg: ${score}</div></td>
-          <td><span style="font-family:monospace;font-size:12px;background:var(--bg-page);padding:4px 8px;border-radius:6px">${membership}</span></td>
-          <td style="font-weight:600">${amount}</td>
-          <td><span class="payment-badge ${statusClass}">${statusLabel}</span></td>
-          <td>${delivery || "-"}</td>
-          <td>${start}</td>
-          <td>
-            <button class="btn-light view-student-btn" data-student-id="${safeEscape(student.id)}" style="padding:6px 10px;font-size:12px">View</button>
-          </td>
+          <td><div style="font-size:13px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${safeEscape(coursesFull)}">${coursesEsc}</div><div style="font-size:11px;color:var(--text-muted)">Avg: ${scoreHtml}</div></td>
+          <td><span style="font-family:monospace;font-size:12px;background:var(--bg-page);padding:4px 8px;border-radius:6px">${membershipEsc}</span></td>
+          <td style="font-weight:600">${amountEsc}</td>
+          <td><span class="payment-badge ${statusClassEsc}">${statusLabelEsc}</span></td>
+          <td>${deliveryEsc}</td>
+          <td>${startEsc}</td>
+          <td><button class="btn-light view-student-btn" data-student-id="${safeEscape(student.id)}" style="padding:6px 10px;font-size:12px">View</button></td>
         </tr>`,
       card: `
         <div class="data-row student-row" data-student-id="${safeEscape(student.id)}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border-light)">
           <div style="display:flex;gap:12px;align-items:center;min-width:0">
-            <div class="student-avatar">${initials}</div>
+            <div class="student-avatar">${initialsEsc}</div>
             <div style="min-width:0">
-              <div style="font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px">${displayName} <span class="payment-badge ${statusClass}" style="font-size:10px">${statusLabel}</span></div>
-              <div style="font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${email} • ${membership}</div>
-              <div style="font-size:11px;margin-top:4px">${courses} • ${delivery} • ${start} • ${amount}</div>
+              <div style="font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px">${displayNameEsc} <span class="payment-badge ${statusClassEsc}" style="font-size:10px">${statusLabelEsc}</span></div>
+              <div style="font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${emailEsc} • ${membershipEsc}</div>
+              <div style="font-size:11px;margin-top:4px">${coursesEsc} • ${deliveryEsc} • ${startEsc} • ${amountEsc}</div>
             </div>
           </div>
           <button class="btn-primary view-student-btn" data-student-id="${safeEscape(student.id)}" style="padding:6px 10px;font-size:12px;flex:none">View</button>
@@ -350,33 +470,38 @@
   }
 
   function buildEnrollmentRow(enroll, mode) {
+    const templatePaidRow = document.getElementById(
+      "paid-enrollment-row-template",
+    );
+    const templateRecordRow = document.getElementById(
+      "payment-record-row-template",
+    );
+    const templateEnrollCard = document.getElementById(
+      "enrollment-card-template",
+    );
+
     const student = window.Store
       ? window.Store.getById("students", enroll.studentId)
       : null;
-    const name = student
-      ? safeEscape(getDisplayName(student))
-      : "Unknown Student";
-    const email = student ? safeEscape(student.email || "") : "";
-    const initials = student ? safeEscape(getInitials(student)) : "??";
-    const courseName = safeEscape(getCourseName(enroll.courseId));
+    const name = student ? getDisplayName(student) : "Unknown Student";
+    const email = student ? student.email || "" : "";
+    const initials = student ? getInitials(student) : "??";
+    const courseName = getCourseName(enroll.courseId);
     const amountObj = enroll.amountPaid ||
       enroll.amount || { amount: 0, currency: "NGN" };
     const amountVal =
       typeof amountObj === "number" ? amountObj : amountObj.amount;
     const currency = typeof amountObj === "object" ? amountObj.currency : "NGN";
     const amount = safeCurrency(amountVal, currency);
-    const delivery = safeEscape(
-      enroll.deliveryMethod || enroll.delivery || "-",
-    );
+    const delivery = enroll.deliveryMethod || enroll.delivery || "-";
     const start = safeDate(
       enroll.startDate || enroll.paymentDate || enroll.enrolledAt,
     );
     const paymentDate = safeDate(enroll.paymentDate || enroll.enrolledAt);
-    const txn = safeEscape(
+    const txn =
       enroll.transactionReference ||
-        enroll.transactionRef ||
-        `TXN-${enroll.id.slice(0, 8).toUpperCase()}`,
-    );
+      enroll.transactionRef ||
+      `TXN-${enroll.id.slice(0, 8).toUpperCase()}`;
     const statusClass =
       enroll.paymentStatus === "paid"
         ? "paid"
@@ -385,48 +510,174 @@
           : enroll.paymentStatus === "pending"
             ? "pending"
             : "";
-    const statusLabel = safeEscape(enroll.paymentStatus || "-");
+    const statusLabel = enroll.paymentStatus || "-";
     const membership = student
-      ? safeEscape(student.membershipNo || student.token || "-")
+      ? student.membershipNo || student.token || "-"
       : "-";
 
     if (mode === "payment-records") {
+      // PHP-ready path for Payment Records tab
+      if (templateRecordRow && templateRecordRow.content) {
+        const clone = templateRecordRow.content.cloneNode(true);
+        const tr = clone.querySelector("tr");
+        if (tr) {
+          tr.setAttribute("data-enroll-id", enroll.id);
+          tr.setAttribute("data-student-id", enroll.studentId);
+
+          const avatar = clone.querySelector(".student-avatar");
+          if (avatar) avatar.textContent = safeEscape(initials);
+          const nameEl = clone.querySelector(".student-name");
+          if (nameEl) nameEl.textContent = safeEscape(name);
+          const emailEl = clone.querySelector(".student-email");
+          if (emailEl) emailEl.textContent = safeEscape(email);
+          const txnEl = clone.querySelector(".payment-txn");
+          if (txnEl) txnEl.textContent = safeEscape(txn);
+          const courseEl = clone.querySelector(".payment-course");
+          if (courseEl) courseEl.textContent = safeEscape(courseName);
+          const amountEl = clone.querySelector(".payment-amount");
+          if (amountEl) amountEl.textContent = amount;
+          const dateEl = clone.querySelector(".payment-date");
+          if (dateEl) dateEl.textContent = paymentDate;
+          const statusEl = clone.querySelector(".payment-status");
+          if (statusEl) {
+            statusEl.textContent = safeEscape(statusLabel);
+            statusEl.className = `payment-badge ${statusClass}`;
+          }
+          const viewBtn = clone.querySelector(".view-student-btn");
+          if (viewBtn)
+            viewBtn.setAttribute("data-student-id", enroll.studentId);
+
+          // Card version
+          let cardEl = null;
+          if (templateEnrollCard && templateEnrollCard.content) {
+            const cardClone = templateEnrollCard.content.cloneNode(true);
+            cardEl =
+              cardClone.querySelector(".enrollment-card") ||
+              cardClone.firstElementChild;
+            if (cardEl) {
+              const cName = cardEl.querySelector(".enroll-name");
+              if (cName) cName.textContent = safeEscape(name);
+              const cMeta = cardEl.querySelector(".enroll-meta");
+              if (cMeta)
+                cMeta.textContent = `${safeEscape(txn)} • ${safeEscape(courseName)}`;
+              const cDetails = cardEl.querySelector(".enroll-details");
+              if (cDetails)
+                cDetails.textContent = `${amount} • ${paymentDate} • ${safeEscape(statusLabel)}`;
+              const cView = cardEl.querySelector(".view-student-btn");
+              if (cView)
+                cView.setAttribute("data-student-id", enroll.studentId);
+            }
+          }
+
+          return {
+            tableEl: tr,
+            cardEl: cardEl,
+            table: tr.outerHTML,
+            card: cardEl ? cardEl.outerHTML : "",
+          };
+        }
+      }
+
+      // Fallback
       return {
         table: `
           <tr data-enroll-id="${safeEscape(enroll.id)}" data-student-id="${safeEscape(enroll.studentId)}">
-            <td>
-              <div class="student-info"><div class="student-avatar">${initials}</div><div><div class="student-name">${name}</div><div class="student-email">${email}</div></div></div>
-            </td>
-            <td><span style="font-family:monospace;font-size:12px;background:var(--bg-page);padding:4px 8px;border-radius:6px">${txn}</span></td>
-            <td>${courseName}</td>
+            <td><div class="student-info"><div class="student-avatar">${safeEscape(initials)}</div><div><div class="student-name">${safeEscape(name)}</div><div class="student-email">${safeEscape(email)}</div></div></div></td>
+            <td><span style="font-family:monospace;font-size:12px;background:var(--bg-page);padding:4px 8px;border-radius:6px">${safeEscape(txn)}</span></td>
+            <td>${safeEscape(courseName)}</td>
             <td style="font-weight:600">${amount}</td>
             <td>${paymentDate}</td>
-            <td><span class="payment-badge ${statusClass}">${statusLabel}</span></td>
+            <td><span class="payment-badge ${statusClass}">${safeEscape(statusLabel)}</span></td>
             <td><button class="btn-light view-student-btn" data-student-id="${safeEscape(enroll.studentId)}" style="padding:6px 10px;font-size:12px">View</button></td>
           </tr>`,
         card: `
           <div class="data-row" style="padding:14px 16px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;gap:10px">
-            <div><div style="font-weight:600;font-size:13px">${name}</div><div style="font-size:11px;color:var(--text-muted)">${txn} • ${courseName}</div><div style="font-size:11px;margin-top:4px">${amount} • ${paymentDate} • <span class="payment-badge ${statusClass}">${statusLabel}</span></div></div>
+            <div><div style="font-weight:600;font-size:13px">${safeEscape(name)}</div><div style="font-size:11px;color:var(--text-muted)">${safeEscape(txn)} • ${safeEscape(courseName)}</div><div style="font-size:11px;margin-top:4px">${amount} • ${paymentDate} • <span class="payment-badge ${statusClass}">${safeEscape(statusLabel)}</span></div></div>
             <button class="btn-light view-student-btn" data-student-id="${safeEscape(enroll.studentId)}" style="padding:6px 10px;font-size:12px;height:fit-content">View</button>
           </div>`,
       };
     }
 
+    // Paid Enrollments mode
+    if (templatePaidRow && templatePaidRow.content) {
+      const clone = templatePaidRow.content.cloneNode(true);
+      const tr = clone.querySelector("tr");
+      if (tr) {
+        tr.setAttribute("data-enroll-id", enroll.id);
+        tr.setAttribute("data-student-id", enroll.studentId);
+
+        const avatar = clone.querySelector(".student-avatar");
+        if (avatar) avatar.textContent = safeEscape(initials);
+        const nameEl = clone.querySelector(".student-name");
+        if (nameEl) nameEl.textContent = safeEscape(name);
+        const emailEl = clone.querySelector(".student-email");
+        if (emailEl) emailEl.textContent = safeEscape(email);
+        const courseEl = clone.querySelector(".enroll-course");
+        if (courseEl) {
+          courseEl.textContent = safeEscape(courseName);
+          courseEl.title = safeEscape(courseName);
+        }
+        const membershipEl = clone.querySelector(".enroll-membership");
+        if (membershipEl) membershipEl.textContent = safeEscape(membership);
+        const amountEl = clone.querySelector(".enroll-amount");
+        if (amountEl) amountEl.textContent = amount;
+        const statusEl = clone.querySelector(".enroll-status");
+        if (statusEl) {
+          statusEl.textContent = safeEscape(statusLabel);
+          statusEl.className = `payment-badge ${statusClass}`;
+        }
+        const deliveryEl = clone.querySelector(".enroll-delivery");
+        if (deliveryEl) deliveryEl.textContent = safeEscape(delivery);
+        const startEl = clone.querySelector(".enroll-start-date");
+        if (startEl) startEl.textContent = start;
+        const viewBtn = clone.querySelector(".view-student-btn");
+        if (viewBtn) viewBtn.setAttribute("data-student-id", enroll.studentId);
+
+        let cardEl = null;
+        if (templateEnrollCard && templateEnrollCard.content) {
+          const cardClone = templateEnrollCard.content.cloneNode(true);
+          cardEl =
+            cardClone.querySelector(".enrollment-card") ||
+            cardClone.firstElementChild;
+          if (cardEl) {
+            const cName = cardEl.querySelector(".enroll-name");
+            if (cName) cName.textContent = safeEscape(name);
+            const cMeta = cardEl.querySelector(".enroll-meta");
+            if (cMeta)
+              cMeta.textContent = `${safeEscape(courseName)} • ${safeEscape(membership)}`;
+            const cDetails = cardEl.querySelector(".enroll-details");
+            if (cDetails)
+              cDetails.textContent = `${amount} • ${safeEscape(delivery)} • ${start} • ${safeEscape(statusLabel)}`;
+            const cView = cardEl.querySelector(".view-student-btn");
+            if (cView) cView.setAttribute("data-student-id", enroll.studentId);
+          }
+        }
+
+        return {
+          tableEl: tr,
+          cardEl: cardEl,
+          table: tr.outerHTML,
+          card: cardEl ? cardEl.outerHTML : "",
+        };
+      }
+    }
+
+    // Fallback original
     return {
       table: `
         <tr data-enroll-id="${safeEscape(enroll.id)}" data-student-id="${safeEscape(enroll.studentId)}">
-          <td><div class="student-info"><div class="student-avatar">${initials}</div><div><div class="student-name">${name}</div><div class="student-email">${email}</div></div></div></td>
-          <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${courseName}">${courseName}</td>
-          <td><span style="font-family:monospace;font-size:12px;background:var(--bg-page);padding:4px 8px;border-radius:6px">${membership}</span></td>
+          <td><div class="student-info"><div class="student-avatar">${safeEscape(initials)}</div><div><div class="student-name">${safeEscape(name)}</div><div class="student-email">${safeEscape(email)}</div></div></div></td>
+          <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${safeEscape(courseName)}">${safeEscape(courseName)}</td>
+          <td><span style="font-family:monospace;font-size:12px;background:var(--bg-page);padding:4px 8px;border-radius:6px">${safeEscape(membership)}</span></td>
           <td style="font-weight:600">${amount}</td>
-          <td><span class="payment-badge ${statusClass}">${statusLabel}</span></td>
-          <td>${delivery}</td>
+          <td><span class="payment-badge ${statusClass}">${safeEscape(statusLabel)}</span></td>
+          <td>${safeEscape(delivery)}</td>
           <td>${start}</td>
           <td><button class="btn-light view-student-btn" data-student-id="${safeEscape(enroll.studentId)}" style="padding:6px 10px;font-size:12px">View</button></td>
         </tr>`,
       card: `
         <div class="data-row" style="padding:14px 16px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;gap:10px">
-          <div><div style="font-weight:600;font-size:13px">${name}</div><div style="font-size:11px;color:var(--text-muted)">${email} • ${courseName}</div><div style="font-size:11px;margin-top:4px">${amount} • ${delivery} • ${start} • <span class="payment-badge ${statusClass}">${statusLabel}</span></div></div>
+          <div><div style="font-weight:600;font-size:13px">${safeEscape(name)}</div><div style="font-size:11px;color:var(--text-muted)">${safeEscape(courseName)} • ${safeEscape(membership)}</div><div style="font-size:11px;margin-top:4px">${amount} • ${safeEscape(delivery)} • ${start} • <span class="payment-badge ${statusClass}">${safeEscape(statusLabel)}</span></div></div>
           <button class="btn-light view-student-btn" data-student-id="${safeEscape(enroll.studentId)}" style="padding:6px 10px;font-size:12px;height:fit-content">View</button>
         </div>`,
     };
@@ -447,7 +698,6 @@
 
     const data = getFilteredStudents();
 
-    // summary update if cards exist
     const totalEl =
       qs("#total-students-count") || qs('[data-kpi="total-students"]');
     if (totalEl)
@@ -475,29 +725,45 @@
       return;
     }
 
+    // PHP-ready path: use templates with DocumentFragment for performance
     if (containerTableBody) {
-      containerTableBody.innerHTML = data
-        .map(({ student, meta }) => buildAllStudentsRow(student, meta).table)
-        .join("");
+      containerTableBody.innerHTML = "";
+      const fragment = document.createDocumentFragment();
+      data.forEach(({ student, meta }) => {
+        const row = buildAllStudentsRow(student, meta);
+        if (row.tableEl) {
+          fragment.appendChild(row.tableEl);
+        } else {
+          // Fallback string
+          const temp = document.createElement("tbody");
+          temp.innerHTML = row.table;
+          if (temp.firstElementChild)
+            fragment.appendChild(temp.firstElementChild);
+        }
+      });
+      containerTableBody.appendChild(fragment);
     } else if (containerList) {
-      // decide if container expects cards vs table; use cards
-      if (
-        containerList.classList.contains("data-list") ||
-        containerList.id === "page-list"
-      ) {
-        // For old template, keep compatible but use improved cards
-        containerList.innerHTML =
-          data
-            .map(({ student, meta }) => buildAllStudentsRow(student, meta).card)
-            .join("") +
-          (STATE.isTopPerformance
-            ? `<div style="padding:12px;text-align:center;font-size:12px;color:var(--text-muted)">Showing top ${data.length} performers sorted by average score.</div>`
-            : "");
-      } else {
-        containerList.innerHTML = data
-          .map(({ student, meta }) => buildAllStudentsRow(student, meta).card)
-          .join("");
+      containerList.innerHTML = "";
+      const fragment = document.createDocumentFragment();
+      data.forEach(({ student, meta }) => {
+        const row = buildAllStudentsRow(student, meta);
+        if (row.cardEl) {
+          fragment.appendChild(row.cardEl);
+        } else {
+          const temp = document.createElement("div");
+          temp.innerHTML = row.card;
+          if (temp.firstElementChild)
+            fragment.appendChild(temp.firstElementChild);
+        }
+      });
+      if (STATE.isTopPerformance) {
+        const note = document.createElement("div");
+        note.style.cssText =
+          "padding:12px;text-align:center;font-size:12px;color:var(--text-muted)";
+        note.textContent = `Showing top ${data.length} performers sorted by average score.`;
+        fragment.appendChild(note);
       }
+      containerList.appendChild(fragment);
     }
   }
 
@@ -528,13 +794,33 @@
       return;
     }
     if (containerTableBody) {
-      containerTableBody.innerHTML = data
-        .map((e) => buildEnrollmentRow(e, "paid").table)
-        .join("");
+      containerTableBody.innerHTML = "";
+      const fragment = document.createDocumentFragment();
+      data.forEach((e) => {
+        const row = buildEnrollmentRow(e, "paid");
+        if (row.tableEl) fragment.appendChild(row.tableEl);
+        else {
+          const temp = document.createElement("tbody");
+          temp.innerHTML = row.table;
+          if (temp.firstElementChild)
+            fragment.appendChild(temp.firstElementChild);
+        }
+      });
+      containerTableBody.appendChild(fragment);
     } else if (containerList) {
-      containerList.innerHTML = data
-        .map((e) => buildEnrollmentRow(e, "paid").card)
-        .join("");
+      containerList.innerHTML = "";
+      const fragment = document.createDocumentFragment();
+      data.forEach((e) => {
+        const row = buildEnrollmentRow(e, "paid");
+        if (row.cardEl) fragment.appendChild(row.cardEl);
+        else {
+          const temp = document.createElement("div");
+          temp.innerHTML = row.card;
+          if (temp.firstElementChild)
+            fragment.appendChild(temp.firstElementChild);
+        }
+      });
+      containerList.appendChild(fragment);
     }
   }
 
@@ -562,19 +848,62 @@
       return;
     }
     if (containerTableBody) {
-      containerTableBody.innerHTML = data
-        .map((e) => buildEnrollmentRow(e, "payment-records").table)
-        .join("");
+      containerTableBody.innerHTML = "";
+      const fragment = document.createDocumentFragment();
+      data.forEach((e) => {
+        const row = buildEnrollmentRow(e, "payment-records");
+        if (row.tableEl) fragment.appendChild(row.tableEl);
+        else {
+          const temp = document.createElement("tbody");
+          temp.innerHTML = row.table;
+          if (temp.firstElementChild)
+            fragment.appendChild(temp.firstElementChild);
+        }
+      });
+      containerTableBody.appendChild(fragment);
     } else if (containerList) {
-      containerList.innerHTML = data
-        .map((e) => buildEnrollmentRow(e, "payment-records").card)
-        .join("");
+      containerList.innerHTML = "";
+      const fragment = document.createDocumentFragment();
+      data.forEach((e) => {
+        const row = buildEnrollmentRow(e, "payment-records");
+        if (row.cardEl) fragment.appendChild(row.cardEl);
+        else {
+          const temp = document.createElement("div");
+          temp.innerHTML = row.card;
+          if (temp.firstElementChild)
+            fragment.appendChild(temp.firstElementChild);
+        }
+      });
+      containerList.appendChild(fragment);
     }
   }
 
   function updateTableHeaders() {
     const thead = qs("#students-table-head");
     if (!thead) return;
+
+    // PHP-ready path: use templates from HTML
+    const templateAll = document.getElementById("table-header-all-template");
+    const templatePaid = document.getElementById("table-header-paid-template");
+    const templateRecords = document.getElementById(
+      "table-header-records-template",
+    );
+
+    if (templateAll && templateAll.content && templatePaid && templateRecords) {
+      let template = null;
+      if (STATE.activeTab === "paid") template = templatePaid;
+      else if (STATE.activeTab === "records") template = templateRecords;
+      else template = templateAll;
+
+      if (template && template.content) {
+        thead.innerHTML = "";
+        const clone = template.content.cloneNode(true);
+        thead.appendChild(clone);
+        return;
+      }
+    }
+
+    // Fallback
     const headers = {
       all: `<tr><th>Student</th><th>Course</th><th>Membership</th><th>Amount Paid</th><th>Payment</th><th>Delivery</th><th>Start Date</th><th>Action</th></tr>`,
       paid: `<tr><th>Student</th><th>Course</th><th>Membership</th><th>Amount Paid</th><th>Payment</th><th>Delivery</th><th>Start Date</th><th>Action</th></tr>`,

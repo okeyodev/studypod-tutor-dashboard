@@ -65,6 +65,89 @@
               </select>
             </div>
           </div>
+
+          <!-- ==========================================================================
+       REUSABLE TEMPLATE: Conf Item - Moved from conferences.js for PHP deployment
+       PHP-ready: clone via JS or render via PHP loop
+       Logic preserved: image vs gradient hero, status pills, reg count, fee, delivery
+       ========================================================================== -->
+          <template id="conf-item-template">
+            <div class="conf-item" data-id=""
+              style="overflow:hidden;border-radius:16px;border:1px solid var(--border-light);background:var(--bg-card);transition:all 0.22s ease">
+              <!-- Image section - shows when conference has uploaded image -->
+              <div class="conf-item-image-wrap"
+                style="position:relative;width:100%;height:160px;overflow:hidden;background:linear-gradient(135deg, #F5F3FF 0%, #DDD6FE 100%);display:none">
+                <img class="conf-item-img" src="" alt="" style="width:100%;height:100%;object-fit:cover" loading="lazy">
+                <div
+                  style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 60%)">
+                </div>
+                <div style="position:absolute;top:12px;left:12px;display:flex;gap:6px">
+                  <span class="conf-pill-light conf-date-pill"></span>
+                  <span class="conf-status-pill"></span>
+                </div>
+                <div style="position:absolute;bottom:12px;left:16px;right:16px">
+                  <div class="conf-item-title conf-item-title-img"
+                    style="color:white;font-size:16px;font-weight:700;line-height:1.2;text-shadow:0 1px 2px rgba(0,0,0,0.3)">
+                  </div>
+                  <div class="conf-item-subtitle conf-item-subtitle-img"
+                    style="margin-top:4px;font-size:11px;color:rgba(255,255,255,0.9)"></div>
+                </div>
+              </div>
+              <!-- Gradient hero fallback - shows when no image -->
+              <div class="conf-item-hero">
+                <div class="conf-item-top">
+                  <span class="conf-pill-light conf-date-pill-hero"></span>
+                  <span class="conf-status-pill-hero"></span>
+                </div>
+                <div>
+                  <div class="conf-item-title conf-item-title-hero"></div>
+                  <div class="conf-item-subtitle conf-item-subtitle-hero"
+                    style="margin-top:6px; font-size:11px; color:rgba(255,255,255,0.85); line-height:1.3"></div>
+                </div>
+              </div>
+              <div class="conf-item-foot">
+                <div style="display:flex; flex-direction:column; gap:2px">
+                  <span class="conf-registered-info" style="display:flex;align-items:center;gap:4px"><svg
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      style="width:14px;height:14px">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                      <circle cx="9" cy="7" r="4" />
+                    </svg> <span class="reg-count"></span></span>
+                  <span class="conf-meta-info" style="font-size:11px; color:var(--text-muted)"></span>
+                </div>
+                <div style="display:flex; gap:8px; align-items:center">
+                  <div class="action-menu">
+                    <button class="btn-dark manage-btn conf-manage-btn" data-id=""
+                      style="padding:6px 12px;font-size:12px;border-radius:8px">Manage</button>
+                    <div class="action-dropdown conf-dropdown" style="width:200px">
+                      <button class="action-item" data-action="view"><svg viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                          <circle cx="12" cy="12" r="3" />
+                        </svg> View</button>
+                      <button class="action-item" data-action="edit"><svg viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg> Edit</button>
+                      <button class="action-item" data-action="duplicate"><svg viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
+                          <rect x="8" y="8" width="12" height="12" rx="2" />
+                          <path d="M16 8v-2a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" />
+                        </svg> Duplicate</button>
+                      <button class="action-item conf-reg-btn" data-action="registrations"><svg viewBox="0 0 24 24"
+                          fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
+                          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                          <circle cx="9" cy="7" r="4" />
+                        </svg> <span class="reg-btn-text">View Registrations</span></button>
+                      <button class="action-item conf-publish-btn" data-action="togglePublish"></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+
           <div id="conf-grid" class="conf-grid" style="margin-top:16px"></div>
           <div id="empty-confs" class="empty-state" style="display:none;margin-top:16px">
             <div class="empty-icon"><span class="animated-icon anim-bounce-subtle" style="width:20px;height:20px"><svg

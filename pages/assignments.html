@@ -115,6 +115,45 @@
                 <option value="closed">Closed</option>
               </select></div>
           </div>
+
+          <!-- ==========================================================================
+       REUSABLE TEMPLATE: Assignment Card - Moved from assignments.js for PHP
+       PHP-ready: reusable component, logic preserved: token, status, course,
+       due date, submission counts, needs review, points, actions
+       ========================================================================== -->
+          <template id="assignment-card-template">
+            <div class="assignment-card" data-id="">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+                <div class="assignment-token"></div>
+                <span class="tag assignment-status-tag"></span>
+              </div>
+              <div class="assignment-title"></div>
+              <div class="assignment-course"></div>
+              <div class="assignment-meta">
+                <span class="assignment-due"></span>
+                <span class="assignment-submissions"></span>
+                <span class="assignment-review-info"></span>
+                <span class="assignment-points"></span>
+              </div>
+              <div class="assignment-foot">
+                <div class="assignment-foot-stats">
+                  <span class="foot-total"></span>
+                  <span>•</span>
+                  <span class="foot-pending"></span>
+                </div>
+                <div class="assign-foot">
+                  <a class="btn-secondary btn-sm assignment-view-link"
+                    style="text-decoration:none;font-size:12px;padding:6px 10px;border:1px solid var(--border-light);border-radius:6px;background:var(--bg-page);">View
+                    Submissions</a>
+                  <a class="btn-secondary btn-sm assignment-edit-link"
+                    style="text-decoration:none;font-size:12px;padding:6px 10px;border:1px solid var(--border-light);border-radius:6px;text-align:center;">Edit</a>
+                  <button class="btn-secondary btn-sm assignment-delete-btn" data-action="delete"
+                    style="font-size:12px;padding:6px 10px;border:1px solid var(--border-light);border-radius:6px;color:var(--color-danger, #ef4444);background:transparent;cursor:pointer">Delete</button>
+                </div>
+              </div>
+            </div>
+          </template>
+
           <div id="assignment-grid" class="assignment-grid" style="margin-top:16px"></div>
           <div id="empty-asgs" class="empty-state" style="display:none;margin-top:16px">
             <div class="empty-icon"><span class="animated-icon" style="width:18px;height:18px"><svg viewBox="0 0 24 24"

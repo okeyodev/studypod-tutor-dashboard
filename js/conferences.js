@@ -473,6 +473,10 @@
   }
 
   // ---------- Grid Cards ----------
+  
+  // ---------- Grid Rendering - REFACTORED for PHP deployment ----------
+  // HTML moved to conferences.html <template id="conf-item-template">
+  // Logic preserved: image vs gradient, status pills, reg count, fee, delivery, reusable
   function renderGrid(conferences) {
     const existingGrid = document.querySelector(".conf-grid");
     if (!existingGrid) {
@@ -480,9 +484,8 @@
       return;
     }
 
-    // Separate upcoming (not completed) and completed for grid
     const upcoming = conferences.filter((c) => !isCompleted(c));
-    const toShow = upcoming; // grid shows upcoming only, per design
+    const toShow = upcoming;
 
     if (
       toShow.length === 0 &&
@@ -492,7 +495,6 @@
       state.workshop === "all" &&
       state.delivery === "all"
     ) {
-      // True empty - no data at all
       existingGrid.innerHTML = `
         <div class="conf-create" style="grid-column:1/-1">
           <div class="conf-create-icon" style="display:grid;place-items:center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:32px;height:32px" class="anim-bounce-subtle"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></div>
@@ -502,11 +504,7 @@
         </div>
       `;
       const btn = existingGrid.querySelector("#empty-create-btn");
-      if (btn)
-        btn.addEventListener(
-          "click",
-          () => (window.location.href = "conference-form.html"),
-        );
+      if (btn) btn.addEventListener("click", () => (window.location.href = "conference-form.html"));
     } else if (toShow.length === 0) {
       existingGrid.innerHTML = `
         <div style="grid-column:1/-1; text-align:center; padding:36px; border:1px dashed var(--border-light); border-radius:var(--radius-xl); background:var(--bg-card)">
@@ -523,99 +521,172 @@
         </div>
       `;
     } else {
-      existingGrid.innerHTML =
-        toShow
-          .map((conf, idx) => {
-            const regCount = getRegCount(conf.id);
-            const seats = getSeats(conf);
-            const grad = GRADIENTS[idx % GRADIENTS.length];
-            const statusMeta = getStatusMeta(conf, regCount, seats);
-            const fee = getFee(conf);
-            const feeLabel =
-              fee.amount === 0
-                ? "Free"
-                : _formatCurrency(fee.amount, fee.currency);
-            const workshopLabel = getWorkshopLabel(conf);
-            const locShort = getLocationShort(conf);
-            const title = conf.title || conf.name || "Untitled Conference";
-            const isPub = (conf.status || "").toLowerCase() === "published";
+      // PHP-ready path: use template from HTML
+      const template = document.getElementById("conf-item-template");
+      existingGrid.innerHTML = "";
 
-            const confImage = getConfImage(conf);
-            const hasImage = !!confImage;
+      if (template && template.content) {
+        toShow.forEach((conf, idx) => {
+          const regCount = getRegCount(conf.id);
+          const seats = getSeats(conf);
+          const grad = GRADIENTS[idx % GRADIENTS.length];
+          const statusMeta = getStatusMeta(conf, regCount, seats);
+          const fee = getFee(conf);
+          const feeLabel = fee.amount === 0 ? "Free" : _formatCurrency(fee.amount, fee.currency);
+          const workshopLabel = getWorkshopLabel(conf);
+          const locShort = getLocationShort(conf);
+          const title = conf.title || conf.name || "Untitled Conference";
+          const isPub = (conf.status || "").toLowerCase() === "published";
+          const confImage = getConfImage(conf);
+          const hasImage = !!confImage;
+          const pillDateTime = formatPillDateTime(conf);
 
-            return `
-          <div class="conf-item" data-id="${_escapeHtml(conf.id)}" style="overflow:hidden;border-radius:16px;border:1px solid var(--border-light);background:var(--bg-card);transition:all 0.22s ease">
-            <!-- Image section - NEW: supports uploaded conference images -->
-            ${
-              hasImage
-                ? `
-            <div style="position:relative;width:100%;height:160px;overflow:hidden;background:linear-gradient(135deg, #F5F3FF 0%, #DDD6FE 100%)">
-              <img src="${confImage}" alt="${_escapeHtml(title)}" style="width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.style.display='none'">
-              <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 60%)"></div>
-              <div style="position:absolute;top:12px;left:12px;display:flex;gap:6px">
-                <span class="conf-pill-light" style="background:rgba(255,255,255,0.95);backdrop-filter:blur(8px)">${_escapeHtml(formatPillDateTime(conf))}</span>
-                <span class="${statusMeta.cls}" style="backdrop-filter:blur(8px)">${_escapeHtml(statusMeta.label)}</span>
-              </div>
-              <div style="position:absolute;bottom:12px;left:16px;right:16px">
-                <div class="conf-item-title" style="color:white;font-size:16px;font-weight:700;line-height:1.2;text-shadow:0 1px 2px rgba(0,0,0,0.3)">${_escapeHtml(title)}</div>
-                <div style="margin-top:4px;font-size:11px;color:rgba(255,255,255,0.9)"> ${_escapeHtml(conf.name || "")} • ${_escapeHtml(workshopLabel)} </div>
-              </div>
-            </div>
-            `
-                : `
-            <div class="conf-item-hero ${grad}">
-              <div class="conf-item-top">
-                <span class="conf-pill-light">${_escapeHtml(formatPillDateTime(conf))}</span>
-                <span class="${statusMeta.cls}">${_escapeHtml(statusMeta.label)}</span>
-              </div>
-              <div>
-                <div class="conf-item-title">${_escapeHtml(title)}</div>
-                <div style="margin-top:6px; font-size:11px; color:rgba(255,255,255,0.85); line-height:1.3"> ${_escapeHtml(conf.name || "")} • ${_escapeHtml(workshopLabel)} </div>
-              </div>
-            </div>
-            `
+          const clone = template.content.cloneNode(true);
+          const itemEl = clone.querySelector(".conf-item");
+          if (!itemEl) return;
+          
+          itemEl.setAttribute("data-id", conf.id);
+          
+          // Image handling
+          const imgWrap = clone.querySelector(".conf-item-image-wrap");
+          const imgEl = clone.querySelector(".conf-item-img");
+          const heroEl = clone.querySelector(".conf-item-hero");
+          
+          if (hasImage) {
+            if (imgWrap) imgWrap.style.display = "block";
+            if (imgEl) {
+              imgEl.src = confImage;
+              imgEl.alt = title;
             }
-            <div class="conf-item-foot">
-              <div style="display:flex; flex-direction:column; gap:2px">
-                <span style="display:flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> ${regCount} registered • ${seats} seats</span>
-                <span style="font-size:11px; color:var(--text-muted)">${_escapeHtml(feeLabel)} • ${_escapeHtml(conf.deliveryMethod || "-")} • ${_escapeHtml(locShort)}</span>
-              </div>
-              <div style="display:flex; gap:8px; align-items:center">
-                <div class="action-menu">
-                  <button class="btn-dark manage-btn" data-id="${_escapeHtml(conf.id)}" style="padding:6px 12px;font-size:12px;border-radius:8px">Manage </button>
-                  <div class="action-dropdown" id="dropdown-${_escapeHtml(conf.id)}" style="width:200px">
-                    <button class="action-item" data-action="view" data-id="${_escapeHtml(conf.id)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> View</button>
-                    <button class="action-item" data-action="edit" data-id="${_escapeHtml(conf.id)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit</button>
-                    <button class="action-item" data-action="duplicate" data-id="${_escapeHtml(conf.id)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8v-2a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg> Duplicate</button>
-                    <button class="action-item" data-action="registrations" data-id="${_escapeHtml(conf.id)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> View Registrations (${regCount})</button>
-                    <button class="action-item" data-action="togglePublish" data-id="${_escapeHtml(conf.id)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg> ${isPub ? "Unpublish" : "Publish"}</button>
-                    <div style="height:1px; background:var(--border-light); margin:4px 0"></div>
-                    <button class="action-item danger" data-action="delete" data-id="${_escapeHtml(conf.id)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Delete</button>
-                  </div>
-                </div>
-                <button class="btn-light share-btn" data-id="${_escapeHtml(conf.id)}" style="padding:6px 12px;font-size:12px;border-radius:8px">Share</button>
-              </div>
-            </div>
-            <div style="padding:8px 16px; display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); border-top:1px solid var(--bg-track, #F1F5F9); background:rgba(248,250,252,0.5)">
-              <span>${_escapeHtml(conf.token || "")}</span>
-              <span>${_escapeHtml(conf.deliveryMethod || "")} • ${_escapeHtml(getLocationLabel(conf).slice(0, 30))}</span>
-            </div>
-          </div>
-        `;
-          })
-          .join("") +
-        `
-        <div class="conf-create">
+            if (heroEl) heroEl.style.display = "none";
+            
+            // Fill image overlay pills
+            const datePill = clone.querySelector(".conf-date-pill");
+            if (datePill) datePill.textContent = pillDateTime;
+            const statusPill = clone.querySelector(".conf-status-pill");
+            if (statusPill) {
+              statusPill.textContent = statusMeta.label;
+              statusPill.className = statusMeta.cls;
+              statusPill.style.backdropFilter = "blur(8px)";
+            }
+            const titleImg = clone.querySelector(".conf-item-title-img");
+            if (titleImg) titleImg.textContent = title;
+            const subImg = clone.querySelector(".conf-item-subtitle-img");
+            if (subImg) subImg.textContent = `${conf.name || ""} • ${workshopLabel}`;
+          } else {
+            if (imgWrap) imgWrap.style.display = "none";
+            if (heroEl) {
+              heroEl.style.display = "block";
+              heroEl.className = `conf-item-hero ${grad}`;
+            }
+            const datePillHero = clone.querySelector(".conf-date-pill-hero");
+            if (datePillHero) datePillHero.textContent = pillDateTime;
+            const statusPillHero = clone.querySelector(".conf-status-pill-hero");
+            if (statusPillHero) {
+              statusPillHero.textContent = statusMeta.label;
+              statusPillHero.className = statusMeta.cls;
+            }
+            const titleHero = clone.querySelector(".conf-item-title-hero");
+            if (titleHero) titleHero.textContent = title;
+            const subHero = clone.querySelector(".conf-item-subtitle-hero");
+            if (subHero) subHero.textContent = `${conf.name || ""} • ${workshopLabel}`;
+          }
+          
+          // Foot info
+          const regInfo = clone.querySelector(".reg-count");
+          if (regInfo) regInfo.textContent = `${regCount} registered • ${seats} seats`;
+          // For the svg + text version, we need to update the parent
+          const regInfoParent = clone.querySelector(".conf-registered-info");
+          if (regInfoParent && regInfoParent.textContent.includes("registered") === false) {
+            // keep svg, add text
+            const existingSvg = regInfoParent.querySelector("svg");
+            regInfoParent.textContent = "";
+            if (existingSvg) regInfoParent.appendChild(existingSvg);
+            regInfoParent.append(` ${regCount} registered • ${seats} seats`);
+          }
+          
+          const metaInfo = clone.querySelector(".conf-meta-info");
+          if (metaInfo) metaInfo.textContent = `${feeLabel} • ${conf.deliveryMethod || "-"} • ${locShort}`;
+          
+          // Manage button
+          const manageBtn = clone.querySelector(".conf-manage-btn");
+          if (manageBtn) manageBtn.setAttribute("data-id", conf.id);
+          
+          const dropdown = clone.querySelector(".conf-dropdown");
+          if (dropdown) {
+            dropdown.id = `dropdown-${conf.id}`;
+            dropdown.querySelectorAll("[data-action]").forEach(btn => {
+              btn.setAttribute("data-id", conf.id);
+            });
+            const regBtnText = dropdown.querySelector(".reg-btn-text");
+            if (regBtnText) regBtnText.textContent = `View Registrations (${regCount})`;
+            const regBtn = dropdown.querySelector(".conf-reg-btn");
+            if (regBtn) {
+              const countSpan = regBtn.querySelector(".reg-btn-text");
+              if (!countSpan) regBtn.textContent = `View Registrations (${regCount})`;
+            }
+            const pubBtn = dropdown.querySelector(".conf-publish-btn");
+            if (pubBtn) pubBtn.textContent = isPub ? "Unpublish" : "Publish";
+          }
+          
+          // Footer token line
+          // Add token footer if needed - create it
+          const tokenFooter = document.createElement("div");
+          tokenFooter.style.cssText = "padding:8px 16px; display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); border-top:1px solid var(--bg-track, #F1F5F9); background:rgba(248,250,252,0.5)";
+          const tokenSpan = document.createElement("span");
+          tokenSpan.textContent = conf.token || "";
+          const locSpan = document.createElement("span");
+          locSpan.textContent = `${conf.deliveryMethod || ""} • ${getLocationLabel(conf).slice(0, 30)}`;
+          tokenFooter.appendChild(tokenSpan);
+          tokenFooter.appendChild(locSpan);
+          itemEl.appendChild(tokenFooter);
+          
+          existingGrid.appendChild(clone);
+        });
+        
+        // Add create card at end
+        const createCard = document.createElement("div");
+        createCard.className = "conf-create";
+        createCard.innerHTML = `
           <div class="conf-create-icon" style="display:grid;place-items:center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:32px;height:32px" class="anim-bounce-subtle"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></div>
           <div class="conf-create-title">Create live learning experiences</div>
           <div class="conf-create-sub">Organize workshops, masterclasses, webinars and live sessions.</div>
           <button class="conf-create-btn" onclick="window.location.href='conference-form.html'">+ Create Conference</button>
-        </div>
-      `;
+        `;
+        existingGrid.appendChild(createCard);
+        
+      } else {
+        // Fallback to original string template if template not found
+        existingGrid.innerHTML =
+          toShow
+            .map((conf, idx) => {
+              const regCount = getRegCount(conf.id);
+              const seats = getSeats(conf);
+              const grad = GRADIENTS[idx % GRADIENTS.length];
+              const statusMeta = getStatusMeta(conf, regCount, seats);
+              const fee = getFee(conf);
+              const feeLabel = fee.amount === 0 ? "Free" : _formatCurrency(fee.amount, fee.currency);
+              const workshopLabel = getWorkshopLabel(conf);
+              const locShort = getLocationShort(conf);
+              const title = conf.title || conf.name || "Untitled Conference";
+              const isPub = (conf.status || "").toLowerCase() === "published";
+              const confImage = getConfImage(conf);
+              const hasImage = !!confImage;
+              return `
+            <div class="conf-item" data-id="${_escapeHtml(conf.id)}" style="overflow:hidden;border-radius:16px;border:1px solid var(--border-light);background:var(--bg-card);transition:all 0.22s ease">
+              ${hasImage ? `<div style="position:relative;width:100%;height:160px;overflow:hidden"><img src="${confImage}" alt="${_escapeHtml(title)}" style="width:100%;height:100%;object-fit:cover"></div>` : `<div class="conf-item-hero ${grad}"><div class="conf-item-title">${_escapeHtml(title)}</div></div>`}
+              <div class="conf-item-foot"><span>${regCount} registered</span><span>${_escapeHtml(feeLabel)}</span></div>
+            </div>
+          `;
+            })
+            .join("") + `<div class="conf-create"><button onclick="window.location.href='conference-form.html'">+ Create Conference</button></div>`;
+      }
     }
 
     bindGridEvents(existingGrid);
   }
+
+  // ---------- Past List ----------
 
   // ---------- Past List ----------
   function renderPast(conferences) {

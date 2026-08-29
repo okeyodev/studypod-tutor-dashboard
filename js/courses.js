@@ -498,6 +498,10 @@
   }
 
   // ---------- Card Rendering ----------
+  
+  // ---------- Card Rendering - REFACTORED for PHP deployment ----------
+  // HTML moved to courses.html <template id="course-card-template">
+  // Logic preserved: image, gradient, badge, status, enroll count, meta, actions
   function renderCards() {
     if (!refs.gridEl) return;
 
@@ -532,149 +536,201 @@
       refs.gridEl.style.display = "";
     }
 
-    const html = state.filteredCourses
-      .map((course) => {
-        const feeObj = getCourseFee(course);
-        const feeDisplay = h.formatCurrency(feeObj.amount, feeObj.currency);
-        const status = (course.status || "draft").toLowerCase();
-        const isPublished = status === "published";
-        const token = h.escape(course.token || "—");
-        const name = h.escape(course.name || "Untitled Course");
-        const field = h.escape(course.field || "General");
-        const location = h.escape(course.location || "—");
-        const deliveryMethod = h.escape(
-          course.deliveryMethod || course.delivery || "Virtual",
-        );
-        const creditHours =
-          course.creditHours != null
-            ? `${h.escape(String(course.creditHours))} hrs`
-            : "—";
-        const start = h.formatDate(course.startDate);
-        const end = h.formatDate(course.endDate);
-        const schedule =
-          course.startDate || course.endDate ? `${start} – ${end}` : "—";
-        const enrollCount = getEnrollments().filter(
-          (e) => e.courseId === course.id,
-        ).length;
+    // Try to use template from HTML for PHP-ready deployment
+    const template = document.getElementById("course-card-template");
+    
+    // Clear grid
+    refs.gridEl.innerHTML = "";
 
-        // Get course image and field icon for visual recognition
-        const courseImage = getCourseImage(course);
-        const fieldGradient = getCourseGradient(course.field);
-        const fieldIcon = getFieldIcon(course.field);
+    state.filteredCourses.forEach((course) => {
+      const feeObj = getCourseFee(course);
+      const feeDisplay = h.formatCurrency(feeObj.amount, feeObj.currency);
+      const status = (course.status || "draft").toLowerCase();
+      const isPublished = status === "published";
+      const token = course.token || "—";
+      const name = course.name || "Untitled Course";
+      const field = course.field || "General";
+      const location = course.location || "—";
+      const deliveryMethod = course.deliveryMethod || course.delivery || "Virtual";
+      const creditHours = course.creditHours != null ? `${course.creditHours} hrs` : "—";
+      const start = h.formatDate(course.startDate);
+      const end = h.formatDate(course.endDate);
+      const schedule = course.startDate || course.endDate ? `${start} – ${end}` : "—";
+      const enrollCount = getEnrollments().filter((e) => e.courseId === course.id).length;
 
-        return `
+      const courseImage = getCourseImage(course);
+      const fieldGradient = getCourseGradient(course.field);
+      const fieldIcon = getFieldIcon(course.field);
+
+      let cardEl;
+
+      if (template && template.content) {
+        // PHP-ready path: clone from HTML template
+        const clone = template.content.cloneNode(true);
+        cardEl = clone.querySelector(".course-card");
+        
+        // Data attribute
+        cardEl.setAttribute("data-course-id", course.id);
+        
+        // Image section
+        const imgWrap = cardEl.querySelector(".course-card-image");
+        if (imgWrap) imgWrap.style.background = fieldGradient;
+        
+        const imgEl = cardEl.querySelector(".course-card-img");
+        const placeholderEl = cardEl.querySelector(".course-card-image-placeholder");
+        if (courseImage) {
+          if (imgEl) {
+            imgEl.src = courseImage;
+            imgEl.alt = name;
+            imgEl.style.display = "block";
+          }
+          if (placeholderEl) placeholderEl.style.display = "none";
+        } else {
+          if (placeholderEl) {
+            placeholderEl.innerHTML = fieldIcon;
+            placeholderEl.style.display = "grid";
+          }
+          if (imgEl) imgEl.style.display = "none";
+        }
+        
+        // Badge
+        const badgeEl = cardEl.querySelector(".course-card-badge");
+        if (badgeEl) badgeEl.textContent = field;
+        
+        // Status
+        const statusEl = cardEl.querySelector(".course-status");
+        if (statusEl) {
+          statusEl.textContent = status;
+          statusEl.classList.add(isPublished ? "published" : "draft");
+        }
+        
+        // Token
+        const tokenEl = cardEl.querySelector(".course-card-token");
+        if (tokenEl) {
+          tokenEl.textContent = token;
+          tokenEl.title = token;
+        }
+        
+        // Enroll count
+        const enrollEl = cardEl.querySelector(".course-card-enroll");
+        if (enrollEl) {
+          if (enrollCount > 0) {
+            enrollEl.textContent = `• ${enrollCount} learner${enrollCount > 1 ? "s" : ""}`;
+            enrollEl.style.display = "inline-flex";
+          } else {
+            enrollEl.style.display = "none";
+          }
+        }
+        
+        // Title
+        const titleEl = cardEl.querySelector(".course-card-title");
+        if (titleEl) {
+          titleEl.textContent = name;
+          titleEl.title = name;
+        }
+        
+        // Meta
+        const locEl = cardEl.querySelector('[data-field="location"]');
+        if (locEl) {
+          locEl.textContent = location;
+          locEl.title = location;
+        }
+        const delEl = cardEl.querySelector('[data-field="delivery"]');
+        if (delEl) delEl.textContent = deliveryMethod;
+        const credEl = cardEl.querySelector('[data-field="credit"]');
+        if (credEl) credEl.textContent = creditHours;
+        const schedEl = cardEl.querySelector('[data-field="schedule"]');
+        if (schedEl) schedEl.textContent = schedule;
+        
+        // Price
+        const priceEl = cardEl.querySelector(".course-price");
+        if (priceEl) {
+          priceEl.textContent = feeDisplay;
+          priceEl.title = feeDisplay;
+        }
+        
+        // Links and actions - preserve data-id and href logic
+        const viewLink = cardEl.querySelector(".course-view-link");
+        if (viewLink) {
+          viewLink.href = `course-performance.html?id=${encodeURIComponent(course.id)}`;
+          viewLink.setAttribute("data-id", course.id);
+        }
+        
+        const editLink = cardEl.querySelector(".course-edit-link");
+        if (editLink) {
+          editLink.href = `course-form.html?id=${encodeURIComponent(course.id)}`;
+          editLink.setAttribute("data-id", course.id);
+        }
+        
+        const dropdownTrigger = cardEl.querySelector("[data-dropdown-trigger]");
+        if (dropdownTrigger) dropdownTrigger.setAttribute("data-dropdown-trigger", course.id);
+        
+        const dropdown = cardEl.querySelector(".course-dropdown");
+        if (dropdown) {
+          dropdown.id = `dropdown-${course.id}`;
+          // Update inner buttons data-id
+          dropdown.querySelectorAll("[data-action]").forEach(btn => {
+            btn.setAttribute("data-id", course.id);
+          });
+          const publishBtn = dropdown.querySelector(".course-publish-btn");
+          if (publishBtn) publishBtn.textContent = isPublished ? "Unpublish" : "Publish";
+        }
+        
+        refs.gridEl.appendChild(clone);
+      } else {
+        // Fallback: original string template (should not happen if HTML template exists)
+        const fallbackHtml = `
         <div class="course-card" data-course-id="${h.escape(course.id)}">
-          <!-- Image Section Background - NEW: supports uploaded images -->
           <div class="course-card-image" style="background:${fieldGradient}">
-            ${
-              courseImage
-                ? `<img src="${courseImage}" alt="${name}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
-               <div class="course-card-image-placeholder" style="display:none">${fieldIcon}</div>`
-                : `<div class="course-card-image-placeholder">${fieldIcon}</div>`
-            }
+            ${courseImage ? `<img src="${courseImage}" alt="${h.escape(name)}" loading="lazy">` : `<div class="course-card-image-placeholder">${fieldIcon}</div>`}
             <div class="course-card-image-overlay"></div>
-            <div class="course-card-badge">${field}</div>
+            <div class="course-card-badge">${h.escape(field)}</div>
             <div style="position:absolute;bottom:10px;right:10px;display:flex;gap:6px">
-              <span class="course-status ${isPublished ? "published" : "draft"}" style="background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);padding:4px 8px;border-radius:999px;font-size:10px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.1)">${status}</span>
+              <span class="course-status ${isPublished ? "published" : "draft"}" style="background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);padding:4px 8px;border-radius:999px;font-size:10px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.1)">${h.escape(status)}</span>
             </div>
           </div>
-          
           <div class="course-card-content">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px">
-              <div class="course-card-token" title="${token}" style="font-size:10px;font-weight:700;letter-spacing:0.05em;color:var(--text-muted)">${token}</div>
+              <div class="course-card-token" title="${h.escape(token)}" style="font-size:10px;font-weight:700;letter-spacing:0.05em;color:var(--text-muted)">${h.escape(token)}</div>
               ${enrollCount > 0 ? `<span style="font-size:11px;color:var(--text-muted);font-weight:500;background:var(--bg-track);padding:2px 6px;border-radius:999px">• ${enrollCount} learner${enrollCount > 1 ? "s" : ""}</span>` : ""}
             </div>
-            <h3 class="course-card-title" title="${name}" style="font-size:15px;font-weight:700;line-height:1.3;margin-bottom:10px;letter-spacing:-0.01em">${name}</h3>
-            
+            <h3 class="course-card-title" title="${h.escape(name)}" style="font-size:15px;font-weight:700;line-height:1.3;margin-bottom:10px;letter-spacing:-0.01em">${h.escape(name)}</h3>
             <div class="course-card-meta" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;font-size:11px">
-              <div class="meta-item">
-                <span class="meta-label" style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);display:block;margin-bottom:2px">Location</span>
-                <span class="meta-value" title="${location}" style="font-weight:500;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block">${location}</span>
-              </div>
-              <div class="meta-item">
-                <span class="meta-label" style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);display:block;margin-bottom:2px">Delivery</span>
-                <span class="meta-value" style="font-weight:500;color:var(--text-primary)">${deliveryMethod}</span>
-              </div>
-              <div class="meta-item">
-                <span class="meta-label" style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);display:block;margin-bottom:2px">Credit Hours</span>
-                <span class="meta-value" style="font-weight:500;color:var(--text-primary)">${creditHours}</span>
-              </div>
-              <div class="meta-item">
-                <span class="meta-label" style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);display:block;margin-bottom:2px">Schedule</span>
-                <span class="meta-value" style="font-weight:500;color:var(--text-primary);font-size:10px">${schedule}</span>
-              </div>
+              <div class="meta-item"><span class="meta-label" style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);display:block;margin-bottom:2px">Location</span><span class="meta-value" title="${h.escape(location)}" style="font-weight:500;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block">${h.escape(location)}</span></div>
+              <div class="meta-item"><span class="meta-label" style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);display:block;margin-bottom:2px">Delivery</span><span class="meta-value" style="font-weight:500;color:var(--text-primary)">${h.escape(deliveryMethod)}</span></div>
+              <div class="meta-item"><span class="meta-label" style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);display:block;margin-bottom:2px">Credit Hours</span><span class="meta-value" style="font-weight:500;color:var(--text-primary)">${h.escape(creditHours)}</span></div>
+              <div class="meta-item"><span class="meta-label" style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);display:block;margin-bottom:2px">Schedule</span><span class="meta-value" style="font-weight:500;color:var(--text-primary);font-size:10px">${h.escape(schedule)}</span></div>
             </div>
           </div>
-          
           <div class="course-card-foot">
-            <div class="course-price" title="${feeDisplay}" style="font-weight:700;font-size:14px;color:var(--text-primary)">${feeDisplay}</div>
+            <div class="course-price" title="${h.escape(feeDisplay)}" style="font-weight:700;font-size:14px;color:var(--text-primary)">${h.escape(feeDisplay)}</div>
             <div style="display:flex;align-items:center;gap:8px">
-              <!-- NEW: View button replaces Actions button as primary -->
-              <a href="course-performance.html?id=${h.escape(course.id)}" class="btn-view-primary" data-action="view" data-id="${h.escape(course.id)}" title="View course performance">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                View
-              </a>
-              <!-- Secondary actions dropdown - smaller -->
-              <div style="position:relative">
-                <button class="btn-view-secondary" type="button" aria-label="More actions" data-dropdown-trigger="${h.escape(course.id)}" style="width:28px;height:28px;padding:0;display:grid;place-items:center">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-                </button>
-                <div class="action-dropdown" id="dropdown-${h.escape(course.id)}" style="
-                  position:absolute;right:0;bottom:calc(100% + 8px);
-                  min-width:180px;
-                  background:var(--bg-card, #fff);
-                  border:1px solid var(--border-light, #e2e8f0);
-                  border-radius:12px;
-                  box-shadow:var(--shadow-lg, 0 8px 24px rgba(15,23,42,0.12));
-                  z-index:20;
-                  padding:6px;
-                  display:none;
-                  flex-direction:column;
-                ">
-                  <a href="course-form.html?id=${h.escape(course.id)}" class="action-item" data-action="edit" data-id="${h.escape(course.id)}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    Edit
-                  </a>
-                  <button class="action-item" data-action="duplicate" data-id="${h.escape(course.id)}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8v-2a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
-                    Duplicate
-                  </button>
-                  <button class="action-item" data-action="toggle-publish" data-id="${h.escape(course.id)}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-                    ${isPublished ? "Unpublish" : "Publish"}
-                  </button>
-                  <div style="height:1px;background:var(--border-light);margin:4px 0"></div>
-                  <button class="action-item" data-action="delete" data-id="${h.escape(course.id)}" style="color:var(--color-danger)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                    Delete
-                  </button>
-                </div>
-              </div>
+              <a href="course-performance.html?id=${h.escape(course.id)}" class="btn-view-primary" data-action="view" data-id="${h.escape(course.id)}">View</a>
             </div>
           </div>
         </div>
-      `;
-      })
-      .join("");
+        `;
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = fallbackHtml.trim();
+        cardEl = tempDiv.firstElementChild;
+        if (cardEl) refs.gridEl.appendChild(cardEl);
+      }
+    });
 
-    refs.gridEl.innerHTML = html;
-
-    // Add dropdown toggle logic: make sure dropdowns show class handling compatible with common.js global click handler
+    // Add dropdown toggle logic
     refs.gridEl.querySelectorAll("[data-dropdown-trigger]").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
         const id = btn.getAttribute("data-dropdown-trigger");
         const dd = document.getElementById(`dropdown-${id}`);
         if (!dd) return;
-        // Close others
         document.querySelectorAll(".action-dropdown").forEach((other) => {
           if (other !== dd) {
             other.style.display = "none";
             other.classList.remove("show");
           }
         });
-        const isShowing =
-          dd.style.display === "flex" || dd.classList.contains("show");
+        const isShowing = dd.style.display === "flex" || dd.classList.contains("show");
         if (isShowing) {
           dd.style.display = "none";
           dd.classList.remove("show");
@@ -686,6 +742,7 @@
       });
     });
   }
+
 
   // ---------- Actions ----------
   async function handleAction(action, id) {

@@ -337,13 +337,16 @@
     return emails;
   }
 
+  
+  // ---------- Render List - REFACTORED for PHP deployment ----------
+  // HTML moved to email.html <template id="email-item-template">
+  // Logic preserved: avatar color, initials, sender, date, subject, preview, unread, starred, actions, reusable
   function renderList() {
     const container = document.getElementById("email-list");
     if (!container) return;
 
     const filtered = getFilteredEmails();
 
-    // Update count subtitle
     const countEl = document.getElementById("email-count");
     if (countEl) {
       countEl.textContent = `${filtered.length} ${filtered.length === 1 ? "email" : "emails"}`;
@@ -377,42 +380,115 @@
       return;
     }
 
-    container.innerHTML = filtered
-      .map((email) => {
-        const isIncomingContext =
-          currentFolder === "inbox" ||
-          currentFolder === "unread" ||
-          currentFolder === "starred" ||
-          email.folder === "inbox";
-        // For sent/drafts/trash context, show To, else From
-        const primaryNameRaw = isIncomingContext
-          ? email.from || "Unknown"
-          : email.to || email.toEmail || "Unknown";
-        // But if folder is sent, show To exactly; if drafts, show draft to...
+    const template = document.getElementById("email-item-template");
+    container.innerHTML = "";
+
+    if (template && template.content) {
+      // PHP-ready path: clone from HTML template
+      filtered.forEach((email) => {
+        const isIncomingContext = currentFolder === "inbox" || currentFolder === "unread" || currentFolder === "starred" || email.folder === "inbox";
+        const primaryNameRaw = isIncomingContext ? email.from || "Unknown" : email.to || email.toEmail || "Unknown";
         const displayNameRaw = primaryNameRaw;
-        const displayName = safeEscape(displayNameRaw);
-        const initials = safeEscape(getInitials(displayNameRaw));
+        const displayName = displayNameRaw;
+        const initials = getInitials(displayNameRaw);
         const color = getAvatarColor(displayNameRaw);
-        const dateLabel = safeEscape(formatListDate(email.createdAt));
-        const subject = safeEscape(email.subject || "(No subject)");
-        const preview = safeEscape(
-          email.preview || (email.body ? email.body.slice(0, 90) : ""),
-        );
-        const unreadClass =
-          !email.read && email.folder === "inbox" ? "unread" : "";
+        const dateLabel = formatListDate(email.createdAt);
+        const subject = email.subject || "(No subject)";
+        const preview = email.preview || (email.body ? email.body.slice(0, 90) : "");
+        const unreadClass = !email.read && email.folder === "inbox" ? "unread" : "";
         const starredChar = email.starred ? "Starred" : "Star";
         const starredTitle = email.starred ? "Unstar" : "Star";
         const readIcon = email.read ? "Inbox" : "";
         const readTitle = email.read ? "Mark unread" : "Mark read";
         const isTrash = email.folder === "trash";
+        const clickAction = email.folder === "drafts" ? `window.EmailApp.openDraft('${email.id}')` : `window.EmailApp.openEmail('${email.id}')`;
 
-        // Click action: drafts -> compose edit, else -> message view
-        const clickAction =
-          email.folder === "drafts"
-            ? `window.EmailApp.openDraft('${safeEscape(email.id)}')`
-            : `window.EmailApp.openEmail('${safeEscape(email.id)}')`;
+        const clone = template.content.cloneNode(true);
+        const itemEl = clone.querySelector(".email-item");
+        if (!itemEl) return;
 
-        return `
+        itemEl.setAttribute("data-id", email.id);
+        if (unreadClass) itemEl.classList.add(unreadClass);
+        itemEl.setAttribute("onclick", clickAction);
+
+        // Avatar
+        const avatarEl = clone.querySelector(".email-avatar");
+        if (avatarEl) {
+          avatarEl.textContent = initials;
+          avatarEl.style.background = color;
+        }
+
+        // Sender
+        const senderEl = clone.querySelector(".email-sender");
+        if (senderEl) {
+          senderEl.textContent = displayName;
+          senderEl.title = displayName;
+        }
+
+        // Date
+        const dateEl = clone.querySelector(".email-date");
+        if (dateEl) dateEl.textContent = dateLabel;
+
+        // Star
+        const starEl = clone.querySelector(".email-star");
+        if (starEl) {
+          starEl.textContent = starredChar;
+          starEl.title = starredTitle;
+          if (email.starred) starEl.classList.add("starred");
+          starEl.setAttribute("onclick", `event.stopPropagation(); window.EmailApp.toggleStar('${email.id}', event)`);
+        }
+
+        // Subject - preserve bold logic for unread inbox
+        const subjectEl = clone.querySelector(".email-subject");
+        if (subjectEl) {
+          subjectEl.textContent = subject;
+          subjectEl.style.fontWeight = !email.read && email.folder === "inbox" ? "700" : "500";
+        }
+
+        // Preview
+        const previewEl = clone.querySelector(".email-preview");
+        if (previewEl) previewEl.textContent = preview;
+
+        // Read button
+        const readBtn = clone.querySelector(".email-read-btn");
+        if (readBtn) {
+          readBtn.textContent = readIcon;
+          readBtn.title = readTitle;
+          readBtn.setAttribute("onclick", `window.EmailApp.toggleRead('${email.id}', event)`);
+        }
+
+        // Delete button
+        const deleteBtn = clone.querySelector(".email-delete-btn");
+        if (deleteBtn) {
+          if (isTrash) deleteBtn.classList.add("danger");
+          deleteBtn.title = isTrash ? "Delete permanently" : "Move to trash";
+          deleteBtn.setAttribute("onclick", `window.EmailApp.deleteEmail('${email.id}', event)`);
+        }
+
+        container.appendChild(clone);
+      });
+    } else {
+      // Fallback: original string template
+      container.innerHTML = filtered
+        .map((email) => {
+          const isIncomingContext = currentFolder === "inbox" || currentFolder === "unread" || currentFolder === "starred" || email.folder === "inbox";
+          const primaryNameRaw = isIncomingContext ? email.from || "Unknown" : email.to || email.toEmail || "Unknown";
+          const displayNameRaw = primaryNameRaw;
+          const displayName = safeEscape(displayNameRaw);
+          const initials = safeEscape(getInitials(displayNameRaw));
+          const color = getAvatarColor(displayNameRaw);
+          const dateLabel = safeEscape(formatListDate(email.createdAt));
+          const subject = safeEscape(email.subject || "(No subject)");
+          const preview = safeEscape(email.preview || (email.body ? email.body.slice(0, 90) : ""));
+          const unreadClass = !email.read && email.folder === "inbox" ? "unread" : "";
+          const starredChar = email.starred ? "Starred" : "Star";
+          const starredTitle = email.starred ? "Unstar" : "Star";
+          const readIcon = email.read ? "Inbox" : "";
+          const readTitle = email.read ? "Mark unread" : "Mark read";
+          const isTrash = email.folder === "trash";
+          const clickAction = email.folder === "drafts" ? `window.EmailApp.openDraft('${safeEscape(email.id)}')` : `window.EmailApp.openEmail('${safeEscape(email.id)}')`;
+
+          return `
         <div class="email-item ${unreadClass}" data-id="${safeEscape(email.id)}" onclick="${clickAction}">
           <div class="email-avatar" style="background:${color}">${initials}</div>
           <div class="email-item-body">
@@ -420,26 +496,26 @@
               <div class="email-sender" title="${displayName}">${displayName}</div>
               <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
                 <span class="email-date">${dateLabel}</span>
-                <span class="email-star ${email.starred ? "starred" : ""}" title="${safeEscape(starredTitle)}" style="font-size:16px;cursor:pointer;user-select:none"
-                  onclick="event.stopPropagation(); window.EmailApp.toggleStar('${safeEscape(email.id)}', event)">${starredChar}</span>
+                <span class="email-star ${email.starred ? "starred" : ""}" title="${safeEscape(starredTitle)}" style="font-size:16px;cursor:pointer;user-select:none" onclick="event.stopPropagation(); window.EmailApp.toggleStar('${safeEscape(email.id)}', event)">${starredChar}</span>
               </div>
             </div>
             <div class="email-subject" style="font-weight:${!email.read && email.folder === "inbox" ? "700" : "500"}">${subject}</div>
             <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:4px">
               <div class="email-preview" style="flex:1;min-width:0">${preview}</div>
               <div style="display:flex;gap:6px;flex-shrink:0" onclick="event.stopPropagation()">
-                <button class="email-button" style="padding:5px 8px;font-size:11px;line-height:1" title="${safeEscape(readTitle)}"
-                  onclick="window.EmailApp.toggleRead('${safeEscape(email.id)}', event)">${readIcon}</button>
-                <button class="email-button ${isTrash ? "danger" : ""}" style="padding:5px 8px;font-size:11px;line-height:1" title="${isTrash ? "Delete permanently" : "Move to trash"}"
-                  onclick="window.EmailApp.deleteEmail('${safeEscape(email.id)}', event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+                <button class="email-button" style="padding:5px 8px;font-size:11px;line-height:1" title="${safeEscape(readTitle)}" onclick="window.EmailApp.toggleRead('${safeEscape(email.id)}', event)">${readIcon}</button>
+                <button class="email-button ${isTrash ? "danger" : ""}" style="padding:5px 8px;font-size:11px;line-height:1" title="${isTrash ? "Delete permanently" : "Move to trash"}" onclick="window.EmailApp.deleteEmail('${safeEscape(email.id)}', event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
               </div>
             </div>
           </div>
         </div>
       `;
-      })
-      .join("");
+        })
+        .join("");
+    }
   }
+
+  // ---------- actions ----------
 
   // ---------- actions ----------
   function openEmail(id) {

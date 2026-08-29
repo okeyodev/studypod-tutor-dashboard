@@ -376,9 +376,13 @@ body.dark .email-button {
   .email-sidebar {
     position: static;
     display: flex;
-    gap: 6px;
+    gap: 8px;
     overflow-x: auto;
+    overflow-y: hidden;
     scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    padding: 10px 8px;
   }
 
   .email-sidebar::-webkit-scrollbar {
@@ -390,9 +394,19 @@ body.dark .email-button {
   }
 
   .email-nav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
     white-space: nowrap;
     width: auto;
-    gap: 18px;
+    min-width: 104px;
+    flex: 0 0 auto;
+    padding: 10px 14px;
+  }
+
+  .email-count {
+    flex-shrink: 0;
   }
 
   .email-toolbar {
